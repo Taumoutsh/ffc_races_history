@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../contexts/LanguageContext';
 
-const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatName }) => {
+const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatName, isDefaultCyclist }) => {
   const { t } = useTranslation();
+  
+  const cleanClubName = (clubName) => {
+    if (!clubName) return '';
+    // Remove leading numbers and spaces (e.g., "5244197 VC ST SEBASTIEN" becomes "VC ST SEBASTIEN")
+    return clubName.replace(/^\d+\s+/, '');
+  };
   useEffect(() => {
     if (isOpen) {
       // Store original overflow value
@@ -162,15 +168,21 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
                   const position = parseInt(participant.raw_data[0]);
                   const isTopThree = position <= 3;
                   const isMedal = position === 1 || position === 2 || position === 3;
+                  const isDefault = isDefaultCyclist ? isDefaultCyclist(participant) : false;
                   
                   return (
                     <tr 
                       key={index}
                       style={{
                         cursor: 'pointer',
-                        backgroundColor: index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)',
+                        backgroundColor: isDefault 
+                          ? 'rgba(34, 197, 94, 0.15)' 
+                          : index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)',
                         transition: 'all 0.3s ease',
-                        borderLeft: isTopThree ? `4px solid ${position === 1 ? '#ffd700' : position === 2 ? '#c0c0c0' : '#cd7f32'}` : 'none'
+                        borderLeft: isDefault 
+                          ? '4px solid #10b981' 
+                          : isTopThree ? `4px solid ${position === 1 ? '#ffd700' : position === 2 ? '#c0c0c0' : '#cd7f32'}` : 'none',
+                        boxShadow: isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' : 'none'
                       }}
                       onClick={() => handleCyclistClick(participant)}
                       onMouseEnter={(e) => {
@@ -181,9 +193,11 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
                       }}
                       onMouseLeave={(e) => {
                         const row = e.currentTarget;
-                        row.style.backgroundColor = index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)';
+                        row.style.backgroundColor = isDefault 
+                          ? 'rgba(34, 197, 94, 0.15)' 
+                          : index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)';
                         row.style.transform = 'translateX(0)';
-                        row.style.boxShadow = 'none';
+                        row.style.boxShadow = isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' : 'none';
                       }}
                     >
                       <td style={{
@@ -208,7 +222,7 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
                         {participant.raw_data[4]}
                       </td>
                       <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '500', color: '#64748b', fontSize: '0.875rem'}}>
-                        {participant.raw_data[5]}
+                        {cleanClubName(participant.raw_data[5])}
                       </td>
                     </tr>
                   );

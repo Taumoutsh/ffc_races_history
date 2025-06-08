@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import PerformanceChart from './PerformanceChart';
 import { useTranslation } from '../contexts/LanguageContext';
 
-const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick }) => {
+const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById }) => {
   const { t } = useTranslation();
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -23,6 +23,8 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
   }, [isOpen]);
 
   if (!isOpen || !history) return null;
+
+  const isDefaultProfile = isDefaultCyclistById ? isDefaultCyclistById(cyclistId, cyclistName) : false;
 
   // Helper function to parse French date format
   const parseFrenchDate = (dateStr) => {
@@ -175,10 +177,13 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
         
         <div style={{marginBottom: '2rem'}}>
           <div style={{
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
+            background: isDefaultProfile 
+              ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)'
+              : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
             borderRadius: '1rem',
             padding: '1.5rem',
-            border: '1px solid rgba(59, 130, 246, 0.2)'
+            border: isDefaultProfile ? '1px solid rgba(34, 197, 94, 0.2)' : '1px solid rgba(59, 130, 246, 0.2)',
+            boxShadow: isDefaultProfile ? '0 4px 6px -1px rgba(34, 197, 94, 0.1)' : 'none'
           }}>
             <h3 style={{fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.75rem'}}>🚴‍♂️ {cyclistName}</h3>
             <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>📋 ID: {cyclistId}</p>

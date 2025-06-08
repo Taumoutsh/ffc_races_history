@@ -158,13 +158,16 @@ const styles = {
 
 function App() {
   const { t } = useTranslation();
-  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName } = useYamlData();
+  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, isDefaultCyclist, isDefaultCyclistById } = useYamlData();
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedCyclist, setSelectedCyclist] = useState(null);
   const [showCyclistProfile, setShowCyclistProfile] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [researchInput, setResearchInput] = useState('');
+  const [researchResults, setResearchResults] = useState([]);
+  const [showResearchSection, setShowResearchSection] = useState(false);
 
   const handleChartPointClick = (raceData) => {
     const race = getRaceById(raceData.raceId);
@@ -218,6 +221,20 @@ function App() {
     setShowCyclistProfile(true);
     setSearchResults([]);
     setSearchQuery('');
+  };
+
+  const handleResearchSubmit = (e) => {
+    e.preventDefault();
+    if (researchInput.trim()) {
+      const results = researchRacers(researchInput.trim());
+      setResearchResults(results);
+    }
+  };
+
+  const handleResearchRacerClick = (racer) => {
+    const history = getCyclistHistory(racer.id);
+    setSelectedCyclist({ id: racer.id, name: racer.formattedName, history });
+    setShowCyclistProfile(true);
   };
 
   if (loading) {
@@ -360,6 +377,185 @@ function App() {
           )}
         </div>
 
+        {/* Research Section */}
+        <div style={styles.searchCard}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+            <h3 style={{fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', margin: 0}}>🔬 {t('ui.researchRacers')}</h3>
+            <button
+              onClick={() => setShowResearchSection(!showResearchSection)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: showResearchSection ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.75rem',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {showResearchSection ? `🔼 ${t('ui.researchToggleHide')}` : `🔽 ${t('ui.researchToggleShow')}`}
+            </button>
+          </div>
+          
+          {showResearchSection && (
+            <>
+              <p style={{color: '#64748b', marginBottom: '1rem', fontSize: '0.875rem'}}>
+                📋 {t('ui.researchInstructions')}
+              </p>
+              <form onSubmit={handleResearchSubmit} style={{marginBottom: '1.5rem'}}>
+                <textarea
+                  value={researchInput}
+                  onChange={(e) => setResearchInput(e.target.value)}
+                  placeholder="10001234567    MARTIN    Pierre    Access 2    CENTRE VAL DE LOIRE    VELO CLUB EXAMPLE&#10;10002345678    DURAND    Sophie    Access 1    NOUVELLE AQUITAINE    CYCLISTE CLUB SAMPLE&#10;10003456789    BERNARD    Julien    Access 3    BRETAGNE    TEAM CYCLING DEMO"
+                  rows={6}
+                  style={{
+                    width: '100%',
+                    padding: '1rem',
+                    border: '2px solid rgba(59, 130, 246, 0.2)',
+                    borderRadius: '0.75rem',
+                    fontSize: '0.875rem',
+                    fontFamily: 'monospace',
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    transition: 'all 0.2s ease',
+                    outline: 'none',
+                    resize: 'vertical'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#3b82f6';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    marginTop: '1rem',
+                    padding: '1rem 2rem',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.75rem',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '1rem',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-1px)';
+                    e.target.style.boxShadow = '0 10px 16px -4px rgba(0, 0, 0, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                  }}
+                >
+                  🔍 {t('ui.researchButton')}
+                </button>
+              </form>
+
+              {/* Research Results */}
+              {researchResults.length > 0 && (
+                <div style={{border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '1rem', backgroundColor: 'rgba(240, 253, 244, 0.8)', backdropFilter: 'blur(10px)'}}>
+                  <h4 style={{padding: '1rem', margin: 0, fontWeight: '700', borderBottom: '1px solid rgba(34, 197, 94, 0.2)', color: '#059669'}}>
+                    ✅ {t('ui.foundRacers')} ({researchResults.length})
+                  </h4>
+                  
+                  {/* Table Header */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '100px 120px 1fr 150px 1fr',
+                    gap: '1rem',
+                    alignItems: 'center',
+                    padding: '1rem',
+                    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                    borderBottom: '2px solid rgba(34, 197, 94, 0.2)',
+                    fontWeight: '700',
+                    fontSize: '0.875rem',
+                    color: '#059669'
+                  }}>
+                    <div>🥇 {t('ui.bestPosition')}</div>
+                    <div>🆔 ID</div>
+                    <div>👤 {t('table.name')}</div>
+                    <div>📍 {t('table.region')}</div>
+                    <div>🏃‍♂️ {t('table.team')}</div>
+                  </div>
+                  
+                  <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+                    {researchResults.map((racer, index) => {
+                      const isDefault = isDefaultCyclistById(racer.id, racer.formattedName);
+                      return (
+                      <div
+                        key={index}
+                        onClick={() => handleResearchRacerClick(racer)}
+                        style={{
+                          padding: '1rem',
+                          borderBottom: index < researchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
+                          cursor: 'pointer',
+                          backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.7)',
+                          transition: 'all 0.2s ease',
+                          display: 'grid',
+                          gridTemplateColumns: '100px 120px 1fr 150px 1fr',
+                          gap: '1rem',
+                          alignItems: 'center',
+                          borderLeft: isDefault ? '4px solid #10b981' : 'none',
+                          boxShadow: isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' : 'none'
+                        }}
+                        onMouseEnter={(e) => {
+                          const item = e.currentTarget;
+                          item.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+                          item.style.transform = 'translateX(4px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          const item = e.currentTarget;
+                          item.style.backgroundColor = isDefault ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.7)';
+                          item.style.transform = 'translateX(0)';
+                        }}
+                      >
+                        <div style={{fontWeight: '800', color: '#059669', fontSize: '1.125rem'}}>
+                          🥇 #{racer.bestPosition}
+                        </div>
+                        <div style={{fontWeight: '600', color: '#64748b', fontFamily: 'monospace', fontSize: '0.75rem'}}>
+                          🆔 {racer.id}
+                        </div>
+                        <div style={{fontWeight: '700', color: '#1f2937'}}>
+                          👤 {racer.formattedName}
+                        </div>
+                        <div style={{fontWeight: '500', color: '#64748b', fontSize: '0.875rem'}}>
+                          📍 {racer.region}
+                        </div>
+                        <div style={{fontWeight: '500', color: '#64748b', fontSize: '0.875rem'}}>
+                          🏃‍♂️ {racer.team}
+                        </div>
+                      </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {researchInput && researchResults.length === 0 && (
+                <div style={{
+                  padding: '1rem', 
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)', 
+                  border: '1px solid rgba(239, 68, 68, 0.3)', 
+                  borderRadius: '1rem', 
+                  color: '#dc2626',
+                  fontWeight: '600'
+                }}>
+                  ❌ {t('ui.noRacersFound')}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
         {defaultCyclistRaces.length > 0 ? (
           <div style={styles.chartCard}>
             <PerformanceChart 
@@ -418,6 +614,7 @@ function App() {
         onClose={() => setShowLeaderboard(false)}
         onCyclistClick={handleCyclistClick}
         formatName={formatName}
+        isDefaultCyclist={isDefaultCyclist}
       />
 
       <CyclistProfile
@@ -428,6 +625,7 @@ function App() {
         onClose={() => setShowCyclistProfile(false)}
         onPointClick={handleChartPointClick}
         onRaceClick={handleRaceClick}
+        isDefaultCyclistById={isDefaultCyclistById}
       />
     </div>
   );

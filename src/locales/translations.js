@@ -24,7 +24,15 @@ export const translations = {
       instructionPoint: 'Click on any point in the graph to view the full race leaderboard',
       instructionLeaderboard: 'In the leaderboard, click on any cyclist to view their race history',
       instructionSort: 'Use the sorting options in the cyclist profile to organize the data',
-      instructionSearch: 'Use the search function above to find specific cyclists'
+      instructionSearch: 'Use the search function above to find specific cyclists',
+      researchRacers: 'Research from Entry List',
+      researchToggleShow: 'Show Research',
+      researchToggleHide: 'Hide Research',
+      researchInstructions: 'Paste your racer list (tab or space separated): UCIID | Nom | Prénom | Catégorie | Région | Club | Équipe',
+      researchButton: 'Research Racers',
+      foundRacers: 'Found Racers',
+      noRacersFound: 'No racers found in database',
+      bestPosition: 'Best Position'
     },
     chart: {
       title: 'Race Performance History',
@@ -74,7 +82,15 @@ export const translations = {
       instructionPoint: 'Cliquez sur n\'importe quel point du graphique pour voir le classement complet de la course',
       instructionLeaderboard: 'Dans le classement, cliquez sur n\'importe quel cycliste pour voir son historique de courses',
       instructionSort: 'Utilisez les options de tri dans le profil du cycliste pour organiser les données',
-      instructionSearch: 'Utilisez la fonction de recherche ci-dessus pour trouver des cyclistes spécifiques'
+      instructionSearch: 'Utilisez la fonction de recherche ci-dessus pour trouver des cyclistes spécifiques',
+      researchRacers: 'Recherche à partir d\'une liste d\'engagés',
+      researchToggleShow: 'Afficher la Recherche',
+      researchToggleHide: 'Masquer la Recherche',
+      researchInstructions: 'Collez votre liste de coureurs (séparés par tabulation ou espaces) : UCIID | Nom | Prénom | Catégorie | Région | Club | Équipe',
+      researchButton: 'Rechercher les Coureurs',
+      foundRacers: 'Coureurs Trouvés',
+      noRacersFound: 'Aucun coureur trouvé dans la base de données',
+      bestPosition: 'Meilleure Position'
     },
     chart: {
       title: 'Historique des Performances de Course',

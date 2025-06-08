@@ -141,6 +141,138 @@ export const useYamlData = () => {
     };
   };
 
+  // Check if a cyclist is the default cyclist
+  const isDefaultCyclist = (participantData) => {
+    if (!participantData || !participantData.raw_data) return false;
+    
+    const { firstName, lastName } = appConfig.defaultCyclist;
+    const participantFirstName = participantData.raw_data[3];
+    const participantLastName = participantData.raw_data[2];
+    
+    return participantFirstName === firstName && participantLastName === lastName;
+  };
+
+  // Check if a cyclist ID belongs to the default cyclist
+  const isDefaultCyclistById = (cyclistId, cyclistName) => {
+    const { firstName, lastName } = appConfig.defaultCyclist;
+    const defaultFullName = formatName(firstName, lastName);
+    
+    // Check by name if provided
+    if (cyclistName) {
+      return cyclistName === defaultFullName;
+    }
+    
+    // Check by ID in racers_history
+    if (data?.racers_history?.[cyclistId]) {
+      return true; // We can enhance this by checking actual name in race data
+    }
+    
+    return false;
+  };
+
+  // Helper function to clean club names
+  const cleanClubName = (clubName) => {
+    if (!clubName) return '';
+    // Remove leading numbers and spaces (e.g., "5244197 VC ST SEBASTIEN" becomes "VC ST SEBASTIEN")
+    return clubName.replace(/^\d+\s+/, '');
+  };
+
+  // Research function to find racers from imported list
+  const researchRacers = (importedRacersList) => {
+    if (!data || !importedRacersList) return [];
+    
+    const foundRacers = [];
+    
+    // Parse the imported list (tab-separated or space-separated)
+    const lines = importedRacersList.trim().split('\n');
+    
+    lines.forEach(line => {
+      if (!line.trim()) return;
+      
+      // Split by tabs or multiple spaces to handle different formats
+      const parts = line.split(/\t+|\s{2,}/).filter(part => part.trim());
+      
+      if (parts.length >= 3) {
+        const importedId = parts[0]?.trim();
+        const importedLastName = parts[1]?.trim().toUpperCase();
+        const importedFirstName = parts[2]?.trim();
+        
+        // Search for this racer in our data
+        let foundRacer = null;
+        let bestPosition = Infinity;
+        let racerInfo = null;
+        
+        // Check in races data
+        Object.entries(data.races).forEach(([raceId, race]) => {
+          race.participants.forEach(participant => {
+            const dataId = participant.raw_data[1];
+            const dataLastName = participant.raw_data[2]?.toUpperCase();
+            const dataFirstName = participant.raw_data[3];
+            
+            // Match by ID or by name
+            if (dataId === importedId || 
+                (dataLastName === importedLastName && dataFirstName?.toUpperCase() === importedFirstName?.toUpperCase())) {
+              
+              const position = parseInt(participant.raw_data[0]);
+              if (position < bestPosition) {
+                bestPosition = position;
+              }
+              
+              if (!racerInfo) {
+                racerInfo = {
+                  id: dataId,
+                  firstName: participant.raw_data[3],
+                  lastName: participant.raw_data[2],
+                  region: participant.raw_data[4],
+                  team: cleanClubName(participant.raw_data[5])
+                };
+              }
+            }
+          });
+        });
+        
+        // Also check in racers_history for more complete data
+        if (data.racers_history && data.racers_history[importedId]) {
+          const history = data.racers_history[importedId];
+          history.forEach(raceEntry => {
+            if (raceEntry.rank < bestPosition) {
+              bestPosition = raceEntry.rank;
+            }
+          });
+          
+          // If we found in history but not in races, try to get info from races
+          if (!racerInfo && history.length > 0) {
+            const firstRace = history[0];
+            const raceData = getRaceById(firstRace.race_id);
+            if (raceData) {
+              const participant = raceData.participants.find(p => p.raw_data[1] === importedId);
+              if (participant) {
+                racerInfo = {
+                  id: importedId,
+                  firstName: participant.raw_data[3],
+                  lastName: participant.raw_data[2],
+                  region: participant.raw_data[4],
+                  team: cleanClubName(participant.raw_data[5])
+                };
+              }
+            }
+          }
+        }
+        
+        if (racerInfo && bestPosition !== Infinity) {
+          foundRacers.push({
+            ...racerInfo,
+            bestPosition: bestPosition,
+            formattedName: formatName(racerInfo.firstName, racerInfo.lastName)
+          });
+        }
+      }
+    });
+    
+    // Sort by best position
+    return foundRacers.sort((a, b) => a.bestPosition - b.bestPosition);
+  };
+
   return {
     data,
     loading,
@@ -150,6 +282,10 @@ export const useYamlData = () => {
     getRaceById,
     getCyclistHistory,
     searchCyclist,
-    formatName
+    formatName,
+    researchRacers,
+    cleanClubName,
+    isDefaultCyclist,
+    isDefaultCyclistById
   };
 };
