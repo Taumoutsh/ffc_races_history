@@ -31,9 +31,22 @@ A modern React web application for visualizing cycling race data and performance
 - **Smart Matching**: Search by first name, last name, or cyclist ID
 - **Instant Results**: Live search results with race counts
 
-### ⚙️ Configuration
+### 🔬 Research from Entry List
+- **Import Entry Lists**: Paste tab/space-separated racer lists
+- **Smart Matching**: Find racers by UCI ID or name matching
+- **Results Analysis**: View best position, ID, name, region, and team
+- **Database Cross-reference**: Check which entry list racers exist in your database
+
+### 🌐 Multi-language Support
+- **Bilingual Interface**: Complete English and French translations
+- **Dynamic Language Switching**: Toggle between languages instantly
+- **Localized Content**: All UI elements, labels, and messages translated
+
+### ⚙️ Configuration & Personalization
 - **Configurable Default Cyclist**: Easy configuration file setup
+- **Default Cyclist Highlighting**: Visual distinction across all tables
 - **Customizable UI**: Header titles and labels
+- **Auto-formatting**: Club names cleaned (removes leading numbers)
 - **Flexible Data Structure**: Works with any cyclist in the dataset
 
 ## 🚀 Quick Start
@@ -233,6 +246,7 @@ src/
 ### Modern Design
 - **Glass morphism effects**: Blur backgrounds and transparency
 - **Gradient accents**: Beautiful color gradients throughout
+- **Default Cyclist Highlighting**: Green visual distinction for configured cyclist
 - **Responsive layout**: Works on all screen sizes
 - **Smooth animations**: Hover effects and transitions
 
