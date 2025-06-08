@@ -324,12 +324,16 @@ If you encounter any issues:
 
 ## 🎯 Roadmap
 
+- [x] Research from Entry List functionality
+- [x] Default cyclist highlighting
+- [x] Multi-language support (EN/FR)
+- [x] Auto-formatting for club names
 - [ ] Export functionality (PDF, CSV)
 - [ ] Advanced filtering options
 - [ ] Performance comparison between cyclists
 - [ ] Dark mode toggle
 - [ ] Mobile-optimized interface
-- [ ] Data validation and error handling
+- [ ] Scraper integration with progress bar
 
 ---
 
