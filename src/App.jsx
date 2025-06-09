@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useYamlData } from './hooks/useYamlData';
+import { useApiData } from './hooks/useApiData';
 import PerformanceChart from './components/PerformanceChart';
 import RaceLeaderboardModal from './components/RaceLeaderboardModal';
 import CyclistProfile from './components/CyclistProfile';
@@ -157,8 +157,8 @@ const styles = {
 };
 
 function App() {
-  const { t } = useTranslation();
-  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, isDefaultCyclist, isDefaultCyclistById } = useYamlData();
+  const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
+  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, isDefaultCyclist, isDefaultCyclistById } = useApiData(defaultCyclist);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedCyclist, setSelectedCyclist] = useState(null);
@@ -195,19 +195,19 @@ function App() {
     }
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      const results = searchCyclist(searchQuery.trim());
+      const results = await searchCyclist(searchQuery.trim());
       setSearchResults(results);
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const value = e.target.value;
     setSearchQuery(value);
     if (value.trim()) {
-      const results = searchCyclist(value.trim());
+      const results = await searchCyclist(value.trim());
       setSearchResults(results);
     } else {
       setSearchResults([]);
@@ -223,10 +223,14 @@ function App() {
     setSearchQuery('');
   };
 
-  const handleResearchSubmit = (e) => {
+  const handleDefaultCyclistChange = (newDefaultCyclist) => {
+    updateDefaultCyclist(newDefaultCyclist);
+  };
+
+  const handleResearchSubmit = async (e) => {
     e.preventDefault();
     if (researchInput.trim()) {
-      const results = researchRacers(researchInput.trim());
+      const results = await researchRacers(researchInput.trim());
       setResearchResults(results);
     }
   };
@@ -561,6 +565,7 @@ function App() {
             <PerformanceChart 
               data={defaultCyclistRaces} 
               onPointClick={handleChartPointClick}
+              cyclistName={getDefaultCyclistInfo().fullName}
             />
             <div style={styles.instructions}>
               <h3 style={styles.instructionsTitle}>{t('ui.howToUse')}</h3>
@@ -626,6 +631,7 @@ function App() {
         onPointClick={handleChartPointClick}
         onRaceClick={handleRaceClick}
         isDefaultCyclistById={isDefaultCyclistById}
+        onDefaultChange={handleDefaultCyclistChange}
       />
     </div>
   );

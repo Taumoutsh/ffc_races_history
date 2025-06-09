@@ -4,7 +4,7 @@ export const translations = {
       headerTitle: '🚴 FFC Races History',
       headerSubtitle: 'Interactive cycling race performance tracking',
       searchPlaceholder: 'Search for a cyclist...',
-      viewProfile: 'View Profile',
+      viewProfile: 'View Leaderboard',
       close: 'Close',
       backToChart: 'Back to Chart',
       home: 'Home',
@@ -32,7 +32,13 @@ export const translations = {
       researchButton: 'Research Racers',
       foundRacers: 'Found Racers',
       noRacersFound: 'No racers found in database',
-      bestPosition: 'Best Position'
+      bestPosition: 'Best Position',
+      selectAsDefault: 'Select as default cyclist',
+      alreadySelectedCyclist: 'Already selected cyclist',
+      raceHistory: 'Race History',
+      clickHeadersToSort: 'Click column headers to sort',
+      clickRacesToViewLeaderboard: 'Click races to view leaderboard',
+      clickPointsToViewDetails: 'Click points to view race details'
     },
     chart: {
       title: 'Race Performance History',
@@ -62,7 +68,7 @@ export const translations = {
       headerTitle: '🚴 Historique des Courses FFC',
       headerSubtitle: 'Suivi interactif des performances de courses cyclistes',
       searchPlaceholder: 'Rechercher un cycliste...',
-      viewProfile: 'Voir le profil',
+      viewProfile: 'Voir le classement',
       close: 'Fermer',
       backToChart: 'Retour au graphique',
       home: 'Accueil',
@@ -90,7 +96,13 @@ export const translations = {
       researchButton: 'Rechercher les Coureurs',
       foundRacers: 'Coureurs Trouvés',
       noRacersFound: 'Aucun coureur trouvé dans la base de données',
-      bestPosition: 'Meilleure Position'
+      bestPosition: 'Meilleure Position',
+      selectAsDefault: 'Sélectionner comme cycliste par défaut',
+      alreadySelectedCyclist: 'Cycliste déjà sélectionné',
+      raceHistory: 'Historique des courses',
+      clickHeadersToSort: 'Cliquez sur les en-têtes de colonne pour trier',
+      clickRacesToViewLeaderboard: 'Cliquez sur les courses pour voir le classement',
+      clickPointsToViewDetails: 'Cliquez sur les points pour voir les détails de la course'
     },
     chart: {
       title: 'Historique des Performances de Course',

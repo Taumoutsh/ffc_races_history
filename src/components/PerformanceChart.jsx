@@ -1,12 +1,10 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { appConfig } from '../config/appConfig.js';
 import { useTranslation } from '../contexts/LanguageContext';
 
 const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
   const { t } = useTranslation();
-  // Use configured cyclist name if not provided
-  const defaultCyclistName = `${appConfig.defaultCyclist.firstName} ${appConfig.defaultCyclist.lastName}`;
-  const displayName = cyclistName || defaultCyclistName;
+  // Use provided cyclist name or fallback
+  const displayName = cyclistName || 'Cyclist';
   // Transform data for the chart
   const chartData = data.map(race => ({
     date: race.date,

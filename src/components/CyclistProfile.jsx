@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import PerformanceChart from './PerformanceChart';
+import SelectAsDefaultButton from './SelectAsDefaultButton';
 import { useTranslation } from '../contexts/LanguageContext';
 
-const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById }) => {
+const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange }) => {
   const { t } = useTranslation();
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -10,23 +11,19 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
 
   useEffect(() => {
     if (isOpen) {
-      // Store original overflow value
       const originalOverflow = document.body.style.overflow;
-      // Disable body scroll
       document.body.style.overflow = 'hidden';
-      
-      // Cleanup function to restore original overflow
       return () => {
         document.body.style.overflow = originalOverflow || '';
       };
     }
   }, [isOpen]);
 
-  if (!isOpen || !history) return null;
+  if (!isOpen) return null;
 
+  const safeHistory = history || [];
   const isDefaultProfile = isDefaultCyclistById ? isDefaultCyclistById(cyclistId, cyclistName) : false;
 
-  // Helper function to parse French date format
   const parseFrenchDate = (dateStr) => {
     const monthMap = {
       'janvier': '01', 'février': '02', 'mars': '03', 'avril': '04',
@@ -59,7 +56,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     }
   };
 
-  const sortedHistory = [...history].sort((a, b) => {
+  const sortedHistory = [...safeHistory].sort((a, b) => {
     let aVal, bVal;
     
     switch (sortField) {
@@ -135,288 +132,278 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
         }}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-          <h2 style={{
-            fontSize: '2rem', 
-            fontWeight: '800',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            letterSpacing: '-0.025em'
-          }}>👤 {t('profile.raceHistory')}</h2>
-          <button
-            onClick={onClose}
-            style={{
-              color: '#64748b', 
-              fontSize: '1.5rem', 
-              background: 'rgba(248, 250, 252, 0.8)', 
-              border: '1px solid rgba(226, 232, 240, 0.5)', 
-              borderRadius: '0.75rem',
-              cursor: 'pointer',
-              width: '3rem',
-              height: '3rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '700',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = 'rgba(248, 250, 252, 1)';
-              e.target.style.color = '#ef4444';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
-              e.target.style.color = '#64748b';
-            }}
-          >
-            ×
-          </button>
-        </div>
-        
-        <div style={{marginBottom: '2rem'}}>
-          <div style={{
-            background: isDefaultProfile 
-              ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)'
-              : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
-            borderRadius: '1rem',
-            padding: '1.5rem',
-            border: isDefaultProfile ? '1px solid rgba(34, 197, 94, 0.2)' : '1px solid rgba(59, 130, 246, 0.2)',
-            boxShadow: isDefaultProfile ? '0 4px 6px -1px rgba(34, 197, 94, 0.1)' : 'none'
-          }}>
-            <h3 style={{fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.75rem'}}>🚴‍♂️ {cyclistName}</h3>
-            <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>📋 ID: {cyclistId}</p>
-            <p style={{fontSize: '1rem', color: '#64748b', fontWeight: '600'}}>🏆 {t('table.totalRaces')}: {history.length}</p>
+          {/* Header */}
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+            <h2 style={{
+              fontSize: '2rem', 
+              fontWeight: '800',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              letterSpacing: '-0.025em'
+            }}>👤 {t('profile.raceHistory')}</h2>
+            <button
+              onClick={onClose}
+              style={{
+                color: '#64748b', 
+                fontSize: '1.5rem', 
+                background: 'rgba(248, 250, 252, 0.8)', 
+                border: '1px solid rgba(226, 232, 240, 0.5)', 
+                borderRadius: '0.75rem',
+                cursor: 'pointer',
+                width: '3rem',
+                height: '3rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '700',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(248, 250, 252, 1)';
+                e.target.style.color = '#ef4444';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
+                e.target.style.color = '#64748b';
+              }}
+            >
+              ×
+            </button>
           </div>
           
-          {/* View Toggle */}
-          <div style={{marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'center'}}>
-            <button
-              onClick={() => setShowChart(false)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: !showChart ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' : 'rgba(248, 250, 252, 0.8)',
-                color: !showChart ? 'white' : '#64748b',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
-                borderRadius: '0.75rem',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '700',
-                boxShadow: !showChart ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                if (!showChart) return;
-                e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                e.target.style.color = '#3b82f6';
-              }}
-              onMouseLeave={(e) => {
-                if (!showChart) return;
-                e.target.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
-                e.target.style.color = '#64748b';
-              }}
-            >
-              📊 {t('profile.raceTable')}
-            </button>
-            <button
-              onClick={() => setShowChart(true)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: showChart ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' : 'rgba(248, 250, 252, 0.8)',
-                color: showChart ? 'white' : '#64748b',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
-                borderRadius: '0.75rem',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '700',
-                boxShadow: showChart ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                if (showChart) return;
-                e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                e.target.style.color = '#3b82f6';
-              }}
-              onMouseLeave={(e) => {
-                if (showChart) return;
-                e.target.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
-                e.target.style.color = '#64748b';
-              }}
-            >
-              📈 {t('profile.performanceChart')}
-            </button>
-          </div>
-        </div>
-
-        {showChart ? (
-          // Chart View
-          <div>
-            <div style={{marginBottom: '1rem'}}>
-              <h4 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem'}}>Performance Chart</h4>
-              <p style={{fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.75rem'}}>Click points to view race details</p>
-            </div>
-            <div style={{height: '400px'}}>
-              <PerformanceChart 
-                data={sortedHistory.map(race => ({
-                  date: race.date,
-                  position: race.rank,
-                  name: race.race_name,
-                  raceId: race.race_id
-                }))}
-                onPointClick={onPointClick}
-                cyclistName={cyclistName}
-              />
-            </div>
-          </div>
-        ) : (
-          // Table View
-          <div>
-            <div style={{marginBottom: '1.5rem'}}>
-              <h4 style={{fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.75rem', color: '#1f2937'}}>📊 Race History</h4>
-              <p style={{fontSize: '1rem', color: '#64748b', marginBottom: '0.75rem', fontWeight: '600'}}>
-                👆 Click column headers to sort • 🖱️ Click races to view leaderboard
-              </p>
-            </div>
-
+          {/* Cyclist Info Card */}
+          <div style={{marginBottom: '2rem'}}>
             <div style={{
-              borderRadius: '1rem', 
-              border: '1px solid rgba(59, 130, 246, 0.2)', 
-              overflow: 'hidden'
+              background: isDefaultProfile 
+                ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)'
+                : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: isDefaultProfile ? '1px solid rgba(34, 197, 94, 0.2)' : '1px solid rgba(59, 130, 246, 0.2)',
+              boxShadow: isDefaultProfile ? '0 4px 6px -1px rgba(34, 197, 94, 0.1)' : 'none'
             }}>
-              <div style={{
-                overflowX: 'auto', 
-                overflowY: 'auto', 
-                maxHeight: '400px',
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
-              }}>
-                <table style={{width: '100%', borderCollapse: 'collapse'}}>
-                <thead>
-                  <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
-                    <th 
-                      style={{
-                        border: 'none', 
-                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: '1rem 1.5rem', 
-                        textAlign: 'left', 
-                        cursor: 'pointer', 
-                        fontWeight: '700', 
-                        color: '#1f2937',
-                        transition: 'background-color 0.2s ease',
-                        userSelect: 'none'
-                      }}
-                      onClick={() => handleSort('date')}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                        📅 {t('table.date')}
-                        <SortIcon field="date" />
-                      </div>
-                    </th>
-                    <th 
-                      style={{
-                        border: 'none', 
-                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: '1rem 1.5rem', 
-                        textAlign: 'left', 
-                        cursor: 'pointer', 
-                        fontWeight: '700', 
-                        color: '#1f2937',
-                        transition: 'background-color 0.2s ease',
-                        userSelect: 'none'
-                      }}
-                      onClick={() => handleSort('location')}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                        📍 {t('table.race')}
-                        <SortIcon field="location" />
-                      </div>
-                    </th>
-                    <th 
-                      style={{
-                        border: 'none', 
-                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: '1rem 1.5rem', 
-                        textAlign: 'left', 
-                        cursor: 'pointer', 
-                        fontWeight: '700', 
-                        color: '#1f2937',
-                        transition: 'background-color 0.2s ease',
-                        userSelect: 'none'
-                      }}
-                      onClick={() => handleSort('position')}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                        🏆 {t('table.position')}
-                        <SortIcon field="position" />
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedHistory.map((race, index) => (
-                    <tr 
-                      key={index}
-                      onClick={() => handleRaceClick(race)}
-                      style={{
-                        backgroundColor: index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)',
-                        transition: 'all 0.2s ease',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        const row = e.currentTarget;
-                        row.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                        row.style.transform = 'translateX(4px)';
-                        row.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        const row = e.currentTarget;
-                        row.style.backgroundColor = index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)';
-                        row.style.transform = 'translateX(0)';
-                        row.style.boxShadow = 'none';
-                      }}
-                    >
-                      <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '600', color: '#64748b'}}>
-                        {race.date}
-                      </td>
-                      <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '500', color: '#374151'}}>
-                        {race.race_name}
-                      </td>
-                      <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '800', color: '#3b82f6', fontSize: '1.125rem'}}>
-                        #{race.rank}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                </table>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                <div>
+                  <h3 style={{fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem'}}>
+                    🚴‍♂️ {cyclistName || 'Unknown Cyclist'}
+                  </h3>
+                  <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
+                    📋 ID: {cyclistId || 'No ID'}
+                  </p>
+                  <p style={{fontSize: '1rem', color: '#64748b', fontWeight: '600'}}>
+                    🏆 {t('table.totalRaces')}: {safeHistory.length}
+                  </p>
+                </div>
+                {onDefaultChange && cyclistName && (
+                  <SelectAsDefaultButton 
+                    cyclist={{ 
+                      firstName: cyclistName.split(' ')[0] || '', 
+                      lastName: cyclistName.split(' ').slice(1).join(' ') || '', 
+                      id: cyclistId 
+                    }}
+                    onDefaultChange={onDefaultChange}
+                    isAlreadyDefault={isDefaultProfile}
+                    translations={{ 
+                      selectAsDefault: t('ui.selectAsDefault'),
+                      alreadySelectedCyclist: t('ui.alreadySelectedCyclist')
+                    }}
+                  />
+                )}
               </div>
             </div>
+            
+            {/* View Toggle */}
+            <div style={{marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'center'}}>
+              <button
+                onClick={() => setShowChart(false)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: !showChart ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' : 'rgba(248, 250, 252, 0.8)',
+                  color: !showChart ? 'white' : '#64748b',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  borderRadius: '0.75rem',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '700',
+                  boxShadow: !showChart ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                📊 {t('profile.raceTable')}
+              </button>
+              <button
+                onClick={() => setShowChart(true)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: showChart ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' : 'rgba(248, 250, 252, 0.8)',
+                  color: showChart ? 'white' : '#64748b',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  borderRadius: '0.75rem',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '700',
+                  boxShadow: showChart ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                📈 {t('profile.performanceChart')}
+              </button>
+            </div>
           </div>
-        )}
 
-        {history.length === 0 && (
-          <div style={{textAlign: 'center', padding: '2rem 0', color: '#6b7280'}}>
-            No race history available for this cyclist.
-          </div>
-        )}
+          {/* Content Area */}
+          {showChart ? (
+            // Chart View
+            <div>
+              <div style={{marginBottom: '1rem'}}>
+                <h4 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem'}}>{t('profile.performanceChart')}</h4>
+                <p style={{fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.75rem'}}>{t('ui.clickPointsToViewDetails')}</p>
+              </div>
+              <div style={{height: '400px'}}>
+                <PerformanceChart 
+                  data={sortedHistory.map(race => ({
+                    date: race.date,
+                    position: race.rank,
+                    name: race.race_name,
+                    raceId: race.race_id
+                  }))}
+                  onPointClick={onPointClick}
+                  cyclistName={cyclistName}
+                />
+              </div>
+            </div>
+          ) : (
+            // Table View
+            <div>
+              <div style={{marginBottom: '1.5rem'}}>
+                <h4 style={{fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.75rem', color: '#1f2937'}}>📊 {t('ui.raceHistory')}</h4>
+                <p style={{fontSize: '1rem', color: '#64748b', marginBottom: '0.75rem', fontWeight: '600'}}>
+                  👆 {t('ui.clickHeadersToSort')} • 🖱️ {t('ui.clickRacesToViewLeaderboard')}
+                </p>
+              </div>
+
+              {safeHistory.length > 0 ? (
+                <div style={{
+                  borderRadius: '1rem', 
+                  border: '1px solid rgba(59, 130, 246, 0.2)', 
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    overflowX: 'auto', 
+                    overflowY: 'auto', 
+                    maxHeight: '400px',
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
+                  }}>
+                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                      <thead>
+                        <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
+                          <th 
+                            style={{
+                              border: 'none', 
+                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
+                              padding: '1rem 1.5rem', 
+                              textAlign: 'left', 
+                              cursor: 'pointer', 
+                              fontWeight: '700', 
+                              color: '#1f2937',
+                              transition: 'background-color 0.2s ease',
+                              userSelect: 'none'
+                            }}
+                            onClick={() => handleSort('date')}
+                          >
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                              📅 {t('table.date')}
+                              <SortIcon field="date" />
+                            </div>
+                          </th>
+                          <th 
+                            style={{
+                              border: 'none', 
+                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
+                              padding: '1rem 1.5rem', 
+                              textAlign: 'left', 
+                              cursor: 'pointer', 
+                              fontWeight: '700', 
+                              color: '#1f2937',
+                              transition: 'background-color 0.2s ease',
+                              userSelect: 'none'
+                            }}
+                            onClick={() => handleSort('location')}
+                          >
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                              📍 {t('table.race')}
+                              <SortIcon field="location" />
+                            </div>
+                          </th>
+                          <th 
+                            style={{
+                              border: 'none', 
+                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
+                              padding: '1rem 1.5rem', 
+                              textAlign: 'left', 
+                              cursor: 'pointer', 
+                              fontWeight: '700', 
+                              color: '#1f2937',
+                              transition: 'background-color 0.2s ease',
+                              userSelect: 'none'
+                            }}
+                            onClick={() => handleSort('position')}
+                          >
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                              🏆 {t('table.position')}
+                              <SortIcon field="position" />
+                            </div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedHistory.map((race, index) => (
+                          <tr 
+                            key={index}
+                            onClick={() => handleRaceClick(race)}
+                            style={{
+                              backgroundColor: index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)',
+                              transition: 'all 0.2s ease',
+                              cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => {
+                              const row = e.currentTarget;
+                              row.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                              row.style.transform = 'translateX(4px)';
+                              row.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                              const row = e.currentTarget;
+                              row.style.backgroundColor = index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)';
+                              row.style.transform = 'translateX(0)';
+                              row.style.boxShadow = 'none';
+                            }}
+                          >
+                            <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '600', color: '#64748b'}}>
+                              {race.date}
+                            </td>
+                            <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '500', color: '#374151'}}>
+                              {race.race_name}
+                            </td>
+                            <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '800', color: '#3b82f6', fontSize: '1.125rem'}}>
+                              #{race.rank}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div style={{textAlign: 'center', padding: '2rem 0', color: '#6b7280'}}>
+                  No race history available for this cyclist.
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

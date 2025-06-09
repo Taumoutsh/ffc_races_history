@@ -1,0 +1,19 @@
+# Race Cycling History App - Python Dependencies
+
+# Core scraping dependencies
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+PyYAML>=6.0
+
+# Database dependencies  
+# (SQLite is built into Python, no additional package needed)
+
+# API server dependencies
+Flask>=2.3.0
+Flask-CORS>=4.0.0
+
+# Development and testing (optional)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Note: requests is already included as a dependency for the scraper

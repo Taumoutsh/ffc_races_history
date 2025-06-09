@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { translations } from '../locales/translations.js';
+import { appConfig } from '../config/appConfig.js';
+import { getDefaultCyclist, setDefaultCyclist } from '../utils/defaultCyclistStorage.js';
 
 const LanguageContext = createContext();
 
@@ -13,6 +15,9 @@ export const useTranslation = () => {
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState('fr');
+  const [defaultCyclist, setDefaultCyclistState] = useState(() => 
+    getDefaultCyclist(appConfig.defaultCyclist)
+  );
 
   const t = (key) => {
     const keys = key.split('.');
@@ -31,8 +36,13 @@ export const LanguageProvider = ({ children }) => {
     }
   };
 
+  const updateDefaultCyclist = (newDefaultCyclist) => {
+    setDefaultCyclist(newDefaultCyclist);
+    setDefaultCyclistState(newDefaultCyclist);
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, t, switchLanguage }}>
+    <LanguageContext.Provider value={{ language, t, switchLanguage, defaultCyclist, updateDefaultCyclist }}>
       {children}
     </LanguageContext.Provider>
   );
