@@ -231,20 +231,6 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
           </table>
           </div>
         </div>
-        
-        <div style={{
-          marginTop: '2rem', 
-          padding: '1rem',
-          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)',
-          borderRadius: '1rem',
-          border: '1px solid rgba(34, 197, 94, 0.2)',
-          fontSize: '1rem', 
-          color: '#16a34a',
-          fontWeight: '600',
-          textAlign: 'center'
-        }}>
-          💡 {t('ui.viewProfile')}
-        </div>
         </div>
       </div>
     </div>

@@ -4,6 +4,12 @@
 
 A modern React web application for visualizing cycling race data and performance analytics. Built with React + Vite and powered by a SQLite database backend, featuring interactive charts, cyclist profiles, and comprehensive race leaderboards.
 
+## 🆕 Latest Updates (v2.3.0)
+- ✅ **Fixed chart line visibility** - Charts now consistently display connecting lines between data points
+- ✅ **Improved chronological ordering** - Race data properly sorted by date in performance charts  
+- ✅ **Enhanced research results** - Team/club information now displays correctly in entry list analysis
+- ✅ **Production optimization** - Removed debug logs and improved rendering performance
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19.1.0-blue.svg)
 ![Vite](https://img.shields.io/badge/Vite-6.3.5-purple.svg)
@@ -446,7 +452,7 @@ python test_database.py
 - [x] REST API backend
 - [x] Real-time search functionality with French accent support
 - [x] Multi-language support (EN/FR) with complete translation coverage
-- [x] Research from Entry List functionality
+- [x] Research from Entry List functionality with team/club data
 - [x] Dynamic default cyclist selection with persistent storage
 - [x] Real-time chart updates and state synchronization
 - [x] Smart button states with visual feedback
@@ -455,6 +461,9 @@ python test_database.py
 - [x] Cross-device compatibility
 - [x] Default cyclist highlighting with green theme
 - [x] Auto-formatting for club names
+- [x] **Chart rendering reliability** - Fixed line visibility and chronological ordering
+- [x] **Production-ready code** - Removed debug logs and optimized performance
+- [x] **Enhanced data validation** - Proper number conversion and null handling
 
 ### Planned 🔄
 - [ ] Advanced filtering options (date range, region, club)

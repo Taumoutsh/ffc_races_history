@@ -74,20 +74,12 @@ export const useApiData = (dynamicDefaultCyclist) => {
 
   // Effect to update default cyclist races when data or dynamicDefaultCyclist changes
   useEffect(() => {
-    console.log('🔄 useApiData: useEffect triggered', {
-      hasData: !!data,
-      dynamicDefaultCyclist,
-      fallbackConfig: appConfig.defaultCyclist
-    });
-    
     if (!data) {
-      console.log('⚠️ useApiData: No data available, setting empty races');
       setDefaultCyclistRaces([]);
       return;
     }
     
     const { firstName, lastName } = dynamicDefaultCyclist || appConfig.defaultCyclist;
-    console.log('🎯 useApiData: Searching for cyclist', { firstName, lastName });
     
     const races = [];
     
@@ -108,21 +100,8 @@ export const useApiData = (dynamicDefaultCyclist) => {
       }
     });
     
-    
-    console.log('🏁 useApiData: Found races for cyclist', { 
-      cyclistName: `${firstName} ${lastName}`,
-      raceCount: races.length,
-      races: races.map(r => ({ date: r.date, name: r.name, position: r.position }))
-    });
-    
     // Sort by date using proper French date parsing
     const sortedRaces = races.sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date));
-    
-    console.log('📊 useApiData: Setting default cyclist races', {
-      sortedRaceCount: sortedRaces.length,
-      firstRace: sortedRaces[0]?.date,
-      lastRace: sortedRaces[sortedRaces.length - 1]?.date
-    });
     
     setDefaultCyclistRaces(sortedRaces);
   }, [data, dynamicDefaultCyclist]);
@@ -148,22 +127,18 @@ export const useApiData = (dynamicDefaultCyclist) => {
     
     // Use local search with accent normalization for better French support
     if (data) {
-      console.log(`Searching for: "${query}" using local normalized search`);
       return searchCyclistLocal(query);
     }
     
     // Fallback to API if no local data available
     try {
-      console.log(`Searching for: "${query}" using API: ${API_BASE_URL}/cyclists/search`);
       const response = await fetch(`${API_BASE_URL}/cyclists/search?q=${encodeURIComponent(query)}`);
       
       if (!response.ok) {
-        console.error(`API search failed with status: ${response.status}`);
         throw new Error(`Search failed: ${response.status}`);
       }
       
       const results = await response.json();
-      console.log(`API search returned ${results.length} results:`, results);
       
       return results.map(cyclist => ({
         id: cyclist.uci_id,
@@ -171,7 +146,6 @@ export const useApiData = (dynamicDefaultCyclist) => {
         totalRaces: cyclist.total_races || 0
       }));
     } catch (err) {
-      console.error('Search error:', err);
       return [];
     }
   };
@@ -218,7 +192,6 @@ export const useApiData = (dynamicDefaultCyclist) => {
   const getDefaultCyclistInfo = () => {
     const { firstName, lastName } = dynamicDefaultCyclist || appConfig.defaultCyclist;
     const fullName = formatName(firstName, lastName);
-    console.log('📋 getDefaultCyclistInfo called:', { firstName, lastName, fullName });
     return {
       firstName,
       lastName,
@@ -292,14 +265,13 @@ export const useApiData = (dynamicDefaultCyclist) => {
           firstName: racer.first_name,
           lastName: racer.last_name,
           region: racer.region,
-          team: racer.team,
+          team: racer.team || racer.club || 'N/A', // Use team, fallback to club, then N/A
           bestPosition: racer.best_position,
           formattedName: formatName(racer.first_name, racer.last_name)
         }))
         .sort((a, b) => a.bestPosition - b.bestPosition);
         
     } catch (err) {
-      console.error('Research error:', err);
       return [];
     }
   };

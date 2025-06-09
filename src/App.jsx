@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApiData } from './hooks/useApiData';
 import PerformanceChart from './components/PerformanceChart';
 import RaceLeaderboardModal from './components/RaceLeaderboardModal';
@@ -168,6 +168,7 @@ function App() {
   const [researchInput, setResearchInput] = useState('');
   const [researchResults, setResearchResults] = useState([]);
   const [showResearchSection, setShowResearchSection] = useState(false);
+
 
   const handleChartPointClick = (raceData) => {
     const race = getRaceById(raceData.raceId);
@@ -561,8 +562,9 @@ function App() {
         </div>
 
         {defaultCyclistRaces.length > 0 ? (
-          <div style={styles.chartCard}>
+          <div key={`chart-container-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${defaultCyclistRaces.length}`} style={styles.chartCard}>
             <PerformanceChart 
+              key={`chart-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${Date.now()}`}
               data={defaultCyclistRaces} 
               onPointClick={handleChartPointClick}
               cyclistName={getDefaultCyclistInfo().fullName}
