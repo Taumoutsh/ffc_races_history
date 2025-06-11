@@ -4,8 +4,15 @@
 
 A modern React web application for visualizing cycling race data and performance analytics. Built with React + Vite and powered by a SQLite database backend, featuring interactive charts, cyclist profiles, and comprehensive race leaderboards.
 
-## 🆕 Latest Updates (v2.4.0)
-- 🏁 **NEW: Races panel implementation** - Dedicated modal panel for browsing all races
+## 🆕 Latest Updates (v2.5.0)
+- 📊 **NEW: Chart Pagination** - Performance charts now show 10 races max with smooth navigation
+- ⏮️⏭️ **Hover Navigation Buttons** - Left/right arrows appear on hover for 5-race increments
+- 📈 **Smart Chart Display** - Shows most recent races by default with pagination indicator
+- 🇫🇷 **Enhanced Translations** - Improved French translations for better natural language
+- ✅ **Complete How-to Guide** - Comprehensive instructions covering all app features
+
+### Previous Updates (v2.4.0)
+- 🏁 **Races panel implementation** - Dedicated modal panel for browsing all races
 - ✅ **Enhanced races table** - Clickable headers for sorting by date, name, or participants
 - ✅ **Improved UI consistency** - Races panel matches CyclistProfile modal styling
 - ✅ **Unified race access** - Clicking races shows same leaderboard modal throughout app
@@ -20,7 +27,11 @@ A modern React web application for visualizing cycling race data and performance
 ## ✨ Features
 
 ### 📊 Performance Analytics
-- **Interactive Performance Charts**: Line graphs showing race positions over time
+- **Interactive Performance Charts**: Line graphs showing race positions over time with smart pagination
+- **Chart Pagination**: Displays 10 races maximum with smooth navigation buttons
+- **Hover Navigation**: Left (←) and right (→) buttons appear on hover for 5-race increments
+- **Automatic Positioning**: Shows most recent races by default, navigate to view older races
+- **Pagination Indicator**: Shows current range (e.g., "Showing races 15-24 of 47")
 - **Clickable Data Points**: Click any point to view full race leaderboards
 - **Dynamic Tooltips**: Hover for detailed race information
 
@@ -477,6 +488,10 @@ python test_database.py
 - [x] **Sortable races table** - Click headers to sort by any column
 - [x] **Unified race navigation** - Consistent leaderboard access throughout app
 - [x] **Complete sentence case translations** - Proper text formatting across all languages
+- [x] **📊 Chart pagination system** - Smart navigation for performance charts with 10-race display limit
+- [x] **⏮️⏭️ Hover navigation buttons** - Smooth left/right arrows for 5-race increments
+- [x] **📈 Pagination indicator** - Shows current race range with multilingual support
+- [x] **🇫🇷 Enhanced French translations** - Natural language improvements for better user experience
 
 ### Planned 🔄
 - [ ] Advanced filtering options (date range, region, club)

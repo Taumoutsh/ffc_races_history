@@ -599,10 +599,14 @@ function App() {
             <div style={styles.instructions}>
               <h3 style={styles.instructionsTitle}>{t('ui.howToUse')}</h3>
               <ul style={styles.instructionsList}>
-                <li>{t('ui.instructionPoint')}</li>
-                <li>{t('ui.instructionLeaderboard')}</li>
-                <li>{t('ui.instructionSort')}</li>
-                <li>{t('ui.instructionSearch')}</li>
+                <li>📊 <strong>{t('chart.title')}:</strong> {t('ui.instructionPoint')}</li>
+                <li>⏮️⏭️ <strong>{t('ui.instructionChart')}</strong></li>
+                <li>👥 <strong>{t('ui.leaderboard')}:</strong> {t('ui.instructionLeaderboard')}</li>
+                <li>🔍 <strong>{t('ui.searchPlaceholder').replace('...', '')}:</strong> {t('ui.instructionSearch')}</li>
+                <li>🏁 <strong>{t('ui.instructionRaceList')}</strong></li>
+                <li>⭐ <strong>{t('ui.instructionDefaultCyclist')}</strong></li>
+                <li>📋 <strong>{t('ui.instructionSort')}</strong></li>
+                <li>🔬 <strong>{t('ui.instructionResearch')}</strong></li>
               </ul>
             </div>
           </div>

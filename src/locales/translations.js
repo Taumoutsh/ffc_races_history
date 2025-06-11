@@ -49,12 +49,17 @@ export const translations = {
       participants: 'Participants',
       loadMore: 'Load more races',
       remaining: 'remaining',
-      viewRaces: 'View all races'
+      viewRaces: 'View all races',
+      instructionChart: 'Navigate the chart using hover buttons (← previous 5 races, → next 5 races)',
+      instructionRaceList: 'Access the complete race browser using the "🏁 View All Races" button',
+      instructionDefaultCyclist: 'Change the default cyclist by clicking the ⭐ button in any cyclist profile',
+      instructionResearch: 'Use the research tool to analyze entry lists against the database'
     },
     chart: {
       title: 'Race performance history',
       yAxisLabel: 'Position',
-      xAxisLabel: 'Race date'
+      xAxisLabel: 'Race date',
+      showingRaces: 'Showing races {{start}}-{{end}} of {{total}}'
     },
     table: {
       rank: 'Rank',
@@ -124,12 +129,17 @@ export const translations = {
       participants: 'Participants',
       loadMore: 'Charger plus de courses',
       remaining: 'restantes',
-      viewRaces: 'Voir toutes les courses'
+      viewRaces: 'Voir toutes les courses',
+      instructionChart: 'Naviguez dans le graphique avec les boutons au survol (← 5 courses précédentes, → 5 courses suivantes)',
+      instructionRaceList: 'Accédez au navigateur complet des courses avec le bouton "🏁 Voir Toutes les Courses"',
+      instructionDefaultCyclist: 'Changez le cycliste par défaut en cliquant sur le bouton ⭐ dans n\'importe quel profil de cycliste',
+      instructionResearch: 'Utilisez l\'outil de recherche pour vérifier les listes d\'engagés dans la base de données'
     },
     chart: {
       title: 'Historique des performances de course',
       yAxisLabel: 'Position',
-      xAxisLabel: 'Date de course'
+      xAxisLabel: 'Date de course',
+      showingRaces: 'Affichage des courses {{start}}-{{end}} sur {{total}}'
     },
     table: {
       rank: 'Rang',

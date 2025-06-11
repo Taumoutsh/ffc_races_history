@@ -19,7 +19,7 @@ export const LanguageProvider = ({ children }) => {
     getDefaultCyclist(appConfig.defaultCyclist)
   );
 
-  const t = (key) => {
+  const t = (key, params = {}) => {
     const keys = key.split('.');
     let value = translations[language];
     
@@ -27,7 +27,12 @@ export const LanguageProvider = ({ children }) => {
       value = value?.[k];
     }
     
-    return value || key;
+    if (!value) return key;
+    
+    // Replace template variables like {{start}}, {{end}}, {{total}}
+    return value.replace(/\{\{(\w+)\}\}/g, (match, param) => {
+      return params[param] !== undefined ? params[param] : match;
+    });
   };
 
   const switchLanguage = (newLanguage) => {

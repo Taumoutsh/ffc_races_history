@@ -5,6 +5,9 @@ import { useState, useEffect } from 'react';
 const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
   const { t } = useTranslation();
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [showLeftButton, setShowLeftButton] = useState(false);
+  const [showRightButton, setShowRightButton] = useState(false);
   
   // Use provided cyclist name or fallback
   const displayName = cyclistName || 'Cyclist';
@@ -12,6 +15,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
   // Force re-render when data or cyclist changes
   useEffect(() => {
     setForceUpdate(prev => prev + 1);
+    setCurrentPage(0); // Reset to first page when data changes
   }, [data, cyclistName]);
   
   // Helper function to parse French date format for sorting
@@ -33,7 +37,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
   };
 
   // Transform and sort data chronologically for the chart
-  const chartData = (data || [])
+  const allChartData = (data || [])
     .map(race => ({
       date: race.date,
       position: Number(race.position), // Ensure position is a number
@@ -42,6 +46,39 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
     }))
     .filter(race => race.position && !isNaN(race.position)) // Filter out invalid positions
     .sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date));
+
+  // Pagination logic - show 10 races max, starting from the end by default
+  const RACES_PER_PAGE = 10;
+  const STEP_SIZE = 5;
+  const totalRaces = allChartData.length;
+  const totalPages = Math.max(0, Math.ceil((totalRaces - RACES_PER_PAGE) / STEP_SIZE) + 1);
+  
+  // Calculate start index for current page (start from end for page 0)
+  const getStartIndex = (page) => {
+    if (page === 0) {
+      return Math.max(0, totalRaces - RACES_PER_PAGE);
+    }
+    return Math.max(0, totalRaces - RACES_PER_PAGE - (page * STEP_SIZE));
+  };
+  
+  const startIndex = getStartIndex(currentPage);
+  const chartData = allChartData.slice(startIndex, startIndex + RACES_PER_PAGE);
+  
+  // Navigation functions
+  const canGoLeft = currentPage < totalPages - 1 && totalRaces > RACES_PER_PAGE;
+  const canGoRight = currentPage > 0;
+  
+  const goLeft = () => {
+    if (canGoLeft) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+  
+  const goRight = () => {
+    if (canGoRight) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
 
   const handleClick = (data, index) => {
     if (data && data.activePayload && data.activePayload[0]) {
@@ -93,70 +130,187 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
       }}>
         📊 {displayName} - {t('chart.title')}
       </h2>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          key={`chart-${forceUpdate}`}
-          data={chartData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-          onClick={handleClick}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(59, 130, 246, 0.1)" />
-          <XAxis 
-            dataKey="date" 
-            angle={-45}
-            textAnchor="end"
-            height={80}
-            interval={0}
-            tick={{ fontSize: 12, fontWeight: '600', fill: '#64748b' }}
-            axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
-          />
-          <YAxis 
-            label={{ value: t('chart.yAxisLabel'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: '700', fill: '#64748b' } }}
-            reversed={true}
-            domain={[1, 'dataMax']}
-            tick={{ fontSize: 12, fontWeight: '600', fill: '#64748b' }}
-            axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Line 
-            type="monotone" 
-            dataKey="position" 
-            stroke="#3b82f6" 
-            strokeWidth={4}
-            strokeOpacity={1}
-            fill="none"
-            connectNulls={true}
-            isAnimationActive={false}
-            dot={{ 
-              fill: '#ffffff', 
-              stroke: '#3b82f6', 
-              strokeWidth: 4, 
-              r: 10, 
-              cursor: 'pointer'
+      
+      {/* Chart pagination info */}
+      {totalRaces > RACES_PER_PAGE && (
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '1rem',
+          fontSize: '0.875rem',
+          color: '#64748b',
+          fontWeight: '600'
+        }}>
+{t('chart.showingRaces', { 
+            start: startIndex + 1, 
+            end: Math.min(startIndex + RACES_PER_PAGE, totalRaces), 
+            total: totalRaces 
+          })}
+        </div>
+      )}
+      
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}
+           onMouseEnter={() => {
+             setShowLeftButton(canGoLeft);
+             setShowRightButton(canGoRight);
+           }}
+           onMouseLeave={() => {
+             setShowLeftButton(false);
+             setShowRightButton(false);
+           }}>
+        
+        {/* Left navigation button */}
+        {canGoLeft && (
+          <button
+            onClick={goLeft}
+            onMouseEnter={() => setShowLeftButton(true)}
+            style={{
+              position: 'absolute',
+              left: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              background: 'rgba(59, 130, 246, 0.9)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '48px',
+              height: '48px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.25rem',
+              color: 'white',
+              fontWeight: '700',
+              boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+              opacity: showLeftButton ? 1 : 0,
+              visibility: showLeftButton ? 'visible' : 'hidden',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: showLeftButton ? 'translateY(-50%) translateX(0)' : 'translateY(-50%) translateX(-20px)'
             }}
-            activeDot={{ 
-              r: 14, 
-              stroke: '#8b5cf6', 
-              strokeWidth: 4, 
-              fill: '#ffffff'
+            onMouseOver={(e) => {
+              e.target.style.background = 'rgba(59, 130, 246, 1)';
+              e.target.style.transform = showLeftButton ? 'translateY(-50%) scale(1.1)' : 'translateY(-50%) translateX(-20px)';
             }}
-          />
-          <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="50%" stopColor="#6366f1" />
-              <stop offset="100%" stopColor="#8b5cf6" />
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-              <feMerge> 
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-        </LineChart>
-      </ResponsiveContainer>
+            onMouseOut={(e) => {
+              e.target.style.background = 'rgba(59, 130, 246, 0.9)';
+              e.target.style.transform = showLeftButton ? 'translateY(-50%) translateX(0)' : 'translateY(-50%) translateX(-20px)';
+            }}
+          >
+            ←
+          </button>
+        )}
+        
+        {/* Right navigation button */}
+        {canGoRight && (
+          <button
+            onClick={goRight}
+            onMouseEnter={() => setShowRightButton(true)}
+            style={{
+              position: 'absolute',
+              right: '-30px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              background: 'rgba(59, 130, 246, 0.9)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '48px',
+              height: '48px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.25rem',
+              color: 'white',
+              fontWeight: '700',
+              boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+              opacity: showRightButton ? 1 : 0,
+              visibility: showRightButton ? 'visible' : 'hidden',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: showRightButton ? 'translateY(-50%) translateX(0)' : 'translateY(-50%) translateX(20px)'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'rgba(59, 130, 246, 1)';
+              e.target.style.transform = showRightButton ? 'translateY(-50%) scale(1.1)' : 'translateY(-50%) translateX(20px)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'rgba(59, 130, 246, 0.9)';
+              e.target.style.transform = showRightButton ? 'translateY(-50%) translateX(0)' : 'translateY(-50%) translateX(20px)';
+            }}
+          >
+            →
+          </button>
+        )}
+        
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            key={`chart-${forceUpdate}-${currentPage}`}
+            data={chartData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+            onClick={handleClick}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(59, 130, 246, 0.1)" />
+            <XAxis 
+              dataKey="date" 
+              angle={-45}
+              textAnchor="end"
+              height={80}
+              interval={0}
+              tick={{ fontSize: 12, fontWeight: '600', fill: '#64748b' }}
+              axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
+            />
+            <YAxis 
+              label={{ value: t('chart.yAxisLabel'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: '700', fill: '#64748b' } }}
+              reversed={true}
+              domain={[1, 'dataMax']}
+              tick={{ fontSize: 12, fontWeight: '600', fill: '#64748b' }}
+              axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Line 
+              type="monotone" 
+              dataKey="position" 
+              stroke="#3b82f6" 
+              strokeWidth={4}
+              strokeOpacity={1}
+              fill="none"
+              connectNulls={true}
+              isAnimationActive={false}
+              dot={{ 
+                fill: '#ffffff', 
+                stroke: '#3b82f6', 
+                strokeWidth: 4, 
+                r: 10, 
+                cursor: 'pointer'
+              }}
+              activeDot={{ 
+                r: 14, 
+                stroke: '#8b5cf6', 
+                strokeWidth: 4, 
+                fill: '#ffffff'
+              }}
+            />
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#3b82f6" />
+                <stop offset="50%" stopColor="#6366f1" />
+                <stop offset="100%" stopColor="#8b5cf6" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge> 
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
