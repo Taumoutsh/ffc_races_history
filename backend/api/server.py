@@ -25,11 +25,19 @@ db = CyclingDatabase(DB_PATH)
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    return jsonify({
-        'status': 'healthy',
-        'database': 'connected',
-        'stats': db.get_database_stats()
-    })
+    try:
+        stats = db.get_database_stats()
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected',
+            'stats': stats
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'database': 'error',
+            'error': str(e)
+        }), 500
 
 
 @app.route('/api/scraping-info', methods=['GET'])
@@ -42,8 +50,11 @@ def get_scraping_info():
 @app.route('/api/races', methods=['GET'])
 def get_races():
     """Get all races with basic info"""
-    races = db.get_all_races()
-    return jsonify(races)
+    try:
+        races = db.get_all_races()
+        return jsonify(races)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/races/<race_id>', methods=['GET'])

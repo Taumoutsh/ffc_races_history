@@ -25,7 +25,7 @@ if [ ! -d "scraper_env" ]; then
 fi
 
 # Check if database exists
-if [ ! -f "database/cycling_data.db" ]; then
+if [ ! -f "backend/database/cycling_data.db" ]; then
     echo "❌ Database not found. Run ./setup_database.sh first"
     exit 1
 fi
@@ -39,7 +39,7 @@ fi
 echo ""
 echo "🌐 Starting API Server..."
 # Start API server in background
-source scraper_env/bin/activate && python api/server.py &
+source scraper_env/bin/activate && python backend/api/server.py &
 API_PID=$!
 
 # Wait a moment for API to start

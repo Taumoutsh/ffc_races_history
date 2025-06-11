@@ -4,6 +4,7 @@ import PerformanceChart from './components/PerformanceChart';
 import RaceLeaderboardModal from './components/RaceLeaderboardModal';
 import CyclistProfile from './components/CyclistProfile';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import RacesList from './components/RacesList';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
 
@@ -168,6 +169,7 @@ function App() {
   const [researchInput, setResearchInput] = useState('');
   const [researchResults, setResearchResults] = useState([]);
   const [showResearchSection, setShowResearchSection] = useState(false);
+  const [showRacesPanel, setShowRacesPanel] = useState(false);
 
 
   const handleChartPointClick = (raceData) => {
@@ -325,6 +327,31 @@ function App() {
               }}
             >
               {t('ui.searchPlaceholder').replace('...', '')}
+            </button>
+            <button
+              onClick={() => setShowRacesPanel(true)}
+              style={{
+                padding: '1rem 2rem',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.75rem',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '1rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-1px)';
+                e.target.style.boxShadow = '0 10px 16px -4px rgba(0, 0, 0, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+              }}
+            >
+              🏁 {t('ui.viewRaces') || 'View All Races'}
             </button>
           </form>
           
@@ -614,6 +641,97 @@ function App() {
           </div>
         </div>
       </main>
+
+      {/* Races Panel Modal */}
+      {showRacesPanel && (
+        <div style={{
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          backgroundColor: 'rgba(0,0,0,0.7)', 
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 50,
+          padding: '1rem'
+        }} onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setShowRacesPanel(false);
+          }
+        }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)', 
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '1.5rem', 
+            maxWidth: '80rem', 
+            width: '100%', 
+            maxHeight: '90vh', 
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            fontFamily: "'Inter', sans-serif",
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{
+              padding: '2rem',
+              overflowY: 'auto',
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
+            }}>
+              {/* Header */}
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+                <h2 style={{
+                  fontSize: '2rem', 
+                  fontWeight: '800',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  letterSpacing: '-0.025em',
+                  margin: 0
+                }}>🏁 {t('ui.viewRaces') || 'All Races'}</h2>
+                <button
+                  onClick={() => setShowRacesPanel(false)}
+                  style={{
+                    color: '#64748b', 
+                    fontSize: '1.5rem', 
+                    background: 'rgba(248, 250, 252, 0.8)', 
+                    border: '1px solid rgba(226, 232, 240, 0.5)', 
+                    borderRadius: '0.75rem',
+                    cursor: 'pointer',
+                    width: '3rem',
+                    height: '3rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: '700',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = 'rgba(248, 250, 252, 1)';
+                    e.target.style.color = '#ef4444';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
+                    e.target.style.color = '#64748b';
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Panel Content */}
+              <RacesList onRaceClick={handleRaceClick} />
+            </div>
+          </div>
+        </div>
+      )}
 
       <RaceLeaderboardModal
         race={selectedRace}

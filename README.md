@@ -4,11 +4,12 @@
 
 A modern React web application for visualizing cycling race data and performance analytics. Built with React + Vite and powered by a SQLite database backend, featuring interactive charts, cyclist profiles, and comprehensive race leaderboards.
 
-## 🆕 Latest Updates (v2.3.0)
-- ✅ **Fixed chart line visibility** - Charts now consistently display connecting lines between data points
-- ✅ **Improved chronological ordering** - Race data properly sorted by date in performance charts  
-- ✅ **Enhanced research results** - Team/club information now displays correctly in entry list analysis
-- ✅ **Production optimization** - Removed debug logs and improved rendering performance
+## 🆕 Latest Updates (v2.4.0)
+- 🏁 **NEW: Races panel implementation** - Dedicated modal panel for browsing all races
+- ✅ **Enhanced races table** - Clickable headers for sorting by date, name, or participants
+- ✅ **Improved UI consistency** - Races panel matches CyclistProfile modal styling
+- ✅ **Unified race access** - Clicking races shows same leaderboard modal throughout app
+- ✅ **Complete translations** - All text properly localized with sentence case formatting
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19.1.0-blue.svg)
@@ -24,9 +25,15 @@ A modern React web application for visualizing cycling race data and performance
 - **Dynamic Tooltips**: Hover for detailed race information
 
 ### 🏆 Race Management
+- **🏁 Races Panel**: Dedicated modal panel accessible via "View all races" button
+- **Complete Race Browser**: View, search, and sort all races in the database
+- **Sortable Race Table**: Click headers to sort by date, name, or participant count
+- **Race Search**: Real-time search through race names with French accent support
+- **Load More Functionality**: Paginated race loading (20 races at a time)
 - **Complete Race Leaderboards**: View all participants with rankings
-- **Interactive Modals**: Beautiful, responsive modal windows
+- **Interactive Modals**: Beautiful, responsive modal windows with glassmorphism design
 - **Participant Details**: Full cyclist information including ID, region, and team
+- **Unified Navigation**: Consistent race leaderboard access from any component
 
 ### 👤 Cyclist Profiles
 - **Individual Performance History**: Complete race history for any cyclist
@@ -301,7 +308,9 @@ src/
 ├── components/           # React components
 │   ├── PerformanceChart.jsx
 │   ├── RaceLeaderboardModal.jsx
-│   └── CyclistProfile.jsx
+│   ├── CyclistProfile.jsx
+│   ├── RacesList.jsx        # NEW: Races panel with sortable table
+│   └── SelectAsDefaultButton.jsx
 ├── hooks/               # Custom hooks
 │   ├── useApiData.js    # NEW: API data hook
 │   └── useYamlData.js   # Legacy YAML hook
@@ -464,6 +473,10 @@ python test_database.py
 - [x] **Chart rendering reliability** - Fixed line visibility and chronological ordering
 - [x] **Production-ready code** - Removed debug logs and optimized performance
 - [x] **Enhanced data validation** - Proper number conversion and null handling
+- [x] **🏁 Races panel implementation** - Dedicated modal for browsing all races
+- [x] **Sortable races table** - Click headers to sort by any column
+- [x] **Unified race navigation** - Consistent leaderboard access throughout app
+- [x] **Complete sentence case translations** - Proper text formatting across all languages
 
 ### Planned 🔄
 - [ ] Advanced filtering options (date range, region, club)

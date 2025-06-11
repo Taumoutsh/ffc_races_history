@@ -22,6 +22,11 @@ show_usage() {
 cleanup() {
     echo ""
     echo "🛑 Scraper interrupted by user"
+    # Deactivate virtual environment if active
+    if [[ "$VIRTUAL_ENV" != "" ]]; then
+        echo "🔧 Deactivating virtual environment..."
+        deactivate 2>/dev/null
+    fi
     exit 0
 }
 
@@ -46,12 +51,26 @@ fi
 echo "🔧 Activating Python virtual environment..."
 source scraper_env/bin/activate
 
+# Verify virtual environment is active
+if [[ "$VIRTUAL_ENV" == "" ]]; then
+    echo "❌ Failed to activate virtual environment"
+    echo "💡 Check if scraper_env directory exists and is properly configured"
+    exit 1
+fi
+
+echo "✅ Virtual environment activated: $(basename $VIRTUAL_ENV)"
+
+# Set Python path to include backend directory for imports
+export PYTHONPATH="${PWD}/backend:${PYTHONPATH}"
+echo "🔧 Python path configured for backend imports"
+
 # Check Python dependencies
 echo "📦 Checking dependencies..."
 python -c "import requests, bs4, yaml" 2>/dev/null
 if [ $? -ne 0 ]; then
     echo "❌ Missing required Python packages."
     echo "💡 Run ./setup_database.sh to install dependencies"
+    deactivate 2>/dev/null
     exit 1
 fi
 
@@ -105,4 +124,10 @@ else
     echo ""
     echo "❌ Scraping failed or was interrupted"
     echo "💡 Check the error messages above for details"
+fi
+
+# Deactivate virtual environment
+if [[ "$VIRTUAL_ENV" != "" ]]; then
+    echo "🔧 Deactivating virtual environment..."
+    deactivate 2>/dev/null
 fi
