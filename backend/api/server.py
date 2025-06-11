@@ -10,15 +10,15 @@ import os
 import sys
 import re
 
-# Add parent directory to path for database imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from database.database import CyclingDatabase
+# Add project root to path for backend imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from backend.database.models import CyclingDatabase
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
 
 # Initialize database
-DB_PATH = os.environ.get('DB_PATH', 'database/cycling_data.db')
+DB_PATH = os.environ.get('DB_PATH', 'backend/database/cycling_data.db')
 db = CyclingDatabase(DB_PATH)
 
 

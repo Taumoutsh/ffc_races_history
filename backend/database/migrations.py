@@ -6,7 +6,8 @@ Migration script to convert existing YAML data to SQLite database
 import yaml
 import os
 import sys
-from database import CyclingDatabase
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from backend.database.models import CyclingDatabase
 import re
 
 

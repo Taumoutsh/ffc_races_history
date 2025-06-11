@@ -12,11 +12,12 @@ from datetime import datetime
 from urllib.parse import urljoin
 import sys
 import os
-from database.database import CyclingDatabase
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from backend.database.models import CyclingDatabase
 
 
 class CyclingScraperDB:
-    def __init__(self, db_path='database/cycling_data.db'):
+    def __init__(self, db_path='backend/database/cycling_data.db'):
         self.base_url = "https://paysdelaloirecyclisme.fr"
         self.session = requests.Session()
         self.session.headers.update({
@@ -35,6 +36,9 @@ class CyclingScraperDB:
             'new_results': 0,
             'errors': 0
         }
+        
+        # Track scraped URLs to avoid duplicates in same session
+        self.scraped_urls = set()
     
     def clean_club_name(self, club_raw):
         """Remove leading numbers from club names"""
@@ -44,10 +48,24 @@ class CyclingScraperDB:
         cleaned = re.sub(r'^\d+\s*', '', club_raw.strip())
         return cleaned if cleaned else club_raw
     
-    def generate_race_id(self, race_name, race_date):
-        """Generate a unique race ID based on name and date"""
-        # Create a short hash-like ID from name and date
+    def generate_race_id(self, race_name, race_date, race_url):
+        """Generate a unique race ID based on name, date, and URL"""
+        # Create a more stable race ID using URL path
         import hashlib
+        from urllib.parse import urlparse
+        
+        # Extract unique identifier from URL
+        url_path = urlparse(race_url).path
+        
+        # Use URL path as primary identifier, fallback to name+date
+        if url_path and '/resultats/' in url_path:
+            # Extract race ID from URL (e.g., /resultats/12345-race-name)
+            path_parts = url_path.strip('/').split('/')
+            if len(path_parts) >= 2:
+                url_id = path_parts[-1]  # Last part of URL
+                return f"race_{url_id}"
+        
+        # Fallback: hash name and date
         content = f"{race_name}_{race_date}".encode('utf-8')
         hash_short = hashlib.md5(content).hexdigest()[:8]
         return f"race_{hash_short}"
@@ -75,9 +93,27 @@ class CyclingScraperDB:
             '.date',
             '[class*="date"]',
             'time',
-            '.event-date'
+            '.event-date',
+            'h1', 'h2', 'h3',  # Sometimes date is in title
+            '.card-title',
+            '.card-body'
         ]
         
+        # Also check the entire page text for date patterns
+        full_text = soup.get_text()
+        
+        # Try to find French date patterns first (most common format)
+        french_date_patterns = [
+            r'(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})',
+            r'(\d{1,2}\s+(?:jan|fév|mar|avr|mai|juin|juil|août|sept|oct|nov|déc)\s+\d{4})',
+        ]
+        
+        for pattern in french_date_patterns:
+            match = re.search(pattern, full_text, re.IGNORECASE)
+            if match:
+                return match.group(1)
+        
+        # Try selectors
         for selector in date_selectors:
             date_elem = soup.select_one(selector)
             if date_elem:
@@ -93,10 +129,18 @@ class CyclingScraperDB:
                     if match:
                         return match.group(1)
         
+        # Try to extract date from URL or other fallbacks
         return "Date inconnue"
     
     def scrape_race_details(self, race_url):
         """Scrape individual race details and save to database"""
+        
+        # Skip if already processed in this session
+        if race_url in self.scraped_urls:
+            print(f"⏭️  Already processed in this session: {race_url}")
+            self.stats['skipped_races'] += 1
+            return False
+        
         print(f"Checking race: {race_url}")
         response = self.get_page(race_url)
         if not response:
@@ -112,12 +156,13 @@ class CyclingScraperDB:
         race_date = self.extract_race_date(soup)
         
         # Generate race ID
-        race_id = self.generate_race_id(race_name, race_date)
+        race_id = self.generate_race_id(race_name, race_date, race_url)
         
         # Check if this race already exists in database
         if self.db.race_exists(race_id):
             print(f"⏭️  Skipping already scraped race: {race_name} ({race_date})")
             self.stats['skipped_races'] += 1
+            self.scraped_urls.add(race_url)
             return False
         
         print(f"🆕 Scraping new race: {race_name} ({race_date})")
@@ -219,6 +264,7 @@ class CyclingScraperDB:
                         continue
             
             print(f"✅ Added {participants_added} participants to race {race_id}")
+            self.scraped_urls.add(race_url)
             return True
             
         except Exception as e:

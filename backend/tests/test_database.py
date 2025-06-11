@@ -5,13 +5,13 @@ Test script to verify database setup and functionality
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from database.database import CyclingDatabase
+from backend.database.models import CyclingDatabase
 
 def test_database():
     """Test database functionality"""
-    db_path = 'database/cycling_data.db'
+    db_path = 'backend/database/cycling_data.db'
     
     print("🧪 Testing database functionality...")
     

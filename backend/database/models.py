@@ -12,7 +12,7 @@ from contextlib import contextmanager
 
 
 class CyclingDatabase:
-    def __init__(self, db_path: str = "database/cycling_data.db"):
+    def __init__(self, db_path: str = "backend/database/cycling_data.db"):
         self.db_path = db_path
         self.ensure_database_exists()
     

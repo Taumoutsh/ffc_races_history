@@ -14,7 +14,7 @@ fi
 source scraper_env/bin/activate
 
 # Check if database exists
-if [ ! -f "database/cycling_data.db" ]; then
+if [ ! -f "backend/database/cycling_data.db" ]; then
     echo "❌ Database not found. Run ./setup_database.sh first"
     exit 1
 fi
@@ -26,4 +26,4 @@ echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""
 
-python api/server.py
+python backend/api/server.py
