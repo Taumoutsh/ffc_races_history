@@ -98,12 +98,26 @@ A modern React web application for visualizing cycling race data and performance
 
 ## 🚀 Quick Start
 
-### Prerequisites
+Choose your preferred setup method:
+
+### 🐳 Docker Deployment (Recommended for Production)
+**One-command deployment anywhere with Docker:**
+```bash
+git clone https://github.com/Taumoutsh/ffc_races_history.git
+cd ffc_races_history
+./deploy.sh
+```
+Access at: `http://localhost:8080`
+
+### 📋 Development Setup
+**For local development and customization:**
+
+#### Prerequisites
 - Node.js 16+ 
 - Python 3.8+
 - npm or yarn
 
-### One-Click Setup
+#### One-Click Setup
 
 1. **Clone the repository**
    ```bash
@@ -159,6 +173,90 @@ A modern React web application for visualizing cycling race data and performance
 
 9. **Restart both servers**
    - Access from any device on your network: `http://YOUR_IP_ADDRESS:5173`
+
+---
+
+## 🚀 Deployment & Packaging
+
+The app comes with comprehensive deployment tools for easy installation anywhere.
+
+### 🐳 Docker Deployment
+
+#### Simple Deployment
+```bash
+# One-command deployment
+./deploy.sh
+
+# Custom domain
+DOMAIN=yourdomain.com ./deploy.sh
+
+# Production mode with optimization
+DEPLOYMENT_MODE=production ./deploy.sh
+```
+
+#### Production Deployment
+```bash
+# Full production setup with SSL, backups, monitoring
+DEPLOYMENT_MODE=full-stack DOMAIN=yourdomain.com SSL_ENABLED=true ./deploy.sh
+```
+
+### ☁️ Cloud Deployment
+
+Deploy on any cloud provider with Docker support:
+
+#### Quick Deploy (Any VPS)
+```bash
+# Install Docker and deploy
+curl -fsSL https://get.docker.com | sh
+curl -fsSL https://raw.githubusercontent.com/Taumoutsh/ffc_races_history/main/install.sh | bash
+```
+
+#### Supported Platforms
+- **DigitalOcean**: Ubuntu droplets ($6/month minimum)
+- **AWS EC2**: t3.micro or larger
+- **Google Cloud**: e2-micro or larger  
+- **Azure**: Standard B1s or larger
+- **Any VPS**: With Docker support
+
+### 📖 Deployment Documentation
+
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Complete step-by-step deployment guide
+- **[CLOUD_DEPLOYMENT.md](CLOUD_DEPLOYMENT.md)** - Cloud provider specific instructions
+- **[QUICK_DEPLOY.md](QUICK_DEPLOY.md)** - Ultra-simple deployment reference
+
+### 🔧 Deployment Modes
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `simple` | Single container, basic setup | Development, testing |
+| `production` | Optimized with resource limits | Production deployment |
+| `full-stack` | Complete setup with proxy, SSL, backups | Enterprise deployment |
+
+### 🌐 Access URLs
+
+After deployment:
+- **Frontend**: `http://your-domain:8080`
+- **API**: `http://your-domain:3001/api`
+- **Health Check**: `http://your-domain:3001/api/health`
+
+### 🛠️ Management Commands
+
+```bash
+# View status
+docker-compose ps
+
+# View logs  
+docker-compose logs -f
+
+# Restart services
+docker-compose restart
+
+# Stop all services
+docker-compose down
+
+# Update and redeploy
+git pull && ./deploy.sh
+```
 
 ## 🗄️ Database System
 
@@ -343,10 +441,21 @@ cycling_scraper_db.py   # Database scraper
 ```
 
 ### Key Files
+
+**Core Application:**
 - **`database.py`**: Core database operations
 - **`useApiData.js`**: React hook for API data
 - **`server.py`**: REST API endpoints
 - **`cycling_scraper_db.py`**: Database scraper
+
+**Deployment:**
+- **`deploy.sh`**: One-command deployment script
+- **`install.sh`**: Download and deploy from scratch
+- **`Dockerfile`**: Multi-stage container build
+- **`docker-compose.yml`**: Basic container orchestration
+- **`docker-compose.production.yml`**: Production deployment with SSL, backups
+- **`DEPLOYMENT.md`**: Complete deployment guide
+- **`CLOUD_DEPLOYMENT.md`**: Cloud provider instructions
 
 ## 🔧 Development
 
@@ -382,6 +491,13 @@ python test_database.py # Test database functionality
 - BeautifulSoup4 for web scraping
 - PyYAML for data processing
 
+**Deployment & Infrastructure:**
+- Docker & Docker Compose for containerization
+- Multi-stage builds for optimized images
+- Nginx for reverse proxy and SSL termination
+- Alpine Linux for minimal container size
+- Automated deployment scripts
+
 ### Development Workflow
 
 1. **Database Changes**: Update `schema.sql` and `database.py`
@@ -389,20 +505,22 @@ python test_database.py # Test database functionality
 3. **Frontend Changes**: Update React components and hooks
 4. **Testing**: Use `test_database.py` for backend testing
 
-## 🌐 Deployment
+## 🌐 Advanced Deployment
 
-### Database Deployment
+### Manual Deployment (Alternative to Docker)
+
+#### Database Deployment
 1. Copy `database/cycling_data.db` to server
 2. Install Python dependencies: `pip install -r requirements.txt`
 3. Start API server: `python api/server.py`
 4. Configure environment variables
 
-### Frontend Deployment
+#### Frontend Deployment
 1. Set `VITE_API_URL` in `.env` to production API URL
 2. Build frontend: `npm run build`
 3. Deploy `dist/` folder to web server
 
-### Example Production Setup
+#### Example Production Setup
 ```bash
 # Environment variables for production
 export VITE_API_URL=https://yourserver.com/api
@@ -416,6 +534,22 @@ python api/server.py
 npm run build
 # Copy dist/ to web server
 ```
+
+### 🔒 Production Considerations
+
+#### Resource Requirements
+| Deployment | RAM | CPU | Storage | Cost/Month |
+|------------|-----|-----|---------|------------|
+| Simple | 512MB | 0.5 | 10GB | $5-10 |
+| Production | 1GB | 1 | 25GB | $10-20 |
+| Full-Stack | 2GB | 2 | 50GB | $20-40 |
+
+#### Security Features
+- SSL/TLS certificate support
+- Firewall configuration
+- Automatic security updates
+- Database backup automation
+- Resource monitoring and limits
 
 ## 🧪 Testing
 
@@ -492,6 +626,11 @@ python test_database.py
 - [x] **⏮️⏭️ Hover navigation buttons** - Smooth left/right arrows for 5-race increments
 - [x] **📈 Pagination indicator** - Shows current race range with multilingual support
 - [x] **🇫🇷 Enhanced French translations** - Natural language improvements for better user experience
+- [x] **🐳 Docker containerization** - Complete Docker deployment with multi-stage builds
+- [x] **🚀 One-command deployment** - `./deploy.sh` script for easy deployment anywhere
+- [x] **☁️ Cloud deployment support** - Ready-to-deploy on all major cloud providers
+- [x] **📖 Comprehensive deployment docs** - Complete guides for all deployment scenarios
+- [x] **🔒 Production security** - SSL support, resource limits, health checks, backups
 
 ### Planned 🔄
 - [ ] Advanced filtering options (date range, region, club)
