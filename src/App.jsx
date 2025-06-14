@@ -756,6 +756,8 @@ function App() {
         onRaceClick={handleRaceClick}
         isDefaultCyclistById={isDefaultCyclistById}
         onDefaultChange={handleDefaultCyclistChange}
+        getDefaultCyclistRaces={getDefaultCyclistRaces}
+        getDefaultCyclistInfo={getDefaultCyclistInfo}
       />
     </div>
   );

@@ -53,7 +53,15 @@ export const translations = {
       instructionChart: 'Navigate the chart using hover buttons (← previous 5 races, → next 5 races)',
       instructionRaceList: 'Access the complete race browser using the "🏁 View All Races" button',
       instructionDefaultCyclist: 'Change the default cyclist by clicking the ⭐ button in any cyclist profile',
-      instructionResearch: 'Use the research tool to analyze entry lists against the database'
+      instructionResearch: 'Use the research tool to analyze entry lists against the database',
+      compareWithDefault: 'Compare with default cyclist'
+    },
+    comparison: {
+      title: 'Performance comparison',
+      subtitle: 'Comparing performances in common races',
+      commonRaces: 'Common races',
+      noCommonRaces: 'No common races found',
+      noCommonRacesDescription: '{{cyclist}} and {{defaultCyclist}} have not participated in any races together.'
     },
     chart: {
       title: 'Race performance history',
@@ -133,7 +141,15 @@ export const translations = {
       instructionChart: 'Naviguez dans le graphique avec les boutons au survol (← 5 courses précédentes, → 5 courses suivantes)',
       instructionRaceList: 'Accédez au navigateur complet des courses avec le bouton "🏁 Voir Toutes les Courses"',
       instructionDefaultCyclist: 'Changez le cycliste par défaut en cliquant sur le bouton ⭐ dans n\'importe quel profil de cycliste',
-      instructionResearch: 'Utilisez l\'outil de recherche pour vérifier les listes d\'engagés dans la base de données'
+      instructionResearch: 'Utilisez l\'outil de recherche pour vérifier les listes d\'engagés dans la base de données',
+      compareWithDefault: 'Comparer avec le cycliste par défaut'
+    },
+    comparison: {
+      title: 'Comparaison des performances',
+      subtitle: 'Comparaison des performances dans les courses communes',
+      commonRaces: 'Courses communes',
+      noCommonRaces: 'Aucune course commune trouvée',
+      noCommonRacesDescription: '{{cyclist}} et {{defaultCyclist}} n\'ont participé à aucune course ensemble.'
     },
     chart: {
       title: 'Historique des performances de course',

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import PerformanceChart from './PerformanceChart';
 import SelectAsDefaultButton from './SelectAsDefaultButton';
+import ComparisonChart from './ComparisonChart';
 import { useTranslation } from '../contexts/LanguageContext';
 
-const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange }) => {
+const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo }) => {
   const { t } = useTranslation();
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('asc');
   const [showChart, setShowChart] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -54,6 +56,51 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     if (onRaceClick && race.race_id) {
       onRaceClick(race.race_id);
     }
+  };
+
+  // Helper function to find common races between cyclist and default cyclist
+  const findCommonRaces = () => {
+    if (!getDefaultCyclistRaces || !getDefaultCyclistInfo) return [];
+    
+    const defaultRaces = getDefaultCyclistRaces();
+    const defaultInfo = getDefaultCyclistInfo();
+    
+    if (!defaultRaces || defaultRaces.length === 0 || !history || history.length === 0) {
+      return [];
+    }
+
+    const commonRaces = [];
+    
+    // Compare races by race_id or race_name + date for matching
+    history.forEach(cyclistRace => {
+      const matchingDefaultRace = defaultRaces.find(defaultRace => {
+        // Try to match by race_id first, then by name and date
+        return (cyclistRace.race_id && defaultRace.raceId && cyclistRace.race_id === defaultRace.raceId) ||
+               (cyclistRace.race_name === defaultRace.name && cyclistRace.date === defaultRace.date);
+      });
+      
+      if (matchingDefaultRace) {
+        commonRaces.push({
+          date: cyclistRace.date,
+          raceName: cyclistRace.race_name,
+          raceId: cyclistRace.race_id,
+          cyclistPosition: cyclistRace.rank,
+          defaultPosition: matchingDefaultRace.rank || matchingDefaultRace.position
+        });
+      }
+    });
+    
+    return commonRaces;
+  };
+
+  const canShowComparison = () => {
+    if (!getDefaultCyclistInfo || !isDefaultCyclistById) return false;
+    
+    const defaultInfo = getDefaultCyclistInfo();
+    const isCurrentDefault = isDefaultCyclistById(cyclistId, cyclistName);
+    
+    // Don't show comparison button if this cyclist is the default cyclist
+    return !isCurrentDefault && defaultInfo && findCommonRaces().length > 0;
   };
 
   const sortedHistory = [...safeHistory].sort((a, b) => {
@@ -215,7 +262,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
             </div>
             
             {/* View Toggle */}
-            <div style={{marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'center'}}>
+            <div style={{marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap'}}>
               <button
                 onClick={() => setShowChart(false)}
                 style={{
@@ -250,6 +297,33 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
               >
                 📈 {t('profile.performanceChart')}
               </button>
+              {canShowComparison() && (
+                <button
+                  onClick={() => setShowComparison(true)}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+                    color: 'white',
+                    border: '1px solid rgba(245, 158, 11, 0.2)',
+                    borderRadius: '0.75rem',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '700',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 8px 25px -8px rgba(245, 158, 11, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                  }}
+                >
+                  ⚔️ {t('ui.compareWithDefault')}
+                </button>
+              )}
             </div>
           </div>
 
@@ -402,6 +476,18 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
           )}
         </div>
       </div>
+      
+      {/* Comparison Chart Modal */}
+      {showComparison && getDefaultCyclistInfo && (
+        <ComparisonChart
+          data={findCommonRaces()}
+          onPointClick={onPointClick}
+          cyclistName={cyclistName}
+          defaultCyclistName={getDefaultCyclistInfo().fullName}
+          isOpen={showComparison}
+          onClose={() => setShowComparison(false)}
+        />
+      )}
     </div>
   );
 };

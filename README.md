@@ -4,12 +4,13 @@
 
 A modern React web application for visualizing cycling race data and performance analytics. Built with React + Vite and powered by a SQLite database backend, featuring interactive charts, cyclist profiles, and comprehensive race leaderboards.
 
-## 🆕 Latest Updates (v2.5.0)
-- 📊 **NEW: Chart Pagination** - Performance charts now show 10 races max with smooth navigation
-- ⏮️⏭️ **Hover Navigation Buttons** - Left/right arrows appear on hover for 5-race increments
-- 📈 **Smart Chart Display** - Shows most recent races by default with pagination indicator
-- 🇫🇷 **Enhanced Translations** - Improved French translations for better natural language
-- ✅ **Complete How-to Guide** - Comprehensive instructions covering all app features
+## 🆕 Latest Updates (v2.7.0)
+- ⚔️ **NEW: Performance Comparison Feature** - Compare cyclists directly with dual-line interactive charts
+- 🎯 **Smart Comparison Visibility** - Only appears when comparison is meaningful (different cyclists with common races)
+- 📊 **Interactive Dual Charts** - Blue line for current cyclist, green line for default cyclist
+- 🔍 **Intelligent Race Matching** - Matches races by ID or name+date for accurate comparisons
+- 🌍 **Multilingual Comparison** - Complete translation support for comparison feature
+- 💫 **Glassmorphism UI** - Modern modal design consistent with app aesthetics
 
 ### Previous Updates (v2.4.0)
 - 🏁 **Races panel implementation** - Dedicated modal panel for browsing all races
@@ -48,6 +49,9 @@ A modern React web application for visualizing cycling race data and performance
 
 ### 👤 Cyclist Profiles
 - **Individual Performance History**: Complete race history for any cyclist
+- **⚔️ Performance Comparison**: Compare any cyclist with the default cyclist in shared races
+- **Smart Comparison Button**: Only appears when meaningful comparisons exist
+- **Dual-Line Charts**: Interactive comparison charts with color-coded performance lines
 - **Sortable Data**: Sort by date, location, or position
 - **Interactive Tables**: Click races to view leaderboards
 - **Performance Overview**: Total races and statistics
@@ -631,10 +635,13 @@ python test_database.py
 - [x] **☁️ Cloud deployment support** - Ready-to-deploy on all major cloud providers
 - [x] **📖 Comprehensive deployment docs** - Complete guides for all deployment scenarios
 - [x] **🔒 Production security** - SSL support, resource limits, health checks, backups
+- [x] **⚔️ Performance comparison feature** - Interactive dual-line charts for cyclist comparisons
+- [x] **🎯 Smart comparison visibility** - Only shows when meaningful comparisons exist
+- [x] **📊 Intelligent race matching** - Multi-criteria race identification for accurate comparisons
+- [x] **🌍 Multilingual comparison support** - Complete translation coverage for comparison feature
 
 ### Planned 🔄
 - [ ] Advanced filtering options (date range, region, club)
-- [ ] Performance comparison between cyclists
 - [ ] Data export functionality (PDF, CSV)
 - [ ] Cyclist statistics dashboard
 - [ ] Dark mode toggle
