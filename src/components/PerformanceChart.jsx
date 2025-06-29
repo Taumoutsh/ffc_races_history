@@ -1,8 +1,9 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
+import { calculatePercentagePosition, getPercentageColor } from '../utils/dateUtils';
 
-const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
+const PerformanceChart = ({ data, onPointClick, cyclistName, raceParticipantCounts }) => {
   const { t } = useTranslation();
   const [forceUpdate, setForceUpdate] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -89,6 +90,10 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      const raceData = payload[0].payload;
+      const participantCount = raceParticipantCounts?.[raceData.raceId];
+      const percentage = calculatePercentagePosition(raceData.position, participantCount);
+      
       return (
         <div style={{
           background: 'rgba(255, 255, 255, 0.95)', 
@@ -98,7 +103,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
           border: '1px solid rgba(59, 130, 246, 0.2)', 
           borderRadius: '1rem', 
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-          maxWidth: '250px'
+          maxWidth: '280px'
         }}>
           <p style={{fontWeight: '700', color: '#1f2937', margin: '0 0 0.5rem 0', fontSize: '0.875rem'}}>{`📅 ${label}`}</p>
           <p style={{
@@ -107,7 +112,29 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
             fontSize: '1.125rem',
             margin: '0 0 0.5rem 0'
           }}>{`🏆 Position: ${payload[0].value}`}</p>
-          <p style={{fontSize: '0.875rem', color: '#64748b', margin: '0 0 0.75rem 0', fontWeight: '600'}}>{payload[0].payload.name}</p>
+          {percentage !== null && (
+            <p style={{
+              fontSize: '0.875rem', 
+              fontWeight: '600',
+              margin: '0 0 0.5rem 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              📊 Top %: 
+              <span style={{
+                background: getPercentageColor(percentage),
+                color: 'white',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.375rem',
+                fontSize: '0.75rem',
+                fontWeight: '600'
+              }}>
+                {percentage}%
+              </span>
+            </p>
+          )}
+          <p style={{fontSize: '0.875rem', color: '#64748b', margin: '0 0 0.75rem 0', fontWeight: '600'}}>{raceData.name}</p>
           <p style={{fontSize: '0.75rem', color: '#8b5cf6', margin: 0, fontWeight: '600'}}>👆 {t('ui.viewProfile')}</p>
         </div>
       );
@@ -167,7 +194,6 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
               position: 'absolute',
               left: '10px',
               top: '50%',
-              transform: 'translateY(-50%)',
               zIndex: 10,
               background: 'rgba(59, 130, 246, 0.9)',
               backdropFilter: 'blur(20px)',
@@ -211,7 +237,6 @@ const PerformanceChart = ({ data, onPointClick, cyclistName }) => {
               position: 'absolute',
               right: '-30px',
               top: '50%',
-              transform: 'translateY(-50%)',
               zIndex: 10,
               background: 'rgba(59, 130, 246, 0.9)',
               backdropFilter: 'blur(20px)',

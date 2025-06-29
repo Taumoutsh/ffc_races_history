@@ -409,6 +409,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                   }))}
                   onPointClick={onPointClick}
                   cyclistName={cyclistName}
+                  raceParticipantCounts={raceParticipantCounts}
                 />
               </div>
             </div>
