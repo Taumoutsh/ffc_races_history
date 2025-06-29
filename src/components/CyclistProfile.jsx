@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PerformanceChart from './PerformanceChart';
 import SelectAsDefaultButton from './SelectAsDefaultButton';
 import ComparisonChart from './ComparisonChart';
 import { useTranslation } from '../contexts/LanguageContext';
+import { parseFrenchDate, getPercentageColor } from '../utils/dateUtils';
 
-const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo }) => {
+const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, api }) => {
   const { t } = useTranslation();
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('asc');
   const [showChart, setShowChart] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+  const [raceParticipantCounts, setRaceParticipantCounts] = useState({});
 
   useEffect(() => {
     if (isOpen) {
@@ -21,27 +23,62 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // Function to calculate percentage position (lower percentage = better performance)
+  const calculatePercentagePosition = (rank, participantCount) => {
+    if (!participantCount || participantCount === 0 || !rank) return null;
+    return Math.round((rank / participantCount) * 100);
+  };
+
+  // Function to calculate average top percentage
+  const calculateAverageTopPercentage = () => {
+    const validPercentages = [];
+    safeHistory.forEach(race => {
+      const participantCount = raceParticipantCounts[race.race_id];
+      const percentage = calculatePercentagePosition(race.rank, participantCount);
+      if (percentage !== null) {
+        validPercentages.push(percentage);
+      }
+    });
+    
+    if (validPercentages.length === 0) return null;
+    const average = validPercentages.reduce((sum, p) => sum + p, 0) / validPercentages.length;
+    return Math.round(average);
+  };
+
+
+  // Function to fetch participant count for a race
+  const fetchRaceParticipantCount = useCallback(async (raceId) => {
+    if (!api || !raceId || raceParticipantCounts[raceId]) return;
+    
+    try {
+      const raceData = await api.getRace(raceId);
+      if (raceData && raceData.participant_count) {
+        setRaceParticipantCounts(prev => ({
+          ...prev,
+          [raceId]: raceData.participant_count
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching race participant count:', error);
+    }
+  }, [api, raceParticipantCounts]);
 
   const safeHistory = history || [];
   const isDefaultProfile = isDefaultCyclistById ? isDefaultCyclistById(cyclistId, cyclistName) : false;
 
-  const parseFrenchDate = (dateStr) => {
-    const monthMap = {
-      'janvier': '01', 'février': '02', 'mars': '03', 'avril': '04',
-      'mai': '05', 'juin': '06', 'juillet': '07', 'août': '08',
-      'septembre': '09', 'octobre': '10', 'novembre': '11', 'décembre': '12'
-    };
-    
-    const parts = dateStr.split(' ');
-    if (parts.length === 3) {
-      const day = parts[0].padStart(2, '0');
-      const month = monthMap[parts[1]] || '01';
-      const year = parts[2];
-      return new Date(`${year}-${month}-${day}`);
+  // Fetch participant counts for all races when component loads
+  useEffect(() => {
+    if (isOpen && safeHistory.length > 0 && api) {
+      safeHistory.forEach(race => {
+        if (race.race_id && !raceParticipantCounts[race.race_id]) {
+          fetchRaceParticipantCount(race.race_id);
+        }
+      });
     }
-    return new Date(dateStr);
-  };
+  }, [isOpen, safeHistory, api, fetchRaceParticipantCount, raceParticipantCounts]);
+
+  if (!isOpen) return null;
+
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -63,7 +100,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     if (!getDefaultCyclistRaces || !getDefaultCyclistInfo) return [];
     
     const defaultRaces = getDefaultCyclistRaces();
-    const defaultInfo = getDefaultCyclistInfo();
     
     if (!defaultRaces || defaultRaces.length === 0 || !history || history.length === 0) {
       return [];
@@ -96,11 +132,10 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
   const canShowComparison = () => {
     if (!getDefaultCyclistInfo || !isDefaultCyclistById) return false;
     
-    const defaultInfo = getDefaultCyclistInfo();
     const isCurrentDefault = isDefaultCyclistById(cyclistId, cyclistName);
     
     // Don't show comparison button if this cyclist is the default cyclist
-    return !isCurrentDefault && defaultInfo && findCommonRaces().length > 0;
+    return !isCurrentDefault && getDefaultCyclistInfo() && findCommonRaces().length > 0;
   };
 
   const sortedHistory = [...safeHistory].sort((a, b) => {
@@ -119,6 +154,13 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
         aVal = a.rank;
         bVal = b.rank;
         break;
+      case 'percentage': {
+        const aCount = raceParticipantCounts[a.race_id];
+        const bCount = raceParticipantCounts[b.race_id];
+        aVal = calculatePercentagePosition(a.rank, aCount) || 0;
+        bVal = calculatePercentagePosition(b.rank, bCount) || 0;
+        break;
+      }
       default:
         return 0;
     }
@@ -239,9 +281,31 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                   <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
                     📋 ID: {cyclistId || 'No ID'}
                   </p>
-                  <p style={{fontSize: '1rem', color: '#64748b', fontWeight: '600'}}>
+                  <p style={{fontSize: '1rem', color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
                     🏆 {t('table.totalRaces')}: {safeHistory.length}
                   </p>
+                  {(() => {
+                    const averagePercentage = calculateAverageTopPercentage();
+                    if (averagePercentage !== null) {
+                      return (
+                        <p style={{fontSize: '1rem', color: '#64748b', fontWeight: '600'}}>
+                          📊 {t('table.averageTopPercentage')}: 
+                          <span style={{
+                            marginLeft: '0.5rem',
+                            background: getPercentageColor(averagePercentage),
+                            color: 'white',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.875rem',
+                            fontWeight: '600'
+                          }}>
+                            {averagePercentage}%
+                          </span>
+                        </p>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
                 {onDefaultChange && cyclistName && (
                   <SelectAsDefaultButton 
@@ -427,6 +491,25 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                               <SortIcon field="position" />
                             </div>
                           </th>
+                          <th 
+                            style={{
+                              border: 'none', 
+                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
+                              padding: '1rem 1.5rem', 
+                              textAlign: 'left', 
+                              cursor: 'pointer', 
+                              fontWeight: '700', 
+                              color: '#1f2937',
+                              transition: 'background-color 0.2s ease',
+                              userSelect: 'none'
+                            }}
+                            onClick={() => handleSort('percentage')}
+                          >
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                              📊 {t('table.topPercentage')}
+                              <SortIcon field="percentage" />
+                            </div>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -460,6 +543,35 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                             </td>
                             <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '800', color: '#3b82f6', fontSize: '1.125rem'}}>
                               #{race.rank}
+                            </td>
+                            <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '700', color: '#059669', fontSize: '1rem'}}>
+                              {(() => {
+                                const participantCount = raceParticipantCounts[race.race_id];
+                                const percentage = calculatePercentagePosition(race.rank, participantCount);
+                                if (percentage !== null) {
+                                  return (
+                                    <span style={{
+                                      background: getPercentageColor(percentage),
+                                      color: 'white',
+                                      padding: '0.25rem 0.5rem',
+                                      borderRadius: '0.375rem',
+                                      fontSize: '0.875rem',
+                                      fontWeight: '600'
+                                    }}>
+                                      {percentage}%
+                                    </span>
+                                  );
+                                }
+                                return (
+                                  <span style={{
+                                    color: '#9ca3af',
+                                    fontSize: '0.875rem',
+                                    fontStyle: 'italic'
+                                  }}>
+                                    {t('ui.loading')}
+                                  </span>
+                                );
+                              })()} 
                             </td>
                           </tr>
                         ))}

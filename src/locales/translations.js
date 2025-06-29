@@ -79,6 +79,8 @@ export const translations = {
       date: 'Date',
       race: 'Race',
       position: 'Position',
+      topPercentage: 'Top %',
+      averageTopPercentage: 'Average Top %',
       totalRaces: 'Total races'
     },
     profile: {
@@ -167,6 +169,8 @@ export const translations = {
       date: 'Date',
       race: 'Course',
       position: 'Position',
+      topPercentage: 'Top %',
+      averageTopPercentage: 'Moyenne Top %',
       totalRaces: 'Total des courses'
     },
     profile: {

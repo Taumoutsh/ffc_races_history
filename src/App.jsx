@@ -159,7 +159,7 @@ const styles = {
 
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
-  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, isDefaultCyclist, isDefaultCyclistById } = useApiData(defaultCyclist);
+  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedCyclist, setSelectedCyclist] = useState(null);
@@ -758,6 +758,7 @@ function App() {
         onDefaultChange={handleDefaultCyclistChange}
         getDefaultCyclistRaces={getDefaultCyclistRaces}
         getDefaultCyclistInfo={getDefaultCyclistInfo}
+        api={api}
       />
     </div>
   );
