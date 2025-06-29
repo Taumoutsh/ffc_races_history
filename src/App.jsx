@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApiData } from './hooks/useApiData';
 import PerformanceChart from './components/PerformanceChart';
 import RaceLeaderboardModal from './components/RaceLeaderboardModal';
@@ -170,6 +170,7 @@ function App() {
   const [researchResults, setResearchResults] = useState([]);
   const [showResearchSection, setShowResearchSection] = useState(false);
   const [showRacesPanel, setShowRacesPanel] = useState(false);
+  const [raceParticipantCounts, setRaceParticipantCounts] = useState({});
 
 
   const handleChartPointClick = (raceData) => {
@@ -243,6 +244,35 @@ function App() {
     setSelectedCyclist({ id: racer.id, name: racer.formattedName, history });
     setShowCyclistProfile(true);
   };
+
+  // Function to fetch participant count for a race
+  const fetchRaceParticipantCount = useCallback(async (raceId) => {
+    if (!api || !raceId || raceParticipantCounts[raceId]) return;
+    
+    try {
+      const raceData = await api.getRace(raceId);
+      if (raceData && raceData.participant_count) {
+        setRaceParticipantCounts(prev => ({
+          ...prev,
+          [raceId]: raceData.participant_count
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching race participant count:', error);
+    }
+  }, [api, raceParticipantCounts]);
+
+  // Fetch participant counts for default cyclist races
+  useEffect(() => {
+    const defaultCyclistRaces = getDefaultCyclistRaces();
+    if (defaultCyclistRaces.length > 0 && api) {
+      defaultCyclistRaces.forEach(race => {
+        if (race.raceId && !raceParticipantCounts[race.raceId]) {
+          fetchRaceParticipantCount(race.raceId);
+        }
+      });
+    }
+  }, [getDefaultCyclistRaces, api, fetchRaceParticipantCount, raceParticipantCounts]);
 
   if (loading) {
     return (
@@ -595,6 +625,8 @@ function App() {
               data={defaultCyclistRaces} 
               onPointClick={handleChartPointClick}
               cyclistName={getDefaultCyclistInfo().fullName}
+              cyclistInfo={getDefaultCyclistInfo()}
+              raceParticipantCounts={raceParticipantCounts}
             />
             <div style={styles.instructions}>
               <h3 style={styles.instructionsTitle}>{t('ui.howToUse')}</h3>

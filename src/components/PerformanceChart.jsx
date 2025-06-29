@@ -3,7 +3,7 @@ import { useTranslation } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
 import { calculatePercentagePosition, getPercentageColor } from '../utils/dateUtils';
 
-const PerformanceChart = ({ data, onPointClick, cyclistName, raceParticipantCounts }) => {
+const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, raceParticipantCounts }) => {
   const { t } = useTranslation();
   const [forceUpdate, setForceUpdate] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -88,6 +88,23 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, raceParticipantCoun
     }
   };
 
+  // Calculate average top percentage for all races
+  const calculateAverageTopPercentage = () => {
+    if (!data || !raceParticipantCounts) return null;
+    
+    const validPercentages = data
+      .map(race => {
+        const participantCount = raceParticipantCounts[race.raceId];
+        return calculatePercentagePosition(race.position, participantCount);
+      })
+      .filter(percentage => percentage !== null);
+    
+    if (validPercentages.length === 0) return null;
+    
+    const sum = validPercentages.reduce((acc, percentage) => acc + percentage, 0);
+    return Math.round(sum / validPercentages.length);
+  };
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const raceData = payload[0].payload;
@@ -135,6 +152,22 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, raceParticipantCoun
             </p>
           )}
           <p style={{fontSize: '0.875rem', color: '#64748b', margin: '0 0 0.75rem 0', fontWeight: '600'}}>{raceData.name}</p>
+          
+          {/* Cyclist ID Section */}
+          {cyclistInfo && cyclistInfo.id && (
+            <div style={{
+              borderTop: '1px solid rgba(59, 130, 246, 0.2)',
+              paddingTop: '0.75rem',
+              marginBottom: '0.75rem'
+            }}>
+              <div style={{fontSize: '0.75rem', color: '#64748b', lineHeight: '1.4'}}>
+                <p style={{margin: '0'}}>
+                  🆔 <strong>ID:</strong> {cyclistInfo.id}
+                </p>
+              </div>
+            </div>
+          )}
+          
           <p style={{fontSize: '0.75rem', color: '#8b5cf6', margin: 0, fontWeight: '600'}}>👆 {t('ui.viewProfile')}</p>
         </div>
       );
@@ -147,7 +180,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, raceParticipantCoun
       <h2 style={{
         fontSize: '1.75rem', 
         fontWeight: '800', 
-        marginBottom: '1.5rem', 
+        marginBottom: '1rem', 
         textAlign: 'center',
         background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
         WebkitBackgroundClip: 'text',
@@ -157,6 +190,72 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, raceParticipantCoun
       }}>
         📊 {displayName} - {t('chart.title')}
       </h2>
+
+      {/* Cyclist Statistics */}
+      {cyclistInfo && (
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)', 
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(59, 130, 246, 0.2)', 
+          borderRadius: '1rem',
+          padding: '1rem',
+          marginBottom: '1.5rem',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '3rem',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            color: '#1f2937'
+          }}>
+            🏁 <span style={{color: '#6b7280'}}>Total Races:</span>
+            <span style={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+              color: 'white',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.9rem',
+              fontWeight: '700'
+            }}>
+              {data ? data.length : 0}
+            </span>
+          </div>
+
+          {(() => {
+            const avgPercentage = calculateAverageTopPercentage();
+            return avgPercentage !== null ? (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: '#1f2937'
+              }}>
+                📈 <span style={{color: '#6b7280'}}>Avg Top %:</span>
+                <span style={{
+                  background: getPercentageColor(avgPercentage),
+                  color: 'white',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9rem',
+                  fontWeight: '700'
+                }}>
+                  {avgPercentage}%
+                </span>
+              </div>
+            ) : null;
+          })()}
+        </div>
+      )}
       
       {/* Chart pagination info */}
       {totalRaces > RACES_PER_PAGE && (
