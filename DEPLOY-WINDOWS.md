@@ -138,10 +138,18 @@ To access the app from other devices on your network:
    - Frontend: `http://YOUR_IP:8080`
    - API: `http://YOUR_IP:3001/api`
 
+## Database Initialization
+
+The Docker container will automatically:
+
+1. **Copy existing database**: If `backend/database/cycling_data.db` exists, it will be copied to the container
+2. **Use backup database**: If no main database exists, it will look for backup files (`cycling_data_backup_*.db`)
+3. **Create new database**: If no database files are found, it will create a fresh database
+
 ## Data Persistence
 
 Your database and logs are stored in Docker volumes:
-- Database: `cycling_data` volume
+- Database: `cycling_data` volume (persistent across container restarts)
 - Logs: `cycling_logs` volume
 
 To backup your data:

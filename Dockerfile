@@ -39,6 +39,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend source
 COPY backend/ ./backend/
 
+# Create directory for database source and copy if exists
+RUN mkdir -p /app/database_source
+
+# Copy existing database files if they exist
+COPY backend/database/ ./database_source/
+
 # Copy built frontend
 COPY --from=frontend-builder /app/dist ./frontend/dist
 
@@ -59,13 +65,35 @@ RUN echo '#!/bin/bash' > /app/start.sh && \
     echo '' >> /app/start.sh && \
     echo '# Initialize database if needed' >> /app/start.sh && \
     echo 'if [ ! -f "$DB_PATH" ]; then' >> /app/start.sh && \
-    echo '    echo "📊 Initializing database..."' >> /app/start.sh && \
-    echo '    python -c "' >> /app/start.sh && \
+    echo '    echo "📊 Looking for existing database..."' >> /app/start.sh && \
+    echo '    # Check if there are any database files in the source directory' >> /app/start.sh && \
+    echo '    if [ -f "/app/database_source/cycling_data.db" ]; then' >> /app/start.sh && \
+    echo '        echo "📁 Found existing database, copying cycling_data.db to data directory..."' >> /app/start.sh && \
+    echo '        cp /app/database_source/cycling_data.db "$DB_PATH"' >> /app/start.sh && \
+    echo '    elif [ -f "/app/database_source/cycling_data_backup_"*.db ]; then' >> /app/start.sh && \
+    echo '        echo "📁 Found backup database, copying to data directory..."' >> /app/start.sh && \
+    echo '        cp /app/database_source/cycling_data_backup_*.db "$DB_PATH"' >> /app/start.sh && \
+    echo '    elif [ "$(ls -A /app/database_source/*.db 2>/dev/null)" ]; then' >> /app/start.sh && \
+    echo '        echo "📁 Found database files, copying first one to data directory..."' >> /app/start.sh && \
+    echo '        cp $(ls /app/database_source/*.db | head -1) "$DB_PATH"' >> /app/start.sh && \
+    echo '        if [ -f "$DB_PATH" ]; then' >> /app/start.sh && \
+    echo '            echo "✅ Database copied successfully!"' >> /app/start.sh && \
+    echo '        else' >> /app/start.sh && \
+    echo '            echo "⚠️  Database copy failed, will create new database"' >> /app/start.sh && \
+    echo '        fi' >> /app/start.sh && \
+    echo '    fi' >> /app/start.sh && \
+    echo '    # If no database exists after copy attempt, create a new one' >> /app/start.sh && \
+    echo '    if [ ! -f "$DB_PATH" ]; then' >> /app/start.sh && \
+    echo '        echo "📊 Creating new database..."' >> /app/start.sh && \
+    echo '        python -c "' >> /app/start.sh && \
     echo 'import sys' >> /app/start.sh && \
     echo 'sys.path.append(\"/app\")" >> /app/start.sh' && \
     echo 'from backend.database.models_optimized import CyclingDatabase' >> /app/start.sh && \
     echo 'db = CyclingDatabase(\"$DB_PATH\")' >> /app/start.sh && \
     echo 'print(\"Database initialized successfully!\")" || echo "Database initialization failed, continuing..."' >> /app/start.sh && \
+    echo '    fi' >> /app/start.sh && \
+    echo 'else' >> /app/start.sh && \
+    echo '    echo "✅ Database already exists at $DB_PATH"' >> /app/start.sh && \
     echo 'fi' >> /app/start.sh && \
     echo '' >> /app/start.sh && \
     echo '# Start API server in background' >> /app/start.sh && \
