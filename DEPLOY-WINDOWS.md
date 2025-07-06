@@ -121,7 +121,26 @@ docker-compose up -d
 
 ## Network Access from Other Devices
 
-To access the app from other devices on your network:
+The deployment scripts **automatically detect your network IP address** and configure the application for network access.
+
+### Automatic Configuration
+
+When you run `deploy-windows.bat`, it will:
+1. Auto-detect your network IP address (e.g., 192.168.1.26)
+2. Configure the frontend to use the network IP for API calls
+3. Display both local and network URLs
+
+### Access from Other Devices
+
+After deployment, you can access the app from other devices using the **network URLs** shown in the deployment output:
+
+- **iPhone/Android**: `http://192.168.1.26:8080`
+- **Other Computers**: `http://192.168.1.26:8080`
+- **Tablets**: `http://192.168.1.26:8080`
+
+### Manual IP Configuration (if needed)
+
+If automatic detection fails, you can manually set the IP:
 
 1. Find your Windows machine's IP address:
    ```cmd
@@ -129,14 +148,11 @@ To access the app from other devices on your network:
    ```
    Look for the "IPv4 Address" (usually starts with 192.168.x.x)
 
-2. Update the API URL in the Docker environment (optional):
-   - Edit `docker-compose.yml`
-   - Change `VITE_API_URL` to use your IP address
-   - Rebuild: `docker-compose build --no-cache`
-
-3. Access from other devices:
-   - Frontend: `http://YOUR_IP:8080`
-   - API: `http://YOUR_IP:3001/api`
+2. Set the environment variable before deployment:
+   ```cmd
+   set VITE_API_URL=http://YOUR_IP:3001/api
+   deploy-windows.bat
+   ```
 
 ## Database Initialization
 

@@ -13,6 +13,15 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
+# Get local IP address for network access
+LOCAL_IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | head -1 | awk '{print $2}')
+if [ -z "$LOCAL_IP" ]; then
+    echo "⚠️  Could not detect local IP address, using localhost"
+    LOCAL_IP="localhost"
+else
+    echo "✅ Detected local IP address: $LOCAL_IP"
+fi
+
 # Check Docker Compose
 if command -v docker-compose &> /dev/null; then
     COMPOSE_CMD="docker-compose"
@@ -35,6 +44,7 @@ $COMPOSE_CMD build --no-cache
 
 # Start application
 echo "🚀 Starting application..."
+export VITE_API_URL="http://$LOCAL_IP:3001/api"
 $COMPOSE_CMD up -d
 
 # Wait for startup
@@ -59,9 +69,11 @@ echo
 echo "🎉 Deployment Complete!"
 echo
 echo "📱 Access your application:"
-echo "  Frontend: http://localhost:8080"
-echo "  API:      http://localhost:3001/api"
-echo "  Health:   http://localhost:3001/api/health"
+echo "  Frontend (local):  http://localhost:8080"
+echo "  Frontend (network): http://$LOCAL_IP:8080"
+echo "  API (local):       http://localhost:3001/api"
+echo "  API (network):     http://$LOCAL_IP:3001/api"
+echo "  Health Check:      http://localhost:3001/api/health"
 echo
 echo "📊 Management commands:"
 echo "  View logs:    $COMPOSE_CMD logs -f"
