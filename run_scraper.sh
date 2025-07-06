@@ -18,10 +18,31 @@ show_usage() {
     exit 1
 }
 
+# Function to create database backup
+create_backup() {
+    if [ -f "backend/database/cycling_data.db" ]; then
+        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+        BACKUP_FILE="backend/database/cycling_data_backup_${TIMESTAMP}.db"
+        echo "💾 Creating database backup: $BACKUP_FILE"
+        cp "backend/database/cycling_data.db" "$BACKUP_FILE"
+        if [ $? -eq 0 ]; then
+            echo "✅ Database backup created successfully"
+        else
+            echo "❌ Failed to create database backup"
+        fi
+    fi
+}
+
 # Function to handle cleanup on exit
 cleanup() {
     echo ""
     echo "🛑 Scraper interrupted by user"
+    
+    # Create backup if database exists
+    if [ "$SCRAPER_TYPE" == "db" ]; then
+        create_backup
+    fi
+    
     # Deactivate virtual environment if active
     if [[ "$VIRTUAL_ENV" != "" ]]; then
         echo "🔧 Deactivating virtual environment..."
@@ -113,6 +134,9 @@ if [ $? -eq 0 ]; then
     if [ "$SCRAPER_TYPE" == "db" ]; then
         echo "📊 Data saved to: backend/database/cycling_data.db"
         echo "🔄 Restart API server to see new data: ./start_api.sh"
+        
+        # Create backup after successful completion
+        create_backup
     else
         echo "📊 Data saved to: public/data.yaml"
         echo "🔄 Refresh your browser to see new data"

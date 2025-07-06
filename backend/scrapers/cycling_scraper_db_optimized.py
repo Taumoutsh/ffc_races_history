@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 # Import configuration and utilities
 from backend.config.constants import (
-    BASE_URL, RACE_SEARCH_PARAMS, RATE_LIMIT_DELAY, MAX_PAGES,
+    BASE_URL, DEFAULT_DATE, RACE_SEARCH_PARAMS, RATE_LIMIT_DELAY, MAX_PAGES,
     RACE_LINK_SELECTORS, RESULTS_TABLE_SELECTORS, USER_AGENT,
     DEFAULT_DB_PATH, SUCCESS_MESSAGES, ERROR_MESSAGES
 )
@@ -135,41 +135,44 @@ class OptimizedCyclingScraperDB:
             race_title = soup.find('h1')
             race_name = race_title.get_text().strip() if race_title else "Unknown Race"
             race_date = extract_race_date(soup)
-            
-            # Generate race ID
-            race_id = generate_race_id(race_name, race_date, race_url)
-            
-            # Check if race already exists in database
-            if self.db.race_exists(race_id):
-                self.logger.debug(f"Race already exists: {race_name} ({race_date})")
-                self.stats['skipped_races'] += 1
-                self.processed_urls.add(race_url)
-                return False
-            
-            # Find results table
-            results_table = find_results_table(soup, RESULTS_TABLE_SELECTORS)
-            if not results_table:
-                self.logger.warning(f"No results table found: {race_url}")
-                self.stats['errors'] += 1
-                return False
-            
-            # Add race to database
-            self.db.add_or_update_race(race_id, race_date, race_name)
-            self.stats['new_races'] += 1
-            
-            # Process participants
-            participants_added = self._process_race_participants(
-                results_table, race_id
-            )
-            
-            self.logger.info(
-                SUCCESS_MESSAGES['race_scraped'].format(
-                    count=participants_added, race_id=race_id
+
+            if race_date != DEFAULT_DATE:
+                # Generate race ID
+                race_id = generate_race_id(race_name, race_date, race_url)
+                
+                # Check if race already exists in database
+                if self.db.race_exists(race_id):
+                    self.logger.debug(f"Race already exists: {race_name} ({race_date})")
+                    self.stats['skipped_races'] += 1
+                    self.processed_urls.add(race_url)
+                    return False
+                
+                # Find results table
+                results_table = find_results_table(soup, RESULTS_TABLE_SELECTORS)
+                if not results_table:
+                    self.logger.warning(f"No results table found: {race_url}")
+                    self.stats['errors'] += 1
+                    return False
+                
+                # Add race to database
+                self.db.add_or_update_race(race_id, race_date, race_name)
+                self.stats['new_races'] += 1
+                
+                # Process participants
+                participants_added = self._process_race_participants(
+                    results_table, race_id
                 )
-            )
-            
-            self.processed_urls.add(race_url)
-            return True
+                
+                self.logger.info(
+                    SUCCESS_MESSAGES['race_scraped'].format(
+                        count=participants_added, race_id=race_id
+                    )
+                )
+                
+                self.processed_urls.add(race_url)
+                return True
+            else:
+                return False
             
         except Exception as e:
             self.logger.error(f"Error processing race {race_url}: {e}")

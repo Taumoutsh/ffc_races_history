@@ -83,7 +83,7 @@ def is_header_entry(first_name: str, last_name: str) -> bool:
 
 def extract_race_date(soup: BeautifulSoup) -> str:
     """
-    Extract race date from HTML soup using multiple strategies
+    Extract race date from HTML soup using header-race__date div only
     
     Args:
         soup: BeautifulSoup object of the race page
@@ -91,30 +91,33 @@ def extract_race_date(soup: BeautifulSoup) -> str:
     Returns:
         Extracted date string or default fallback
     """
-    # Check the entire page text for French date patterns first
-    full_text = soup.get_text()
+    # Only look for date in header-race__date div
+    date_elem = soup.select_one('.header-race__date')
     
-    # Try French date patterns (most common format)
-    for pattern in FRENCH_DATE_PATTERNS:
-        match = re.search(pattern, full_text, re.IGNORECASE)
-        if match:
-            logger.debug(f"Found French date: {match.group(1)}")
-            return match.group(1)
+    if date_elem:
+        date_text = date_elem.get_text().strip()
+        logger.debug(f"Found date element: {date_text}")
+        
+        # Try French date patterns first
+        for pattern in FRENCH_DATE_PATTERNS:
+            match = re.search(pattern, date_text, re.IGNORECASE)
+            if match:
+                logger.debug(f"Found French date: {match.group(1)}")
+                return match.group(1)
+        
+        # Try generic date patterns
+        for pattern in GENERIC_DATE_PATTERNS:
+            match = re.search(pattern, date_text)
+            if match:
+                logger.debug(f"Found date: {match.group(1)}")
+                return match.group(1)
+        
+        # If no pattern matches, return the raw text as fallback
+        if date_text:
+            logger.debug(f"Using raw date text: {date_text}")
+            return date_text
     
-    # Try element selectors
-    for selector in DATE_SELECTORS:
-        date_elem = soup.select_one(selector)
-        if date_elem:
-            date_text = date_elem.get_text().strip()
-            
-            # Try generic date patterns
-            for pattern in GENERIC_DATE_PATTERNS:
-                match = re.search(pattern, date_text)
-                if match:
-                    logger.debug(f"Found date in {selector}: {match.group(1)}")
-                    return match.group(1)
-    
-    logger.warning("No date found, using default")
+    logger.warning("No date found in header-race__date div, using default")
     return DEFAULT_DATE
 
 
