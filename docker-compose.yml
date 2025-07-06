@@ -1,46 +1,43 @@
 version: '3.8'
 
 services:
-  race-cycling-app:
-    build: .
+  cycling-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: race-cycling-app
     ports:
-      - "8080:80"
-      - "3001:3001"
+      - "8080:80"      # Frontend (Nginx)
+      - "3001:3001"    # API Server
     volumes:
-      # Persist database data
-      - ./data:/app/data
-      # Mount logs for debugging
-      - ./logs:/var/log/nginx
+      # Mount data directory for persistent database
+      - cycling_data:/app/data
+      # Mount logs directory for debugging
+      - cycling_logs:/app/logs
     environment:
       - NODE_ENV=production
       - DB_PATH=/app/data/cycling_data.db
       - API_PORT=3001
       - DEBUG=false
+      - PYTHONPATH=/app
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
+    networks:
+      - cycling-network
 
-  # Optional: Add a reverse proxy for production
-  nginx-proxy:
-    image: nginx:alpine
-    container_name: race-cycling-proxy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./docker/proxy.conf:/etc/nginx/conf.d/default.conf
-      - ./docker/ssl:/etc/nginx/ssl  # For SSL certificates
-    depends_on:
-      - race-cycling-app
-    restart: unless-stopped
-    profiles:
-      - production
-
+# Named volumes for data persistence
 volumes:
-  app-data:
+  cycling_data:
     driver: local
+  cycling_logs:
+    driver: local
+
+# Custom network
+networks:
+  cycling-network:
+    driver: bridge
