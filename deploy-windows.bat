@@ -18,15 +18,10 @@ if %errorlevel% neq 0 (
 
 echo ✅ Docker is running
 
-REM Get the local IP address for network access
+REM Get the local IP address for display purposes
 for /f "tokens=2 delims=:" %%i in ('ipconfig ^| findstr /C:"IPv4 Address" ^| findstr "192.168"') do set LOCAL_IP=%%i
 set LOCAL_IP=%LOCAL_IP: =%
-if "%LOCAL_IP%"=="" (
-    echo ⚠️  Could not detect local IP address, using localhost
-    set LOCAL_IP=localhost
-) else (
-    echo ✅ Detected local IP address: %LOCAL_IP%
-)
+if "%LOCAL_IP%"=="" set LOCAL_IP=localhost
 
 REM Check if docker-compose is available
 docker-compose version >nul 2>&1
@@ -64,7 +59,6 @@ echo ✅ Build completed successfully
 
 echo.
 echo 🚀 Starting application...
-set VITE_API_URL=http://%LOCAL_IP%:3001/api
 %COMPOSE_CMD% up -d
 
 if %errorlevel% neq 0 (

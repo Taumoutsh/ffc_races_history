@@ -140,7 +140,6 @@ RUN echo '#!/bin/bash' > /app/start.sh && \
 
 # Create environment file
 RUN echo 'NODE_ENV=production' > /app/.env && \
-    echo 'VITE_API_URL=http://localhost:3001/api' >> /app/.env && \
     echo 'DB_PATH=/app/data/cycling_data.db' >> /app/.env && \
     echo 'API_PORT=3001' >> /app/.env && \
     echo 'DEBUG=false' >> /app/.env && \

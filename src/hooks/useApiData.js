@@ -1,7 +1,26 @@
 import { useState, useEffect } from 'react';
 import { appConfig } from '../config/appConfig.js';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Dynamic API URL detection for network access
+const getApiBaseUrl = () => {
+  // If VITE_API_URL is set during build, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // For runtime, detect the current host
+  const currentHost = window.location.hostname;
+  
+  // If accessing via network IP or domain, use the same host for API
+  if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+    return `http://${currentHost}:3001/api`;
+  }
+  
+  // Default to localhost for local development
+  return 'http://localhost:3001/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const useApiData = (dynamicDefaultCyclist) => {
   const [data, setData] = useState(null);

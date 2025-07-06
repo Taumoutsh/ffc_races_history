@@ -121,14 +121,14 @@ docker-compose up -d
 
 ## Network Access from Other Devices
 
-The deployment scripts **automatically detect your network IP address** and configure the application for network access.
+The application **automatically detects the correct API URL** based on how you access it.
 
 ### Automatic Configuration
 
-When you run `deploy-windows.bat`, it will:
-1. Auto-detect your network IP address (e.g., 192.168.1.26)
-2. Configure the frontend to use the network IP for API calls
-3. Display both local and network URLs
+The frontend dynamically detects the API URL:
+- **Local access** (`localhost:8080`): Uses `localhost:3001/api`
+- **Network access** (`192.168.1.26:8080`): Uses `192.168.1.26:3001/api`
+- **No configuration needed** - it just works!
 
 ### Access from Other Devices
 
