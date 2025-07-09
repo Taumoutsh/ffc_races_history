@@ -59,6 +59,19 @@ export const translations = {
       instructionResearch: 'Use the research tool to analyze entry lists against the database',
       compareWithDefault: 'Compare with default cyclist'
     },
+    pdf: {
+      exportPDF: 'Export PDF',
+      title: 'Research Results',
+      organizerClub: 'Organizer Club',
+      generatedOn: 'Generated on',
+      raceHistoryFor: 'Race History for',
+      backToTop: 'Back to Top',
+      instructions: 'Use the table of contents below to navigate to specific cyclist histories. Use "Back to Top" buttons to return to the main table.',
+      page: 'Page',
+      of: 'of',
+      exportError: 'PDF export failed. Please try again.',
+      tableOfContents: 'Table of Contents - Race Histories'
+    },
     comparison: {
       title: 'Performance comparison',
       subtitle: 'Comparing performances in common races',
@@ -151,6 +164,19 @@ export const translations = {
       instructionDefaultCyclist: 'Changez le cycliste par défaut en cliquant sur le bouton ⭐ dans n\'importe quel profil de cycliste',
       instructionResearch: 'Utilisez l\'outil de recherche pour vérifier les listes d\'engagés dans la base de données',
       compareWithDefault: 'Comparer avec le cycliste par défaut'
+    },
+    pdf: {
+      exportPDF: 'Exporter PDF',
+      title: 'Résultats de recherche',
+      organizerClub: 'Club organisateur',
+      generatedOn: 'Généré le',
+      raceHistoryFor: 'Historique des courses pour',
+      backToTop: 'Retour au début',
+      instructions: 'Utilisez la table des matières ci-dessous pour naviguer vers les historiques de cyclistes spécifiques. Utilisez les boutons "Retour au début" pour revenir au tableau principal.',
+      page: 'Page',
+      of: 'sur',
+      exportError: 'Échec de l\'exportation PDF. Veuillez réessayer.',
+      tableOfContents: 'Table des matières - Historiques des courses'
     },
     comparison: {
       title: 'Comparaison des performances',

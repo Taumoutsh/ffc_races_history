@@ -7,6 +7,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import RacesList from './components/RacesList';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
+import { downloadResearchPDF } from './utils/pdfGenerator.js';
 
 const styles = {
   container: {
@@ -244,6 +245,20 @@ function App() {
     const history = getCyclistHistory(racer.id);
     setSelectedCyclist({ id: racer.id, name: racer.formattedName, history });
     setShowCyclistProfile(true);
+  };
+
+  const handleExportPDF = async () => {
+    if (researchResults.length === 0) return;
+    
+    const result = await downloadResearchPDF(researchResults, getCyclistHistory, organizerClub, t);
+    if (result.success) {
+      // Show success message (optional)
+      console.log(`PDF exported successfully: ${result.fileName}`);
+    } else {
+      // Handle error with user-friendly message
+      console.error('PDF export failed:', result.error);
+      alert(t('pdf.exportError') || `PDF export failed: ${result.error}`);
+    }
   };
 
   // Function to fetch participant count for a race
@@ -571,9 +586,46 @@ function App() {
               {/* Research Results */}
               {researchResults.length > 0 && (
                 <div style={{border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '1rem', backgroundColor: 'rgba(240, 253, 244, 0.8)', backdropFilter: 'blur(10px)'}}>
-                  <h4 style={{padding: '1rem', margin: 0, fontWeight: '700', borderBottom: '1px solid rgba(34, 197, 94, 0.2)', color: '#059669'}}>
-                    ✅ {t('ui.foundRacers')} ({researchResults.length})
-                  </h4>
+                  <div style={{
+                    padding: '1rem', 
+                    margin: 0, 
+                    fontWeight: '700', 
+                    borderBottom: '1px solid rgba(34, 197, 94, 0.2)', 
+                    color: '#059669',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span>✅ {t('ui.foundRacers')} ({researchResults.length})</span>
+                    <button
+                      onClick={handleExportPDF}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '0.875rem',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-1px)';
+                        e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                      }}
+                    >
+                      📄 {t('pdf.exportPDF') || 'Export PDF'}
+                    </button>
+                  </div>
                   
                   {/* Table Header */}
                   <div style={{
