@@ -256,7 +256,7 @@ export const useApiData = (dynamicDefaultCyclist) => {
   };
 
   // Research function to find racers from imported list using API
-  const researchRacers = async (importedRacersList) => {
+  const researchRacers = async (importedRacersList, organizerClub = '') => {
     if (!importedRacersList?.trim()) return [];
     
     try {
@@ -276,6 +276,57 @@ export const useApiData = (dynamicDefaultCyclist) => {
       
       const result = await response.json();
       
+      // Parse the original entry list to get club names and calculate estimated numbers
+      const entryLines = importedRacersList.trim().split('\n');
+      const parsedEntries = [];
+      
+      entryLines.forEach(line => {
+        // Split by tab or multiple spaces (same as backend logic)
+        const parts = line.split(/\t+|\s{2,}/);
+        if (parts.length >= 6) {
+          const [uci_id, last_name, first_name, category, region, club, team] = parts;
+          
+          parsedEntries.push({
+            uci_id,
+            last_name,
+            first_name,
+            club: club || '',
+            team: team || club || '',
+            region,
+            category
+          });
+        }
+      });
+      
+      // Sort entries: organizer club first, then alphabetically by club name, then by last name within each club
+      parsedEntries.sort((a, b) => {
+        const clubA = (a.club || '').toLowerCase().trim();
+        const clubB = (b.club || '').toLowerCase().trim();
+        const organizerClubLower = organizerClub.toLowerCase().trim();
+        
+        // Check if clubs match the organizer club
+        const isOrganizerA = organizerClubLower && clubA === organizerClubLower;
+        const isOrganizerB = organizerClubLower && clubB === organizerClubLower;
+        
+        // If one is organizer club and the other is not, organizer club comes first
+        if (isOrganizerA && !isOrganizerB) return -1;
+        if (!isOrganizerA && isOrganizerB) return 1;
+        
+        // If both are organizer club or both are not, sort alphabetically by club name
+        if (clubA !== clubB) {
+          return clubA.localeCompare(clubB);
+        }
+        
+        // Within same club, sort by last name
+        return (a.last_name || '').toLowerCase().localeCompare((b.last_name || '').toLowerCase());
+      });
+      
+      // Create a map of estimated numbers by UCI ID
+      const estimatedNumberMap = {};
+      parsedEntries.forEach((entry, index) => {
+        estimatedNumberMap[entry.uci_id] = index + 1;
+      });
+      
       // Transform API response to match expected format
       return result.results
         .filter(racer => racer.found_in_db)
@@ -284,9 +335,10 @@ export const useApiData = (dynamicDefaultCyclist) => {
           firstName: racer.first_name,
           lastName: racer.last_name,
           region: racer.region,
-          team: racer.team || racer.club || 'N/A', // Use team, fallback to club, then N/A
+          team: racer.team || racer.club || 'N/A',
           bestPosition: racer.best_position,
-          formattedName: formatName(racer.first_name, racer.last_name)
+          formattedName: formatName(racer.first_name, racer.last_name),
+          estimatedNumber: estimatedNumberMap[racer.db_uci_id || racer.uci_id] || '-'
         }))
         .sort((a, b) => a.bestPosition - b.bestPosition);
         

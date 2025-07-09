@@ -169,6 +169,7 @@ function App() {
   const [researchInput, setResearchInput] = useState('');
   const [researchResults, setResearchResults] = useState([]);
   const [showResearchSection, setShowResearchSection] = useState(false);
+  const [organizerClub, setOrganizerClub] = useState('');
   const [showRacesPanel, setShowRacesPanel] = useState(false);
   const [raceParticipantCounts, setRaceParticipantCounts] = useState({});
 
@@ -234,7 +235,7 @@ function App() {
   const handleResearchSubmit = async (e) => {
     e.preventDefault();
     if (researchInput.trim()) {
-      const results = await researchRacers(researchInput.trim());
+      const results = await researchRacers(researchInput.trim(), organizerClub.trim());
       setResearchResults(results);
     }
   };
@@ -468,6 +469,51 @@ function App() {
                 📋 {t('ui.researchInstructions')}
               </p>
               <form onSubmit={handleResearchSubmit} style={{marginBottom: '1.5rem'}}>
+                {/* Organizer Club Input */}
+                <div style={{marginBottom: '1rem'}}>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '0.875rem'
+                  }}>
+                    🏆 {t('ui.organizerClub') || 'Organizer Club (optional)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={organizerClub}
+                    onChange={(e) => setOrganizerClub(e.target.value)}
+                    placeholder="UNION CYCLISTE CHOLET 49"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '2px solid rgba(59, 130, 246, 0.2)',
+                      borderRadius: '0.75rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      transition: 'all 0.2s ease',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#3b82f6';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                  <p style={{
+                    marginTop: '0.5rem',
+                    fontSize: '0.75rem',
+                    color: '#6b7280',
+                    fontStyle: 'italic'
+                  }}>
+                    💡 {t('ui.organizerClubHint') || 'Cyclists from this club will get numbers 1, 2, 3... first'}
+                  </p>
+                </div>
+
                 <textarea
                   value={researchInput}
                   onChange={(e) => setResearchInput(e.target.value)}
@@ -532,7 +578,7 @@ function App() {
                   {/* Table Header */}
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '100px 120px 1fr 150px 1fr',
+                    gridTemplateColumns: '80px 100px 120px 1fr 150px 1fr',
                     gap: '1rem',
                     alignItems: 'center',
                     padding: '1rem',
@@ -542,6 +588,7 @@ function App() {
                     fontSize: '0.875rem',
                     color: '#059669'
                   }}>
+                    <div>🔢 {t('ui.estimatedNumber') || 'Est. #'}</div>
                     <div>🥇 {t('ui.bestPosition')}</div>
                     <div>🆔 ID</div>
                     <div>👤 {t('table.name')}</div>
@@ -552,6 +599,8 @@ function App() {
                   <div style={{maxHeight: '400px', overflowY: 'auto'}}>
                     {researchResults.map((racer, index) => {
                       const isDefault = isDefaultCyclistById(racer.id, racer.formattedName);
+                      const isOrganizer = organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
+                      
                       return (
                       <div
                         key={index}
@@ -560,14 +609,20 @@ function App() {
                           padding: '1rem',
                           borderBottom: index < researchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
                           cursor: 'pointer',
-                          backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.7)',
+                          backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' : 
+                                          isOrganizer ? 'rgba(255, 193, 7, 0.1)' : 
+                                          'rgba(255, 255, 255, 0.7)',
                           transition: 'all 0.2s ease',
                           display: 'grid',
-                          gridTemplateColumns: '100px 120px 1fr 150px 1fr',
+                          gridTemplateColumns: '80px 100px 120px 1fr 150px 1fr',
                           gap: '1rem',
                           alignItems: 'center',
-                          borderLeft: isDefault ? '4px solid #10b981' : 'none',
-                          boxShadow: isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' : 'none'
+                          borderLeft: isDefault ? '4px solid #10b981' : 
+                                     isOrganizer ? '4px solid #fbbf24' : 
+                                     'none',
+                          boxShadow: isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' : 
+                                    isOrganizer ? '0 2px 8px rgba(255, 193, 7, 0.2)' : 
+                                    'none'
                         }}
                         onMouseEnter={(e) => {
                           const item = e.currentTarget;
@@ -576,10 +631,15 @@ function App() {
                         }}
                         onMouseLeave={(e) => {
                           const item = e.currentTarget;
-                          item.style.backgroundColor = isDefault ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.7)';
+                          item.style.backgroundColor = isDefault ? 'rgba(34, 197, 94, 0.15)' : 
+                                                      isOrganizer ? 'rgba(255, 193, 7, 0.1)' : 
+                                                      'rgba(255, 255, 255, 0.7)';
                           item.style.transform = 'translateX(0)';
                         }}
                       >
+                        <div style={{fontWeight: '800', color: isOrganizer ? '#fbbf24' : '#3b82f6', fontSize: '1.125rem'}}>
+                          🔢 #{racer.estimatedNumber}
+                        </div>
                         <div style={{fontWeight: '800', color: '#059669', fontSize: '1.125rem'}}>
                           🥇 #{racer.bestPosition}
                         </div>
