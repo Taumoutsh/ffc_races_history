@@ -160,7 +160,7 @@ const styles = {
 
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
-  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
+  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedCyclist, setSelectedCyclist] = useState(null);
@@ -173,6 +173,9 @@ function App() {
   const [organizerClub, setOrganizerClub] = useState('');
   const [showRacesPanel, setShowRacesPanel] = useState(false);
   const [raceParticipantCounts, setRaceParticipantCounts] = useState({});
+  const [raceUrl, setRaceUrl] = useState('');
+  const [scrapedRaceData, setScrapedRaceData] = useState(null);
+  const [isScrapingInProgress, setIsScrapingInProgress] = useState(false);
 
 
   const handleChartPointClick = (raceData) => {
@@ -233,13 +236,34 @@ function App() {
     updateDefaultCyclist(newDefaultCyclist);
   };
 
-  const handleResearchSubmit = async (e) => {
+  const handleUrlScrape = async (e) => {
     e.preventDefault();
-    if (researchInput.trim()) {
-      const results = await researchRacers(researchInput.trim(), organizerClub.trim());
+    if (!raceUrl.trim()) return;
+    
+    setIsScrapingInProgress(true);
+    try {
+      const scraped = await scrapeRaceData(raceUrl.trim());
+      setScrapedRaceData(scraped);
+      
+      // Auto-populate the form fields with scraped data and automatically process results
+      setResearchInput(scraped.entryList);
+      setOrganizerClub(scraped.organizerClub);
+      
+      // Automatically process the research results
+      const results = await researchRacers(scraped.entryList, scraped.organizerClub);
       setResearchResults(results);
+      
+      // Show success message
+      console.log('Scraped race data:', scraped);
+      console.log('Research results:', results);
+    } catch (error) {
+      console.error('Scraping failed:', error);
+      alert(`Scraping failed: ${error.message}`);
+    } finally {
+      setIsScrapingInProgress(false);
     }
   };
+
 
   const handleResearchRacerClick = (racer) => {
     const history = getCyclistHistory(racer.id);
@@ -250,7 +274,7 @@ function App() {
   const handleExportPDF = async () => {
     if (researchResults.length === 0) return;
     
-    const result = await downloadResearchPDF(researchResults, getCyclistHistory, organizerClub, t);
+    const result = await downloadResearchPDF(researchResults, getCyclistHistory, organizerClub, t, scrapedRaceData);
     if (result.success) {
       // Show success message (optional)
       console.log(`PDF exported successfully: ${result.fileName}`);
@@ -480,28 +504,37 @@ function App() {
           
           {showResearchSection && (
             <>
-              <p style={{color: '#64748b', marginBottom: '1rem', fontSize: '0.875rem'}}>
-                📋 {t('ui.researchInstructions')}
-              </p>
-              <form onSubmit={handleResearchSubmit} style={{marginBottom: '1.5rem'}}>
-                {/* Organizer Club Input */}
-                <div style={{marginBottom: '1rem'}}>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontWeight: '600',
-                    color: '#374151',
-                    fontSize: '0.875rem'
-                  }}>
-                    🏆 {t('ui.organizerClub') || 'Organizer Club (optional)'}
-                  </label>
+              {/* URL Scraping Section */}
+              <div style={{
+                marginBottom: '2rem',
+                padding: '1.5rem',
+                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
+                borderRadius: '1rem',
+                border: '1px solid rgba(59, 130, 246, 0.2)'
+              }}>
+                <h4 style={{
+                  margin: '0 0 1rem 0',
+                  color: '#1e40af',
+                  fontWeight: '700',
+                  fontSize: '1.125rem'
+                }}>
+                  🌐 {t('ui.urlScraping')}
+                </h4>
+                <p style={{
+                  color: '#64748b',
+                  marginBottom: '1rem',
+                  fontSize: '0.875rem'
+                }}>
+                  {t('ui.urlScrapingHint')}
+                </p>
+                <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
                   <input
-                    type="text"
-                    value={organizerClub}
-                    onChange={(e) => setOrganizerClub(e.target.value)}
-                    placeholder="UNION CYCLISTE CHOLET 49"
+                    type="url"
+                    value={raceUrl}
+                    onChange={(e) => setRaceUrl(e.target.value)}
+                    placeholder={t('ui.urlPlaceholder')}
                     style={{
-                      width: '100%',
+                      flex: 1,
                       padding: '0.75rem',
                       border: '2px solid rgba(59, 130, 246, 0.2)',
                       borderRadius: '0.75rem',
@@ -519,73 +552,59 @@ function App() {
                       e.target.style.boxShadow = 'none';
                     }}
                   />
-                  <p style={{
-                    marginTop: '0.5rem',
-                    fontSize: '0.75rem',
-                    color: '#6b7280',
-                    fontStyle: 'italic'
-                  }}>
-                    💡 {t('ui.organizerClubHint') || 'Cyclists from this club will get numbers 1, 2, 3... first'}
-                  </p>
-                </div>
-
-                <textarea
-                  value={researchInput}
-                  onChange={(e) => setResearchInput(e.target.value)}
-                  placeholder="10001234567    MARTIN    Pierre    Access 2    CENTRE VAL DE LOIRE    VELO CLUB EXAMPLE&#10;10002345678    DURAND    Sophie    Access 1    NOUVELLE AQUITAINE    CYCLISTE CLUB SAMPLE&#10;10003456789    BERNARD    Julien    Access 3    BRETAGNE    TEAM CYCLING DEMO"
-                  rows={6}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    border: '2px solid rgba(59, 130, 246, 0.2)',
-                    borderRadius: '0.75rem',
-                    fontSize: '0.875rem',
-                    fontFamily: 'monospace',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    transition: 'all 0.2s ease',
-                    outline: 'none',
-                    resize: 'vertical'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(59, 130, 246, 0.2)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-                <button
-                  type="submit"
-                  style={{
+                  <button
+                    type="submit"
+                    disabled={isScrapingInProgress}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: isScrapingInProgress ? 
+                        'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
+                        'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.75rem',
+                      cursor: isScrapingInProgress ? 'not-allowed' : 'pointer',
+                      fontWeight: '600',
+                      fontSize: '0.875rem',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.2s ease',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {isScrapingInProgress ? `🔄 ${t('ui.extracting')}` : `🔍 ${t('ui.extractData')}`}
+                  </button>
+                </form>
+                
+                {/* Display scraped race info */}
+                {scrapedRaceData && (
+                  <div style={{
                     marginTop: '1rem',
-                    padding: '1rem 2rem',
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    color: 'white',
-                    border: 'none',
+                    padding: '1rem',
+                    background: 'rgba(16, 185, 129, 0.1)',
                     borderRadius: '0.75rem',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    fontSize: '1rem',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-1px)';
-                    e.target.style.boxShadow = '0 10px 16px -4px rgba(0, 0, 0, 0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-                  }}
-                >
-                  🔍 {t('ui.researchButton')}
-                </button>
-              </form>
+                    border: '1px solid rgba(16, 185, 129, 0.2)'
+                  }}>
+                    <h5 style={{
+                      margin: '0 0 0.5rem 0',
+                      color: '#059669',
+                      fontWeight: '600'
+                    }}>
+                      ✅ {t('ui.raceDataExtracted')}
+                    </h5>
+                    <div style={{fontSize: '0.875rem', color: '#064e3b'}}>
+                      <div><strong>📅 {t('ui.raceFound')}:</strong> {scrapedRaceData.raceName}</div>
+                      <div><strong>🗓️ {t('ui.dateFound')}:</strong> {scrapedRaceData.raceDate}</div>
+                      <div><strong>🏆 {t('ui.organizerFound')}:</strong> {scrapedRaceData.organizerClub}</div>
+                      <div><strong>👥 {t('ui.cyclistsFound')}:</strong> {scrapedRaceData.entryList.split('\n').filter(line => line.trim()).length} {t('ui.found')}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
 
               {/* Research Results */}
               {researchResults.length > 0 && (
-                <div style={{border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '1rem', backgroundColor: 'rgba(240, 253, 244, 0.8)', backdropFilter: 'blur(10px)'}}>
+                <div style={{border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '1rem', backgroundColor: 'rgba(240, 253, 244, 0.8)', backdropFilter: 'blur(10px)', overflowX: 'hidden'}}>
                   <div style={{
                     padding: '1rem', 
                     margin: 0, 
@@ -648,7 +667,7 @@ function App() {
                     <div>🏃‍♂️ {t('table.team')}</div>
                   </div>
                   
-                  <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+                  <div style={{maxHeight: '400px', overflowY: 'auto', overflowX: 'hidden'}}>
                     {researchResults.map((racer, index) => {
                       const isDefault = isDefaultCyclistById(racer.id, racer.formattedName);
                       const isOrganizer = organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());

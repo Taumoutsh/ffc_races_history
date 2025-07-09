@@ -250,7 +250,7 @@ export const generateResearchPDF = async (researchResults, getCyclistHistory, or
 /**
  * Download the generated PDF
  */
-export const downloadResearchPDF = async (researchResults, getCyclistHistory, organizerClub = '', t) => {
+export const downloadResearchPDF = async (researchResults, getCyclistHistory, organizerClub = '', t, raceData = null) => {
   try {
     // Validate inputs
     if (!researchResults || researchResults.length === 0) {
@@ -266,7 +266,47 @@ export const downloadResearchPDF = async (researchResults, getCyclistHistory, or
     }
 
     const pdf = await generateResearchPDF(researchResults, getCyclistHistory, organizerClub, t);
-    const fileName = `research-results-${new Date().toISOString().split('T')[0]}.pdf`;
+    
+    // Generate filename with race data if available
+    let fileName;
+    if (raceData && raceData.raceName && raceData.raceDate) {
+      // Format: race date_race place_data_export datetime
+      const now = new Date();
+      const exportDateTime = now.toISOString().replace(/[:.]/g, '-').slice(0, 19); // YYYY-MM-DDTHH-MM-SS
+      
+      // Clean race name for filename
+      const cleanRaceName = raceData.raceName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+      
+      // Parse and format race date to YYYY-MM-DD
+      let formattedRaceDate = '';
+      try {
+        // Handle French date format like "12 juillet 2025"
+        const frenchMonths = {
+          'janvier': '01', 'février': '02', 'mars': '03', 'avril': '04', 'mai': '05', 'juin': '06',
+          'juillet': '07', 'août': '08', 'septembre': '09', 'octobre': '10', 'novembre': '11', 'décembre': '12'
+        };
+        
+        const dateParts = raceData.raceDate.toLowerCase().split(' ');
+        if (dateParts.length >= 3) {
+          const day = dateParts[0].padStart(2, '0');
+          const month = frenchMonths[dateParts[1]] || '01';
+          const year = dateParts[2];
+          formattedRaceDate = `${year}-${month}-${day}`;
+        } else {
+          // Fallback: use current date if parsing fails
+          formattedRaceDate = new Date().toISOString().split('T')[0];
+        }
+      } catch (error) {
+        // Fallback: use current date if parsing fails
+        formattedRaceDate = new Date().toISOString().split('T')[0];
+      }
+      
+      fileName = `${formattedRaceDate}_${cleanRaceName}_data_export_${exportDateTime}.pdf`;
+    } else {
+      // Fallback to original format
+      fileName = `research-results-${new Date().toISOString().split('T')[0]}.pdf`;
+    }
+    
     pdf.save(fileName);
     return { success: true, fileName };
   } catch (error) {

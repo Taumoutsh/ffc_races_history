@@ -255,6 +255,40 @@ export const useApiData = (dynamicDefaultCyclist) => {
     return clubName.replace(/^\d+\s+/, '');
   };
 
+  // Scrape race data from URL
+  const scrapeRaceData = async (url) => {
+    if (!url?.trim()) return null;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/research/scrape-race`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: url.trim()
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Scraping failed: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return {
+        raceName: result.race_name || '',
+        raceDate: result.race_date || '',
+        organizerClub: result.organizer_club || '',
+        entryList: result.entry_list || ''
+      };
+      
+    } catch (err) {
+      console.error('Scraping error:', err);
+      throw err;
+    }
+  };
+
   // Research function to find racers from imported list using API
   const researchRacers = async (importedRacersList, organizerClub = '') => {
     if (!importedRacersList?.trim()) return [];
@@ -415,6 +449,7 @@ export const useApiData = (dynamicDefaultCyclist) => {
     searchCyclist,
     formatName,
     researchRacers,
+    scrapeRaceData,
     cleanClubName,
     isDefaultCyclist,
     isDefaultCyclistById,

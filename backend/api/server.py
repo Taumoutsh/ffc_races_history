@@ -9,6 +9,9 @@ from flask_cors import CORS
 import os
 import sys
 import re
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime
 
 # Add project root to path for backend imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -113,6 +116,100 @@ def export_yaml_format():
         return jsonify(data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/research/scrape-race', methods=['POST'])
+def scrape_race_data():
+    """Scrape race data from paysdelaloirecyclisme.fr URL"""
+    try:
+        data = request.get_json()
+        url = data.get('url', '')
+        
+        if not url:
+            return jsonify({'error': 'No URL provided'}), 400
+        
+        # Validate URL
+        if 'paysdelaloirecyclisme.fr' not in url and 'velo.ffc.fr' not in url:
+            return jsonify({'error': 'Only paysdelaloirecyclisme.fr and velo.ffc.fr URLs are supported'}), 400
+        
+        # Scrape the webpage
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract race name from <h1> tag
+        race_name = ''
+        h1_tag = soup.find('h1')
+        if h1_tag:
+            race_name = h1_tag.get_text(strip=True)
+        
+        # Extract race date from <time> tag with class header-race__date
+        race_date = ''
+        time_tag = soup.find('time', class_='header-race__date')
+        if time_tag:
+            race_date = time_tag.get_text(strip=True)
+        
+        # Extract organizer from <span>Organisateur</span> tag
+        organizer_club = ''
+        organizer_spans = soup.find_all('span', string='Organisateur')
+        if organizer_spans:
+            # Look for the next element that contains the organizer name
+            for span in organizer_spans:
+                # Check parent or next sibling elements
+                parent = span.parent
+                if parent:
+                    # Look for the organizer name in the same parent or next elements
+                    text = parent.get_text(strip=True)
+                    # Remove "Organisateur" from the text and extract the club name
+                    organizer_club = text.replace('Organisateur', '').strip()
+                    if organizer_club:
+                        break
+        
+        # Extract cyclist data from table
+        entry_list = ''
+        table = soup.find('table')
+        if table:
+            # Define allowed categories
+            allowed_categories = ['Open 1', 'Open 2', 'Open 3', 'Access 1', 'Access 2']
+            
+            rows = table.find_all('tr')
+            for row in rows[1:]:  # Skip header row
+                cells = row.find_all('td')
+                if len(cells) >= 7:  # Ensure we have enough columns
+                    # Extract data from each cell
+                    uci_id = cells[0].get_text(strip=True)
+                    last_name = cells[1].get_text(strip=True)
+                    first_name = cells[2].get_text(strip=True)
+                    category = cells[3].get_text(strip=True)
+                    region = cells[4].get_text(strip=True)
+                    club = cells[5].get_text(strip=True)
+                    team = cells[6].get_text(strip=True) if len(cells) > 6 else ''
+                    
+                    # Filter by category - only include allowed categories
+                    if category in allowed_categories:
+                        # Create tab-separated line
+                        line = f"{uci_id}\t{last_name}\t{first_name}\t{category}\t{region}\t{club}\t{team}"
+                        entry_list += line + '\n'
+        
+        if not entry_list:
+            return jsonify({'error': 'No cyclist table found on the webpage'}), 400
+        
+        return jsonify({
+            'race_name': race_name,
+            'race_date': race_date,
+            'organizer_club': organizer_club,
+            'entry_list': entry_list.strip()
+        })
+        
+    except requests.RequestException as e:
+        return jsonify({'error': f'Failed to fetch webpage: {str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'error': f'Scraping failed: {str(e)}'}), 500
 
 
 @app.route('/api/research/entry-list', methods=['POST'])

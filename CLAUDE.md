@@ -7,7 +7,7 @@
 **Purpose:** Interactive cycling race performance tracking and analysis  
 **Data Source:** SQLite database with REST API  
 **Default Cyclist:** John Doe (configurable dynamically via UI)  
-**Version:** 2.7.0 - Performance Comparison Feature
+**Version:** 2.9.0 - Advanced Race Scraping & Analysis
 
 ## 🚀 Core Features
 
@@ -42,9 +42,16 @@
 - Real-time search with French accent support
 - Searches first name, last name, combinations
 - 🏁 Races Panel: Full-screen modal with search/pagination
-- Research from Entry List: Analyze racer lists against database
 
-### 6. Multi-language Support
+### 6. 🌐 **Future Race Analysis Tool** (v2.9.0)
+- **Multi-Website Support:** Auto-scraping from paysdelaloirecyclisme.fr and velo.ffc.fr
+- **One-Click Analysis:** URL input → automatic data extraction → instant cyclist results
+- **Category Filtering:** Only includes Open 1-3 and Access 1-2 categories (excludes Access 3-4)
+- **Smart Numbering:** Estimated numbers with organizer club prioritization
+- **Enhanced PDF Export:** Custom filename format with race date and export timestamp
+- **Streamlined UI:** Simplified workflow without manual data entry
+
+### 7. Multi-language Support
 - English/French with React Context
 - Complete UI element coverage
 - Header toggle switcher
@@ -76,6 +83,7 @@ POST /api/research/entry-list      # Entry list analysis
 ### Frontend
 - **React:** 19.1.0, **Vite:** 6.3.5, **Recharts:** 2.15.3
 - **ESLint:** Code linting, **js-yaml:** Legacy YAML support
+- **jsPDF:** 2.5.1, **jsPDF-AutoTable:** 3.8.2 for PDF generation
 
 ### Backend
 - **Python:** 3.8+, **SQLite:** 3, **Flask:** 2.3.0+
@@ -92,15 +100,16 @@ src/
 ├── components/
 │   ├── CyclistProfile.jsx
 │   ├── PerformanceChart.jsx
-│   ├── ComparisonChart.jsx       # NEW v2.7.0
+│   ├── ComparisonChart.jsx       # v2.7.0
 │   └── RaceLeaderboardModal.jsx
 ├── hooks/
-│   ├── useApiData.js
+│   ├── useApiData.js             # Enhanced with scrapeRaceData function
 │   └── useYamlData.js
 ├── contexts/
 │   └── LanguageContext.jsx
 ├── utils/
-│   ├── dateUtils.js              # NEW v2.7.0 - Date parsing & percentage utilities
+│   ├── dateUtils.js              # v2.7.0 - Date parsing & percentage utilities
+│   ├── pdfGenerator.js           # v2.8.0 - Enhanced PDF export with custom filenames
 │   └── defaultCyclistStorage.js
 └── config/
     └── appConfig.js
@@ -199,7 +208,23 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 
 ## 📈 Version History
 
-### v2.7.0 (Current) - Performance Comparison & Top %
+### v2.9.0 (Current) - Advanced Race Scraping & Analysis
+- 🌐 **Multi-Website Scraping:** Support for paysdelaloirecyclisme.fr and velo.ffc.fr
+- 🎯 **Category Filtering:** Auto-filters to include only Open 1-3 and Access 1-2 categories
+- ⚡ **Streamlined Workflow:** One-click URL → scraping → analysis → results
+- 📄 **Smart PDF Filenames:** YYYY-MM-DD_RaceName_data_export_DateTime.pdf format
+- 🔧 **UI Improvements:** Removed manual entry forms, added horizontal scroll prevention
+- 🔤 **Updated Translations:** "Future race analysis tool" branding
+
+### v2.8.0 - Enhanced Research & PDF Export
+- 🔢 **Estimated Number System:** Sequential numbering based on alphabetical sorting (club first, then lastname)
+- 🏆 **Organizer Club Prioritization:** Cyclists from organizer club get priority numbers (1, 2, 3...)
+- 📄 **PDF Export Feature:** Complete research results with clickable cyclist histories
+- 📱 **Mobile-Optimized PDF:** iPhone-friendly layout with table of contents navigation
+- 🌐 **Enhanced Translations:** Complete multilingual support for new features
+- 🎨 **Visual Enhancements:** Organizer club highlighting and improved UI
+
+### v2.7.0 - Performance Comparison & Top %
 - ⚔️ Cyclist performance comparison charts
 - 📊 Top % column with gradient colors (1% green = best, 100% red = worst)
 - 📈 Average Top % display in cyclist info
@@ -234,7 +259,7 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 
 ---
 
-**Last Updated:** December 2025  
-**Current Version:** 2.7.0  
+**Last Updated:** January 2025  
+**Current Version:** 2.9.0  
 **License:** MIT  
 **Repository:** https://github.com/Taumoutsh/ffc_races_history
