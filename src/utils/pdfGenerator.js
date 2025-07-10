@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import jsPDFAutoTable from 'jspdf-autotable';
+import { parseFrenchDate } from './dateUtils.js';
 
 /**
  * Generate a PDF with research results and cyclist race histories
@@ -118,8 +119,20 @@ export const generateResearchPDF = async (researchResults, getCyclistHistory, or
       console.log(`Cyclist ${racer.formattedName} first race:`, history[0]);
     }
     
+    // Sort race history by date (most recent first)
+    const sortedHistory = [...history].sort((a, b) => {
+      try {
+        const dateA = parseFrenchDate(a.date || '');
+        const dateB = parseFrenchDate(b.date || '');
+        return dateB - dateA; // Descending order (most recent first)
+      } catch (error) {
+        // If date parsing fails, maintain original order
+        return 0;
+      }
+    });
+
     // Format race history data properly
-    const formattedHistory = history.map(race => ({
+    const formattedHistory = sortedHistory.map(race => ({
       date: race.date || 'N/A',
       race: race.race_name || 'N/A',
       position: race.rank || 'N/A'
