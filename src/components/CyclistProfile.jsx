@@ -3,7 +3,7 @@ import PerformanceChart from './PerformanceChart';
 import SelectAsDefaultButton from './SelectAsDefaultButton';
 import ComparisonChart from './ComparisonChart';
 import { useTranslation } from '../contexts/LanguageContext';
-import { parseFrenchDate, getPercentageColor } from '../utils/dateUtils';
+import { parseFrenchDate, getPercentageColor, calculatePercentagePosition } from '../utils/dateUtils';
 
 const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, api }) => {
   const { t } = useTranslation();
@@ -23,11 +23,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     }
   }, [isOpen]);
 
-  // Function to calculate percentage position (lower percentage = better performance)
-  const calculatePercentagePosition = (rank, participantCount) => {
-    if (!participantCount || participantCount === 0 || !rank) return null;
-    return Math.round((rank / participantCount) * 100);
-  };
 
   // Function to calculate average top percentage
   const calculateAverageTopPercentage = () => {

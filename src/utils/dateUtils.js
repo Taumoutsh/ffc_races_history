@@ -8,7 +8,13 @@
  */
 export const calculatePercentagePosition = (rank, participantCount) => {
   if (!participantCount || participantCount === 0 || !rank) return null;
-  return Math.round((rank / participantCount) * 100);
+  
+  // Ensure rank doesn't exceed participant count (cap at 100%)
+  const validRank = Math.min(rank, participantCount);
+  const percentage = Math.round((validRank / participantCount) * 100);
+  
+  // Ensure percentage is between 1 and 100
+  return Math.max(1, Math.min(100, percentage));
 };
 
 /**
