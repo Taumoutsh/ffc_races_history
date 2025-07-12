@@ -24,6 +24,8 @@ body {
   background: var(--gradient-primary);
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   letter-spacing: -0.011em;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Modern scrollbar styling */
@@ -51,8 +53,8 @@ body {
 button {
   border-radius: 0.75rem;
   border: 1px solid rgba(59, 130, 246, 0.2);
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+  font-size: clamp(0.875rem, 2vw, 1rem);
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
@@ -61,6 +63,8 @@ button {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 button:hover {
@@ -80,21 +84,24 @@ button:active {
 }
 
 /* Input styling */
-input[type="text"], input[type="search"] {
+input[type="text"], input[type="search"], input[type="url"] {
   font-family: inherit;
   border-radius: 0.75rem;
   border: 2px solid rgba(59, 130, 246, 0.2);
-  padding: 1rem;
-  font-size: 1rem;
+  padding: clamp(0.75rem, 2vw, 1rem);
+  font-size: clamp(0.875rem, 2vw, 1rem);
   background: var(--glass-background);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: all 0.2s ease;
   outline: none;
   font-weight: 500;
+  -webkit-appearance: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-input[type="text"]:focus, input[type="search"]:focus {
+input[type="text"]:focus, input[type="search"]:focus, input[type="url"]:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
@@ -105,6 +112,35 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
   letter-spacing: -0.025em;
   margin: 0;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.875rem;
+  }
+  
+  .modal-table {
+    min-width: 600px;
+  }
+  
+  /* Improve touch targets */
+  button, input, [role="button"] {
+    min-height: 44px;
+  }
+  
+  /* Better modal sizing on mobile */
+  .modal {
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+}
+
+/* Landscape phone adjustments */
+@media (max-width: 896px) and (orientation: landscape) {
+  .modal {
+    max-height: 90vh;
+  }
 }
 
 p {

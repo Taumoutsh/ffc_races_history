@@ -28,16 +28,18 @@ const styles = {
   headerContent: {
     maxWidth: '80rem',
     margin: '0 auto',
-    padding: '2rem 1rem',
+    padding: '1rem',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
   },
   headerText: {
     flex: 1
   },
   title: {
-    fontSize: '2.5rem',
+    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
     fontWeight: '800',
     background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
     WebkitBackgroundClip: 'text',
@@ -49,13 +51,13 @@ const styles = {
   subtitle: {
     color: '#64748b',
     marginTop: '0.5rem',
-    fontSize: '1.125rem',
+    fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
     fontWeight: '500'
   },
   main: {
     maxWidth: '80rem',
     margin: '0 auto',
-    padding: '2rem 1rem'
+    padding: '1rem'
   },
   chartCard: {
     background: 'rgba(255, 255, 255, 0.95)',
@@ -64,7 +66,7 @@ const styles = {
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: '2rem'
+    padding: 'clamp(1rem, 3vw, 2rem)'
   },
   searchCard: {
     background: 'rgba(255, 255, 255, 0.95)',
@@ -73,8 +75,8 @@ const styles = {
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: '2rem',
-    marginBottom: '2rem'
+    padding: 'clamp(1rem, 3vw, 2rem)',
+    marginBottom: '1rem'
   },
   instructions: {
     marginTop: '1.5rem',
@@ -97,14 +99,14 @@ const styles = {
     lineHeight: '1.6'
   },
   overviewCard: {
-    marginTop: '2rem',
+    marginTop: '1rem',
     background: 'rgba(255, 255, 255, 0.95)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: '2rem'
+    padding: 'clamp(1rem, 3vw, 2rem)'
   },
   overviewTitle: {
     fontSize: '1.5rem',
@@ -160,7 +162,7 @@ const styles = {
 
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
-  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
+  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api, apiBaseUrl } = useApiData(defaultCyclist);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedCyclist, setSelectedCyclist] = useState(null);
@@ -325,7 +327,77 @@ function App() {
   if (error) {
     return (
       <div style={styles.error}>
-        <div style={styles.errorText}>{t('ui.loadingError')}: {error}</div>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '1rem',
+          padding: '2rem',
+          maxWidth: '500px',
+          margin: '0 auto',
+          textAlign: 'center',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+        }}>
+          <div style={{
+            fontSize: '3rem',
+            marginBottom: '1rem'
+          }}>⚠️</div>
+          <h2 style={{
+            color: '#dc2626',
+            fontSize: '1.5rem',
+            marginBottom: '1rem'
+          }}>Connection Failed</h2>
+          <p style={{
+            color: '#374151',
+            marginBottom: '1.5rem',
+            lineHeight: '1.6'
+          }}>{error}</p>
+          
+          <div style={{
+            background: 'rgba(59, 130, 246, 0.1)',
+            borderRadius: '0.75rem',
+            padding: '1rem',
+            marginBottom: '1.5rem',
+            textAlign: 'left'
+          }}>
+            <h3 style={{
+              color: '#1e40af',
+              fontSize: '1rem',
+              marginBottom: '0.5rem'
+            }}>📱 Troubleshooting:</h3>
+            <ul style={{
+              color: '#374151',
+              fontSize: '0.875rem',
+              lineHeight: '1.5',
+              paddingLeft: '1.5rem'
+            }}>
+              <li>Check WiFi connection</li>
+              <li>Make sure you're on the same network as the server</li>
+              <li>Try refreshing the page</li>
+              <li>Check if the server is running</li>
+            </ul>
+          </div>
+          
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.75rem',
+              padding: '0.75rem 1.5rem',
+              cursor: 'pointer',
+              fontWeight: '600'
+            }}
+          >
+            🔄 Retry
+          </button>
+          
+          <p style={{
+            color: '#6b7280',
+            fontSize: '0.75rem',
+            marginTop: '1rem'
+          }}>API: {apiBaseUrl}</p>
+        </div>
       </div>
     );
   }
@@ -348,18 +420,19 @@ function App() {
         {/* Search Section */}
         <div style={styles.searchCard}>
           <h3 style={{fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem', color: '#1f2937'}}>🔍 {t('ui.searchPlaceholder')}</h3>
-          <form onSubmit={handleSearch} style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+          <form onSubmit={handleSearch} style={{display: 'flex', gap: '0.75rem', alignItems: 'stretch', flexWrap: 'wrap'}}>
             <input
               type="text"
               value={searchQuery}
               onChange={handleInputChange}
               placeholder={t('ui.searchPlaceholder')}
               style={{
-                flex: 1,
-                padding: '1rem',
+                flex: '1 1 250px',
+                minWidth: '250px',
+                padding: 'clamp(0.75rem, 2vw, 1rem)',
                 border: '2px solid rgba(59, 130, 246, 0.2)',
                 borderRadius: '0.75rem',
-                fontSize: '1rem',
+                fontSize: 'clamp(0.875rem, 2vw, 1rem)',
                 backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 transition: 'all 0.2s ease',
                 outline: 'none'
@@ -376,16 +449,17 @@ function App() {
             <button
               type="submit"
               style={{
-                padding: '1rem 2rem',
+                padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
                 background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.75rem',
                 cursor: 'pointer',
                 fontWeight: '600',
-                fontSize: '1rem',
+                fontSize: 'clamp(0.875rem, 2vw, 1rem)',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-1px)';
@@ -401,16 +475,17 @@ function App() {
             <button
               onClick={() => setShowRacesPanel(true)}
               style={{
-                padding: '1rem 2rem',
+                padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.75rem',
                 cursor: 'pointer',
                 fontWeight: '600',
-                fontSize: '1rem',
+                fontSize: 'clamp(0.875rem, 2vw, 1rem)',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-1px)';
@@ -527,18 +602,19 @@ function App() {
                 }}>
                   {t('ui.urlScrapingHint')}
                 </p>
-                <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+                <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: '0.75rem', alignItems: 'stretch', flexWrap: 'wrap'}}>
                   <input
                     type="url"
                     value={raceUrl}
                     onChange={(e) => setRaceUrl(e.target.value)}
                     placeholder={t('ui.urlPlaceholder')}
                     style={{
-                      flex: 1,
-                      padding: '0.75rem',
+                      flex: '1 1 250px',
+                      minWidth: '250px',
+                      padding: 'clamp(0.5rem, 1.5vw, 0.75rem)',
                       border: '2px solid rgba(59, 130, 246, 0.2)',
                       borderRadius: '0.75rem',
-                      fontSize: '0.875rem',
+                      fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
                       backgroundColor: 'rgba(255, 255, 255, 0.8)',
                       transition: 'all 0.2s ease',
                       outline: 'none'
@@ -556,7 +632,7 @@ function App() {
                     type="submit"
                     disabled={isScrapingInProgress}
                     style={{
-                      padding: '0.75rem 1.5rem',
+                      padding: 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem)',
                       background: isScrapingInProgress ? 
                         'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
                         'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
@@ -565,7 +641,7 @@ function App() {
                       borderRadius: '0.75rem',
                       cursor: isScrapingInProgress ? 'not-allowed' : 'pointer',
                       fontWeight: '600',
-                      fontSize: '0.875rem',
+                      fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       transition: 'all 0.2s ease',
                       whiteSpace: 'nowrap'
@@ -649,15 +725,16 @@ function App() {
                   {/* Table Header */}
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '80px 100px 120px 1fr 150px 1fr',
-                    gap: '1rem',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+                    gap: 'clamp(0.5rem, 2vw, 1rem)',
                     alignItems: 'center',
-                    padding: '1rem',
+                    padding: 'clamp(0.75rem, 2vw, 1rem)',
                     backgroundColor: 'rgba(34, 197, 94, 0.15)',
                     borderBottom: '2px solid rgba(34, 197, 94, 0.2)',
                     fontWeight: '700',
-                    fontSize: '0.875rem',
-                    color: '#059669'
+                    fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
+                    color: '#059669',
+                    overflowX: 'auto'
                   }}>
                     <div>🔢 {t('ui.estimatedNumber') || 'Est. #'}</div>
                     <div>🥇 {t('ui.bestPosition')}</div>
@@ -667,7 +744,7 @@ function App() {
                     <div>🏃‍♂️ {t('table.team')}</div>
                   </div>
                   
-                  <div style={{maxHeight: '400px', overflowY: 'auto', overflowX: 'hidden'}}>
+                  <div style={{maxHeight: '400px', overflowY: 'auto', overflowX: 'auto'}}>
                     {researchResults.map((racer, index) => {
                       const isDefault = isDefaultCyclistById(racer.id, racer.formattedName);
                       const isOrganizer = organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
@@ -677,7 +754,7 @@ function App() {
                         key={index}
                         onClick={() => handleResearchRacerClick(racer)}
                         style={{
-                          padding: '1rem',
+                          padding: 'clamp(0.75rem, 2vw, 1rem)',
                           borderBottom: index < researchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
                           cursor: 'pointer',
                           backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' : 
@@ -685,9 +762,10 @@ function App() {
                                           'rgba(255, 255, 255, 0.7)',
                           transition: 'all 0.2s ease',
                           display: 'grid',
-                          gridTemplateColumns: '80px 100px 120px 1fr 150px 1fr',
-                          gap: '1rem',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+                          gap: 'clamp(0.5rem, 2vw, 1rem)',
                           alignItems: 'center',
+                          minWidth: '600px',
                           borderLeft: isDefault ? '4px solid #10b981' : 
                                      isOrganizer ? '4px solid #fbbf24' : 
                                      'none',
@@ -824,7 +902,7 @@ function App() {
           alignItems: 'center', 
           justifyContent: 'center', 
           zIndex: 50,
-          padding: '1rem'
+          padding: 'clamp(0.5rem, 2vw, 1rem)'
         }} onClick={(e) => {
           if (e.target === e.currentTarget) {
             setShowRacesPanel(false);
@@ -834,10 +912,10 @@ function App() {
             background: 'rgba(255, 255, 255, 0.95)', 
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: '1.5rem', 
+            borderRadius: 'clamp(0.75rem, 3vw, 1.5rem)', 
             maxWidth: '80rem', 
             width: '100%', 
-            maxHeight: '90vh', 
+            maxHeight: '95vh', 
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             fontFamily: "'Inter', sans-serif",
@@ -846,7 +924,7 @@ function App() {
             flexDirection: 'column'
           }}>
             <div style={{
-              padding: '2rem',
+              padding: 'clamp(1rem, 3vw, 2rem)',
               overflowY: 'auto',
               scrollbarWidth: 'thin',
               scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'

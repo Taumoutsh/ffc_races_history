@@ -191,7 +191,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
         alignItems: 'center', 
         justifyContent: 'center', 
         zIndex: 50,
-        padding: '1rem'
+        padding: 'clamp(0.5rem, 2vw, 1rem)'
       }}
       onClick={handleBackdropClick}
     >
@@ -199,10 +199,10 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
         background: 'rgba(255, 255, 255, 0.95)', 
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '1.5rem', 
+        borderRadius: 'clamp(0.75rem, 3vw, 1.5rem)', 
         maxWidth: '80rem', 
         width: '100%', 
-        maxHeight: '90vh', 
+        maxHeight: '95vh', 
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         fontFamily: "'Inter', sans-serif",
@@ -211,7 +211,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
         flexDirection: 'column'
       }}>
         <div style={{
-          padding: '2rem',
+          padding: 'clamp(1rem, 3vw, 2rem)',
           overflowY: 'auto',
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
@@ -219,7 +219,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
           {/* Header */}
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
             <h2 style={{
-              fontSize: '2rem', 
+              fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
               fontWeight: '800',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               WebkitBackgroundClip: 'text',
@@ -264,13 +264,13 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                 ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)'
                 : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
               borderRadius: '1rem',
-              padding: '1.5rem',
+              padding: 'clamp(1rem, 3vw, 1.5rem)',
               border: isDefaultProfile ? '1px solid rgba(34, 197, 94, 0.2)' : '1px solid rgba(59, 130, 246, 0.2)',
               boxShadow: isDefaultProfile ? '0 4px 6px -1px rgba(34, 197, 94, 0.1)' : 'none'
             }}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                 <div>
-                  <h3 style={{fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem'}}>
+                  <h3 style={{fontSize: 'clamp(1.25rem, 3.5vw, 1.5rem)', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem'}}>
                     🚴‍♂️ {cyclistName || 'Unknown Cyclist'}
                   </h3>
                   <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
@@ -321,7 +321,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
             </div>
             
             {/* View Toggle */}
-            <div style={{marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap'}}>
+            <div style={{marginTop: 'clamp(1rem, 3vw, 1.5rem)', display: 'flex', gap: 'clamp(0.5rem, 2vw, 0.75rem)', justifyContent: 'center', flexWrap: 'wrap'}}>
               <button
                 onClick={() => setShowChart(false)}
                 style={{
@@ -425,9 +425,10 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                   overflow: 'hidden'
                 }}>
                   <div style={{
-                    overflowX: 'auto'
+                    overflowX: 'auto',
+                    WebkitOverflowScrolling: 'touch'
                   }}>
-                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                    <table style={{width: '100%', borderCollapse: 'collapse', minWidth: '600px'}}>
                       <thead>
                         <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
                           <th 
@@ -531,16 +532,16 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                               row.style.boxShadow = 'none';
                             }}
                           >
-                            <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '600', color: '#64748b'}}>
+                            <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '600', color: '#64748b', minWidth: '120px'}}>
                               {race.date}
                             </td>
-                            <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '500', color: '#374151'}}>
+                            <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '500', color: '#374151', minWidth: '150px'}}>
                               {race.race_name}
                             </td>
-                            <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '800', color: '#3b82f6', fontSize: '1.125rem'}}>
+                            <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '800', color: '#3b82f6', fontSize: 'clamp(1rem, 2.5vw, 1.125rem)', minWidth: '80px'}}>
                               #{race.rank}
                             </td>
-                            <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '700', color: '#059669', fontSize: '1rem'}}>
+                            <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '700', color: '#059669', fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '100px'}}>
                               {(() => {
                                 const participantCount = raceParticipantCounts[race.race_id];
                                 const percentage = calculatePercentagePosition(race.rank, participantCount);

@@ -5,22 +5,34 @@ import { appConfig } from '../config/appConfig.js';
 const getApiBaseUrl = () => {
   // If VITE_API_URL is set during build, use it
   if (import.meta.env.VITE_API_URL) {
+    console.log('🌐 Using environment API URL:', import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
   
   // For runtime, detect the current host
   const currentHost = window.location.hostname;
+  const port = window.location.port;
+  
+  // Log current access method for debugging
+  console.log('🌐 Detecting API URL from current host:', currentHost);
   
   // If accessing via network IP or domain, use the same host for API
   if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
-    return `http://${currentHost}:3001/api`;
+    const apiUrl = `http://${currentHost}:3001/api`;
+    console.log('🌐 Network access detected, using API URL:', apiUrl);
+    return apiUrl;
   }
   
   // Default to localhost for local development
-  return 'http://localhost:3001/api';
+  const apiUrl = 'http://localhost:3001/api';
+  console.log('🌐 Local development detected, using API URL:', apiUrl);
+  return apiUrl;
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
+// Log the final API base URL being used
+console.log('🔗 Final API Base URL:', API_BASE_URL);
 
 export const useApiData = (dynamicDefaultCyclist) => {
   const [data, setData] = useState(null);
@@ -38,7 +50,14 @@ export const useApiData = (dynamicDefaultCyclist) => {
         const jsonData = await response.json();
         setData(jsonData);
       } catch (err) {
-        setError(err.message);
+        let errorMessage = err.message;
+        
+        // Provide specific error messages for common issues
+        if (err.message.includes('Failed to fetch')) {
+          errorMessage = `Cannot connect to API server. Check network connection and server status.`;
+        }
+        
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -437,6 +456,7 @@ export const useApiData = (dynamicDefaultCyclist) => {
       }
     }
   };
+
 
   return {
     data,

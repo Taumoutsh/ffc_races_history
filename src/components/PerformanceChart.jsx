@@ -176,11 +176,11 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
   };
 
   return (
-    <div style={{width: '100%', height: '28rem', padding: '1.5rem'}}>
+    <div style={{width: '100%', height: 'clamp(20rem, 50vh, 28rem)', padding: 'clamp(0.75rem, 3vw, 1.5rem)'}}>
       <h2 style={{
-        fontSize: '1.75rem', 
+        fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', 
         fontWeight: '800', 
-        marginBottom: '1rem', 
+        marginBottom: 'clamp(0.5rem, 2vw, 1rem)', 
         textAlign: 'center',
         background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
         WebkitBackgroundClip: 'text',
@@ -199,20 +199,20 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
           WebkitBackdropFilter: 'blur(20px)',
           border: '1px solid rgba(59, 130, 246, 0.2)', 
           borderRadius: '1rem',
-          padding: '1rem',
-          marginBottom: '1.5rem',
+          padding: 'clamp(0.75rem, 2vw, 1rem)',
+          marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          gap: '3rem',
+          gap: 'clamp(1rem, 4vw, 3rem)',
           flexWrap: 'wrap'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.75rem',
-            fontSize: '1rem',
+            fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
             fontWeight: '600',
             color: '#1f2937'
           }}>
@@ -291,7 +291,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
             onMouseEnter={() => setShowLeftButton(true)}
             style={{
               position: 'absolute',
-              left: '10px',
+              left: 'clamp(5px, 2vw, 10px)',
               top: '50%',
               zIndex: 10,
               background: 'rgba(59, 130, 246, 0.9)',
@@ -299,13 +299,13 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
               WebkitBackdropFilter: 'blur(20px)',
               border: 'none',
               borderRadius: '50%',
-              width: '48px',
-              height: '48px',
+              width: 'clamp(36px, 8vw, 48px)',
+              height: 'clamp(36px, 8vw, 48px)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.25rem',
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
               color: 'white',
               fontWeight: '700',
               boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
@@ -334,7 +334,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
             onMouseEnter={() => setShowRightButton(true)}
             style={{
               position: 'absolute',
-              right: '-30px',
+              right: 'clamp(-20px, -5vw, -30px)',
               top: '50%',
               zIndex: 10,
               background: 'rgba(59, 130, 246, 0.9)',
@@ -342,13 +342,13 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
               WebkitBackdropFilter: 'blur(20px)',
               border: 'none',
               borderRadius: '50%',
-              width: '48px',
-              height: '48px',
+              width: 'clamp(36px, 8vw, 48px)',
+              height: 'clamp(36px, 8vw, 48px)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.25rem',
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
               color: 'white',
               fontWeight: '700',
               boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
