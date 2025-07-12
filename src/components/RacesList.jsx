@@ -185,7 +185,7 @@ const RacesList = ({ onRaceClick }) => {
         <h2 style={{ 
           margin: 0, 
           color: '#1f2937',
-          fontSize: '1.5rem'
+          fontSize: 'clamp(1.125rem, 3vw, 1.5rem)'
         }}>
           🏁 {t('ui.races')} ({displayedRaces.length})
         </h2>
@@ -209,7 +209,7 @@ const RacesList = ({ onRaceClick }) => {
               background: 'rgba(255, 255, 255, 0.8)',
               color: '#1f2937',
               fontSize: '16px',
-              minWidth: '300px',
+              minWidth: 'clamp(200px, 50vw, 300px)',
               width: '100%',
               maxWidth: '400px'
             }}
@@ -247,14 +247,15 @@ const RacesList = ({ onRaceClick }) => {
                       style={{
                         border: 'none', 
                         borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: '1rem 1.5rem', 
+                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)', 
                         textAlign: 'left', 
                         cursor: 'pointer', 
                         fontWeight: '700', 
                         color: '#1f2937',
                         transition: 'background-color 0.2s ease',
                         userSelect: 'none',
-                        width: '180px'
+                        width: '25%',
+                        fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)'
                       }}
                       onClick={() => handleSortChange('date')}
                     >
@@ -267,14 +268,15 @@ const RacesList = ({ onRaceClick }) => {
                       style={{
                         border: 'none', 
                         borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: '1rem 1.5rem', 
+                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)', 
                         textAlign: 'left', 
                         cursor: 'pointer', 
                         fontWeight: '700', 
                         color: '#1f2937',
                         transition: 'background-color 0.2s ease',
                         userSelect: 'none',
-                        width: 'auto'
+                        width: '55%',
+                        fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)'
                       }}
                       onClick={() => handleSortChange('name')}
                     >
@@ -287,14 +289,15 @@ const RacesList = ({ onRaceClick }) => {
                       style={{
                         border: 'none', 
                         borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: '1rem 1.5rem', 
+                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)', 
                         textAlign: 'center', 
                         cursor: 'pointer', 
                         fontWeight: '700', 
                         color: '#1f2937',
                         transition: 'background-color 0.2s ease',
                         userSelect: 'none',
-                        width: '150px'
+                        width: '20%',
+                        fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)'
                       }}
                       onClick={() => handleSortChange('participants')}
                     >
@@ -328,13 +331,13 @@ const RacesList = ({ onRaceClick }) => {
                         row.style.boxShadow = 'none';
                       }}
                     >
-                      <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '600', color: '#64748b'}}>
+                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '600', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
                         {race.date}
                       </td>
-                      <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '500', color: '#374151'}}>
+                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#374151', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                         {race.name}
                       </td>
-                      <td style={{border: 'none', padding: '1rem 1.5rem', fontWeight: '800', color: '#3b82f6', fontSize: '1.125rem', textAlign: 'center'}}>
+                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '800', color: '#3b82f6', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
                         {race.participant_count}
                       </td>
                     </tr>
@@ -350,7 +353,7 @@ const RacesList = ({ onRaceClick }) => {
               <button
                 onClick={loadMoreRaces}
                 style={{
-                  padding: '10px 20px',
+                  padding: window.innerWidth < 768 ? '8px' : '10px 20px',
                   borderRadius: '8px',
                   border: 'none',
                   background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
@@ -358,6 +361,7 @@ const RacesList = ({ onRaceClick }) => {
                   fontSize: '14px',
                   cursor: 'pointer',
                   transition: 'transform 0.2s',
+                  minWidth: window.innerWidth < 768 ? '44px' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
@@ -366,7 +370,9 @@ const RacesList = ({ onRaceClick }) => {
                   e.target.style.transform = 'translateY(0)';
                 }}
               >
-                {t('ui.loadMore')} ({displayedRaces.length - racesToShow.length} {t('ui.remaining')})
+                {window.innerWidth < 768 ? 
+                  '⬇️' : 
+                  `⬇️ ${t('ui.loadMore')} (${displayedRaces.length - racesToShow.length} ${t('ui.remaining')})`}
               </button>
             </div>
           )}

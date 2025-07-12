@@ -37,16 +37,37 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
     return new Date(dateStr);
   };
 
+  // Function to format dates for mobile display
+  const formatDateForDisplay = (dateStr) => {
+    if (window.innerWidth < 768) {
+      // On mobile, show shorter format: "15 Jan" instead of "15 janvier 2024"
+      const parts = dateStr.split(' ');
+      if (parts.length === 3) {
+        const day = parts[0];
+        const month = parts[1];
+        // Convert French month to short English format for space
+        const monthMap = {
+          'janvier': 'Jan', 'février': 'Fév', 'mars': 'Mar', 'avril': 'Avr',
+          'mai': 'Mai', 'juin': 'Jun', 'juillet': 'Jul', 'août': 'Aoû',
+          'septembre': 'Sep', 'octobre': 'Oct', 'novembre': 'Nov', 'décembre': 'Déc'
+        };
+        return `${day} ${monthMap[month] || month}`;
+      }
+    }
+    return dateStr;
+  };
+
   // Transform and sort data chronologically for the chart
   const allChartData = (data || [])
     .map(race => ({
-      date: race.date,
+      date: formatDateForDisplay(race.date),
+      originalDate: race.date, // Keep original for sorting
       position: Number(race.position), // Ensure position is a number
       name: race.name,
       raceId: race.raceId
     }))
     .filter(race => race.position && !isNaN(race.position)) // Filter out invalid positions
-    .sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date));
+    .sort((a, b) => parseFrenchDate(a.originalDate) - parseFrenchDate(b.originalDate));
 
   // Pagination logic - show 10 races max, starting from the end by default
   const RACES_PER_PAGE = 10;
@@ -122,7 +143,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
           maxWidth: '280px'
         }}>
-          <p style={{fontWeight: '700', color: '#1f2937', margin: '0 0 0.5rem 0', fontSize: '0.875rem'}}>{`📅 ${label}`}</p>
+          <p style={{fontWeight: '700', color: '#1f2937', margin: '0 0 0.5rem 0', fontSize: '0.875rem'}}>{`📅 ${raceData.originalDate || label}`}</p>
           <p style={{
             color: '#3b82f6', 
             fontWeight: '700', 
@@ -299,13 +320,13 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
               WebkitBackdropFilter: 'blur(20px)',
               border: 'none',
               borderRadius: '50%',
-              width: 'clamp(36px, 8vw, 48px)',
-              height: 'clamp(36px, 8vw, 48px)',
+              width: 'clamp(30px, 6vw, 42px)',
+              height: 'clamp(30px, 6vw, 42px)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+              fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
               color: 'white',
               fontWeight: '700',
               boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
@@ -342,13 +363,13 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
               WebkitBackdropFilter: 'blur(20px)',
               border: 'none',
               borderRadius: '50%',
-              width: 'clamp(36px, 8vw, 48px)',
-              height: 'clamp(36px, 8vw, 48px)',
+              width: 'clamp(30px, 6vw, 42px)',
+              height: 'clamp(30px, 6vw, 42px)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+              fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
               color: 'white',
               fontWeight: '700',
               boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
@@ -374,7 +395,12 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
           <LineChart
             key={`chart-${forceUpdate}-${currentPage}`}
             data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+            margin={{ 
+              top: 20, 
+              right: window.innerWidth < 768 ? 15 : 30, 
+              left: window.innerWidth < 768 ? 15 : 20, 
+              bottom: window.innerWidth < 768 ? 95 : 115 
+            }}
             onClick={handleClick}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(59, 130, 246, 0.1)" />
@@ -382,16 +408,21 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
               dataKey="date" 
               angle={-45}
               textAnchor="end"
-              height={80}
+              height={window.innerWidth < 768 ? 90 : 110}
               interval={0}
-              tick={{ fontSize: 12, fontWeight: '600', fill: '#64748b' }}
+              tick={{ 
+                fontSize: window.innerWidth < 768 ? 8 : 11, 
+                fontWeight: '600', 
+                fill: '#64748b',
+                dy: window.innerWidth < 768 ? 2 : 0
+              }}
               axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
             />
             <YAxis 
-              label={{ value: t('chart.yAxisLabel'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: '700', fill: '#64748b' } }}
+              label={{ value: t('chart.yAxisLabel'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: '700', fill: '#64748b', fontSize: window.innerWidth < 768 ? '10px' : '12px' } }}
               reversed={true}
               domain={[1, 'dataMax']}
-              tick={{ fontSize: 12, fontWeight: '600', fill: '#64748b' }}
+              tick={{ fontSize: window.innerWidth < 768 ? 10 : 12, fontWeight: '600', fill: '#64748b' }}
               axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
             />
             <Tooltip content={<CustomTooltip />} />
@@ -407,14 +438,14 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
               dot={{ 
                 fill: '#ffffff', 
                 stroke: '#3b82f6', 
-                strokeWidth: 4, 
-                r: 10, 
+                strokeWidth: window.innerWidth < 768 ? 3 : 4, 
+                r: window.innerWidth < 768 ? 8 : 10, 
                 cursor: 'pointer'
               }}
               activeDot={{ 
-                r: 14, 
+                r: window.innerWidth < 768 ? 12 : 14, 
                 stroke: '#8b5cf6', 
-                strokeWidth: 4, 
+                strokeWidth: window.innerWidth < 768 ? 3 : 4, 
                 fill: '#ffffff'
               }}
             />

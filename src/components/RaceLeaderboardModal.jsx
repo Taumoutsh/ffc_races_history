@@ -3,6 +3,40 @@ import { useTranslation } from '../contexts/LanguageContext';
 
 const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatName, isDefaultCyclist }) => {
   const { t } = useTranslation();
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 768);
+  
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Responsive column widths
+  const getColumnWidths = () => {
+    if (isLargeScreen) {
+      return {
+        position: '12%',
+        id: '15%',
+        firstName: '18%',
+        lastName: '18%',
+        region: '15%',
+        team: '22%'
+      };
+    } else {
+      return {
+        position: '15%',
+        id: '0',
+        firstName: '25%',
+        lastName: '25%',
+        region: '15%',
+        team: '20%'
+      };
+    }
+  };
   
   const cleanClubName = (clubName) => {
     if (!clubName) return '';
@@ -79,7 +113,7 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
         }}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
           <h2 style={{
-            fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+            fontSize: 'clamp(1.125rem, 3.5vw, 2rem)', 
             fontWeight: '800',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             WebkitBackgroundClip: 'text',
@@ -124,7 +158,7 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
           padding: '1.5rem',
           border: '1px solid rgba(59, 130, 246, 0.2)'
         }}>
-          <h3 style={{fontSize: 'clamp(1.25rem, 3.5vw, 1.5rem)', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem'}}>🚴‍♂️ {race.name}</h3>
+          <h3 style={{fontSize: 'clamp(1rem, 3vw, 1.5rem)', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem'}}>🚴‍♂️ {race.name}</h3>
           <p style={{color: '#64748b', fontWeight: '600', fontSize: '1rem'}}>📅 {race.date}</p>
         </div>
 
@@ -139,25 +173,27 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
             scrollbarWidth: 'thin',
             scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
           }}>
-          <table style={{width: '100%', borderCollapse: 'collapse', minWidth: '600px'}}>
+          <table style={{width: '100%', borderCollapse: 'collapse'}}>
             <thead>
               <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%)'}}>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', minWidth: '80px'}}>
-                  🥇 {t('table.position')}
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().position}}>
+                  🥇 Pos
                 </th>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', minWidth: '80px'}}>
-                  🆔 ID
-                </th>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', minWidth: '80px'}}>
+                {isLargeScreen && (
+                  <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().id}}>
+                    🆔 ID
+                  </th>
+                )}
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().firstName}}>
                   👤 {t('table.firstName')}
                 </th>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', minWidth: '80px'}}>
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().lastName}}>
                   👤 {t('table.lastName')}
                 </th>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', minWidth: '80px'}}>
-                  📍 {t('table.region')}
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().region}}>
+                  📍 Region
                 </th>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', minWidth: '80px'}}>
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().team}}>
                   🏃‍♂️ {t('table.team')}
                 </th>
               </tr>
@@ -203,26 +239,29 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
                     >
                       <td style={{
                         border: 'none', 
-                        padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', 
+                        padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', 
                         fontWeight: '800', 
-                        fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
-                        color: isTopThree ? (position === 1 ? '#d97706' : position === 2 ? '#64748b' : '#92400e') : '#3b82f6'
+                        fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                        color: isTopThree ? (position === 1 ? '#d97706' : position === 2 ? '#64748b' : '#92400e') : '#3b82f6',
+                        textAlign: 'center'
                       }}>
                         {isMedal ? (position === 1 ? '🥇' : position === 2 ? '🥈' : '🥉') : `#${position}`}
                       </td>
-                      <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '600', color: '#64748b', fontFamily: 'monospace', minWidth: '80px'}}>
-                        {participant.raw_data[1]}
-                      </td>
-                      <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '700', color: '#374151', minWidth: '100px'}}>
+                      {isLargeScreen && (
+                        <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '600', color: '#64748b', fontFamily: 'monospace', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-all'}}>
+                          {participant.raw_data[1]}
+                        </td>
+                      )}
+                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '700', color: '#374151', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                         {participant.raw_data[3] ? participant.raw_data[3].toLowerCase().replace(/(?:^|\s)\w/g, match => match.toUpperCase()) : ''}
                       </td>
-                      <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '700', color: '#374151', minWidth: '100px'}}>
+                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '700', color: '#374151', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                         {participant.raw_data[2] ? participant.raw_data[2].toUpperCase() : ''}
                       </td>
-                      <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '500', color: '#64748b', minWidth: '100px'}}>
+                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                         {participant.raw_data[4]}
                       </td>
-                      <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', minWidth: '120px'}}>
+                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                         {cleanClubName(participant.raw_data[5])}
                       </td>
                     </tr>

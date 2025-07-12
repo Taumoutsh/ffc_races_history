@@ -147,7 +147,7 @@ const ComparisonChart = ({ data, onPointClick, cyclistName, defaultCyclistName, 
           {/* Header */}
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
             <h2 style={{
-              fontSize: '2rem', 
+              fontSize: 'clamp(1.25rem, 3.5vw, 2rem)', 
               fontWeight: '800',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               WebkitBackgroundClip: 'text',
@@ -193,7 +193,7 @@ const ComparisonChart = ({ data, onPointClick, cyclistName, defaultCyclistName, 
             border: '1px solid rgba(59, 130, 246, 0.2)',
             marginBottom: '2rem'
           }}>
-            <h3 style={{fontSize: '1.25rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem'}}>
+            <h3 style={{fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', fontWeight: '700', color: '#1f2937', marginBottom: '1rem'}}>
               📊 {t('comparison.subtitle')}
             </h3>
             <div style={{display: 'flex', gap: '2rem', flexWrap: 'wrap'}}>
@@ -213,7 +213,7 @@ const ComparisonChart = ({ data, onPointClick, cyclistName, defaultCyclistName, 
 
           {/* Chart */}
           {chartData.length > 0 ? (
-            <div style={{height: '500px'}}>
+            <div style={{height: 'clamp(350px, 45vh, 500px)'}}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   key={`comparison-chart-${forceUpdate}`}
@@ -309,7 +309,7 @@ const ComparisonChart = ({ data, onPointClick, cyclistName, defaultCyclistName, 
               borderRadius: '1rem',
               border: '1px solid rgba(226, 232, 240, 0.5)'
             }}>
-              <h3 style={{fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: '#374151'}}>
+              <h3 style={{fontSize: 'clamp(1.125rem, 2.75vw, 1.5rem)', fontWeight: '700', marginBottom: '1rem', color: '#374151'}}>
                 😔 {t('comparison.noCommonRaces')}
               </h3>
               <p style={{fontSize: '1rem', fontWeight: '600'}}>

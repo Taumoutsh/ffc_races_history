@@ -7,7 +7,7 @@
 **Purpose:** Interactive cycling race performance tracking and analysis  
 **Data Source:** SQLite database with REST API  
 **Default Cyclist:** John Doe (configurable dynamically via UI)  
-**Version:** 2.9.0 - Advanced Race Scraping & Analysis
+**Version:** 2.9.1 - Mobile-Optimized Interface
 
 ## 🚀 Core Features
 
@@ -204,11 +204,22 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 - **Glassmorphism:** Modern blur effects and gradients
 - **Auto-formatting:** Club names, proper case names, French dates
 - **Interactive Elements:** Hover effects, smooth animations
-- **Responsive Design:** Mobile-first approach
+- **Responsive Design:** Mobile-first approach with comprehensive mobile optimizations
+- **Mobile Interface:** Emoji-only buttons, reduced font sizes, compact layouts
 
 ## 📈 Version History
 
-### v2.9.0 (Current) - Advanced Race Scraping & Analysis
+### v2.9.1 (Current) - Mobile-Optimized Interface
+- 📱 **Comprehensive Mobile Optimization:** All buttons show emoji-only on mobile devices (<768px)
+- 🔤 **Responsive Typography:** Reduced font sizes on mobile (title: 1rem-2.5rem, subtitle: 0.625rem-1.125rem)
+- 🎛️ **Compact Layouts:** Reduced padding, margins, and spacing across all components
+- 🔽 **Space-Efficient Panels:** "How to Use" and "Dataset Overview" panels 40% more compact on mobile
+- 📊 **Optimized Tables:** Search results, race lists, and cyclist tables with mobile-specific sizing
+- 🎨 **Adaptive UI Elements:** Language switcher, navigation buttons, and form controls optimized for touch
+- 📐 **Improved Layout Flow:** Search input field sizing prevents button wrapping on mobile
+- 🎯 **Enhanced Accessibility:** Maintained 44px minimum touch targets while reducing visual footprint
+
+### v2.9.0 - Advanced Race Scraping & Analysis
 - 🌐 **Multi-Website Scraping:** Support for paysdelaloirecyclisme.fr and velo.ffc.fr
 - 🎯 **Category Filtering:** Auto-filters to include only Open 1-3 and Access 1-2 categories
 - ⚡ **Streamlined Workflow:** One-click URL → scraping → analysis → results

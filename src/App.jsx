@@ -39,7 +39,7 @@ const styles = {
     flex: 1
   },
   title: {
-    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+    fontSize: 'clamp(1rem, 2.5vw, 2.5rem)',
     fontWeight: '800',
     background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
     WebkitBackgroundClip: 'text',
@@ -50,8 +50,8 @@ const styles = {
   },
   subtitle: {
     color: '#64748b',
-    marginTop: '0.5rem',
-    fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
+    marginTop: '0.25rem',
+    fontSize: 'clamp(0.625rem, 1.5vw, 1.125rem)',
     fontWeight: '500'
   },
   main: {
@@ -79,8 +79,8 @@ const styles = {
     marginBottom: '1rem'
   },
   instructions: {
-    marginTop: '1.5rem',
-    padding: '1.5rem',
+    marginTop: 'clamp(1rem, 3vw, 1.5rem)',
+    padding: 'clamp(0.75rem, 3vw, 1.5rem)',
     background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
     borderRadius: '1rem',
     border: '1px solid rgba(59, 130, 246, 0.2)'
@@ -88,52 +88,52 @@ const styles = {
   instructionsTitle: {
     fontWeight: '700',
     color: '#1e40af',
-    marginBottom: '0.75rem',
-    fontSize: '1.125rem'
+    marginBottom: 'clamp(0.5rem, 2vw, 0.75rem)',
+    fontSize: 'clamp(1rem, 2.5vw, 1.125rem)'
   },
   instructionsList: {
     color: '#1e40af',
-    fontSize: '0.875rem',
+    fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
     margin: 0,
-    paddingLeft: '1rem',
-    lineHeight: '1.6'
+    paddingLeft: 'clamp(0.75rem, 2.5vw, 1rem)',
+    lineHeight: '1.5'
   },
   overviewCard: {
-    marginTop: '1rem',
+    marginTop: 'clamp(0.5rem, 2vw, 1rem)',
     background: 'rgba(255, 255, 255, 0.95)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: 'clamp(1rem, 3vw, 2rem)'
+    padding: 'clamp(0.75rem, 3vw, 2rem)'
   },
   overviewTitle: {
-    fontSize: '1.5rem',
+    fontSize: 'clamp(1rem, 2.5vw, 1.5rem)',
     fontWeight: '700',
-    marginBottom: '1.5rem',
+    marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)',
     color: '#1f2937'
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '1.5rem'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: 'clamp(0.75rem, 3vw, 1.5rem)'
   },
   statCard: {
-    padding: '1.5rem',
+    padding: 'clamp(0.75rem, 3vw, 1.5rem)',
     borderRadius: '1rem',
     border: '1px solid rgba(255, 255, 255, 0.2)',
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
   },
   statNumber: {
-    fontSize: '2.5rem',
+    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
     fontWeight: '800',
     lineHeight: '1'
   },
   statLabel: {
-    fontSize: '0.875rem',
+    fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
     fontWeight: '600',
-    marginTop: '0.5rem',
+    marginTop: 'clamp(0.25rem, 1vw, 0.5rem)',
     textTransform: 'uppercase',
     letterSpacing: '0.05em'
   },
@@ -163,6 +163,7 @@ const styles = {
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
   const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api, apiBaseUrl } = useApiData(defaultCyclist);
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 768);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [selectedCyclist, setSelectedCyclist] = useState(null);
@@ -179,6 +180,24 @@ function App() {
   const [scrapedRaceData, setScrapedRaceData] = useState(null);
   const [isScrapingInProgress, setIsScrapingInProgress] = useState(false);
 
+  // Handle window resize for responsive layout
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Get responsive grid columns for research results
+  const getResearchGridColumns = () => {
+    if (isLargeScreen) {
+      return 'clamp(50px, 8%, 70px) clamp(50px, 8%, 70px) clamp(80px, 12%, 100px) 2fr clamp(80px, 15%, 120px) 2fr';
+    } else {
+      return 'clamp(50px, 10%, 70px) clamp(50px, 10%, 70px) 2fr clamp(80px, 15%, 120px) 2fr';
+    }
+  };
 
   const handleChartPointClick = (raceData) => {
     const race = getRaceById(raceData.raceId);
@@ -419,16 +438,16 @@ function App() {
       <main style={styles.main}>
         {/* Search Section */}
         <div style={styles.searchCard}>
-          <h3 style={{fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem', color: '#1f2937'}}>🔍 {t('ui.searchPlaceholder')}</h3>
-          <form onSubmit={handleSearch} style={{display: 'flex', gap: '0.75rem', alignItems: 'stretch', flexWrap: 'wrap'}}>
+          <h3 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', marginBottom: 'clamp(1rem, 2.5vw, 1.5rem)', color: '#1f2937'}}>🔍 {t('ui.searchPlaceholder')}</h3>
+          <form onSubmit={handleSearch} style={{display: 'flex', gap: window.innerWidth < 768 ? '0.5rem' : '0.75rem', alignItems: 'stretch', flexWrap: window.innerWidth < 768 ? 'nowrap' : 'wrap'}}>
             <input
               type="text"
               value={searchQuery}
               onChange={handleInputChange}
               placeholder={t('ui.searchPlaceholder')}
               style={{
-                flex: '1 1 250px',
-                minWidth: '250px',
+                flex: window.innerWidth < 768 ? '1 1 auto' : '1 1 250px',
+                minWidth: window.innerWidth < 480 ? '120px' : window.innerWidth < 768 ? '150px' : '250px',
                 padding: 'clamp(0.75rem, 2vw, 1rem)',
                 border: '2px solid rgba(59, 130, 246, 0.2)',
                 borderRadius: '0.75rem',
@@ -449,7 +468,9 @@ function App() {
             <button
               type="submit"
               style={{
-                padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
+                padding: window.innerWidth < 768 ? 
+                  'clamp(0.5rem, 2vw, 0.75rem)' : 
+                  'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
                 background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                 color: 'white',
                 border: 'none',
@@ -459,7 +480,8 @@ function App() {
                 fontSize: 'clamp(0.875rem, 2vw, 1rem)',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                 transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                minWidth: window.innerWidth < 768 ? '44px' : 'auto'
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-1px)';
@@ -470,12 +492,14 @@ function App() {
                 e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
               }}
             >
-              {t('ui.searchPlaceholder').replace('...', '')}
+              {window.innerWidth < 768 ? '🔍' : `🔍 ${t('ui.searchPlaceholder').replace('...', '')}`}
             </button>
             <button
               onClick={() => setShowRacesPanel(true)}
               style={{
-                padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
+                padding: window.innerWidth < 768 ? 
+                  'clamp(0.5rem, 2vw, 0.75rem)' : 
+                  'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: 'white',
                 border: 'none',
@@ -485,7 +509,8 @@ function App() {
                 fontSize: 'clamp(0.875rem, 2vw, 1rem)',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                 transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                minWidth: window.innerWidth < 768 ? '44px' : 'auto'
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-1px)';
@@ -496,23 +521,23 @@ function App() {
                 e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
               }}
             >
-              🏁 {t('ui.viewRaces') || 'View All Races'}
+              {window.innerWidth < 768 ? '🏁' : `🏁 ${t('ui.viewRaces') || 'View All Races'}`}
             </button>
           </form>
           
           {/* Search Results */}
           {searchResults.length > 0 && (
             <div style={{marginTop: '1.5rem', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '1rem', backgroundColor: 'rgba(249, 250, 251, 0.8)', backdropFilter: 'blur(10px)'}}>
-              <h4 style={{padding: '1rem', margin: 0, fontWeight: '700', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', color: '#1f2937'}}>
+              <h4 style={{padding: window.innerWidth < 768 ? '0.5rem' : '1rem', margin: 0, fontWeight: '700', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', color: '#1f2937', fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem'}}>
                 🎯 {t('ui.searchPlaceholder').replace('...', '')} ({searchResults.length} found)
               </h4>
-              <div style={{maxHeight: '250px', overflowY: 'auto'}}>
+              <div style={{maxHeight: window.innerWidth < 768 ? '200px' : '250px', overflowY: 'auto'}}>
                 {searchResults.map((cyclist, index) => (
                   <div
                     key={index}
                     onClick={() => handleSearchResultClick(cyclist)}
                     style={{
-                      padding: '1rem',
+                      padding: window.innerWidth < 768 ? '0.5rem' : '1rem',
                       borderBottom: index < searchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
                       cursor: 'pointer',
                       backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -529,8 +554,8 @@ function App() {
                       item.style.transform = 'translateX(0)';
                     }}
                   >
-                    <div style={{fontWeight: '700', color: '#1f2937', marginBottom: '0.25rem'}}>{cyclist.name}</div>
-                    <div style={{fontSize: '0.875rem', color: '#6b7280', fontWeight: '500'}}>
+                    <div style={{fontWeight: '700', color: '#1f2937', marginBottom: '0.25rem', fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem'}}>{cyclist.name}</div>
+                    <div style={{fontSize: window.innerWidth < 768 ? '0.75rem' : '0.875rem', color: '#6b7280', fontWeight: '500'}}>
                       ID: {cyclist.id} • {cyclist.totalRaces} {t('table.totalRaces').toLowerCase()} 🏆
                     </div>
                   </div>
@@ -557,11 +582,11 @@ function App() {
         {/* Research Section */}
         <div style={styles.searchCard}>
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-            <h3 style={{fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', margin: 0}}>🔬 {t('ui.researchRacers')}</h3>
+            <h3 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', color: '#1f2937', margin: 0}}>🔬 {t('ui.researchRacers')}</h3>
             <button
               onClick={() => setShowResearchSection(!showResearchSection)}
               style={{
-                padding: '0.75rem 1.5rem',
+                padding: window.innerWidth < 768 ? '0.5rem' : '0.75rem 1.5rem',
                 background: showResearchSection ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                 color: 'white',
                 border: 'none',
@@ -570,10 +595,13 @@ function App() {
                 fontWeight: '600',
                 fontSize: '0.875rem',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                minWidth: window.innerWidth < 768 ? '44px' : 'auto'
               }}
             >
-              {showResearchSection ? `🔼 ${t('ui.researchToggleHide')}` : `🔽 ${t('ui.researchToggleShow')}`}
+              {window.innerWidth < 768 ? 
+                (showResearchSection ? '🔼' : '🔽') : 
+                (showResearchSection ? `🔼 ${t('ui.researchToggleHide')}` : `🔽 ${t('ui.researchToggleShow')}`)}
             </button>
           </div>
           
@@ -591,7 +619,7 @@ function App() {
                   margin: '0 0 1rem 0',
                   color: '#1e40af',
                   fontWeight: '700',
-                  fontSize: '1.125rem'
+                  fontSize: 'clamp(1rem, 2.5vw, 1.125rem)'
                 }}>
                   🌐 {t('ui.urlScraping')}
                 </h4>
@@ -632,7 +660,9 @@ function App() {
                     type="submit"
                     disabled={isScrapingInProgress}
                     style={{
-                      padding: 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem)',
+                      padding: window.innerWidth < 768 ? 
+                        'clamp(0.5rem, 1.5vw, 0.75rem)' : 
+                        'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem)',
                       background: isScrapingInProgress ? 
                         'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
                         'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
@@ -644,10 +674,13 @@ function App() {
                       fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       transition: 'all 0.2s ease',
-                      whiteSpace: 'nowrap'
+                      whiteSpace: 'nowrap',
+                      minWidth: window.innerWidth < 768 ? '44px' : 'auto'
                     }}
                   >
-                    {isScrapingInProgress ? `🔄 ${t('ui.extracting')}` : `🔍 ${t('ui.extractData')}`}
+                    {window.innerWidth < 768 ? 
+                      (isScrapingInProgress ? '🔄' : '🔍') : 
+                      (isScrapingInProgress ? `🔄 ${t('ui.extracting')}` : `🔍 ${t('ui.extractData')}`)}
                   </button>
                 </form>
                 
@@ -695,7 +728,7 @@ function App() {
                     <button
                       onClick={handleExportPDF}
                       style={{
-                        padding: '0.5rem 1rem',
+                        padding: window.innerWidth < 768 ? '0.5rem' : '0.5rem 1rem',
                         background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                         color: 'white',
                         border: 'none',
@@ -707,7 +740,9 @@ function App() {
                         transition: 'all 0.2s ease',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.5rem'
+                        justifyContent: 'center',
+                        gap: window.innerWidth < 768 ? '0' : '0.5rem',
+                        minWidth: window.innerWidth < 768 ? '44px' : 'auto'
                       }}
                       onMouseEnter={(e) => {
                         e.target.style.transform = 'translateY(-1px)';
@@ -718,33 +753,32 @@ function App() {
                         e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                       }}
                     >
-                      📄 {t('pdf.exportPDF') || 'Export PDF'}
+                      {window.innerWidth < 768 ? '📄' : `📄 ${t('pdf.exportPDF') || 'Export PDF'}`}
                     </button>
                   </div>
                   
                   {/* Table Header */}
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
-                    gap: 'clamp(0.5rem, 2vw, 1rem)',
+                    gridTemplateColumns: getResearchGridColumns(),
+                    gap: 'clamp(0.1rem, 0.5vw, 0.25rem)',
                     alignItems: 'center',
-                    padding: 'clamp(0.75rem, 2vw, 1rem)',
+                    padding: 'clamp(0.25rem, 1vw, 0.5rem)',
                     backgroundColor: 'rgba(34, 197, 94, 0.15)',
                     borderBottom: '2px solid rgba(34, 197, 94, 0.2)',
                     fontWeight: '700',
-                    fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
-                    color: '#059669',
-                    overflowX: 'auto'
+                    fontSize: 'clamp(0.6rem, 1.8vw, 0.7rem)',
+                    color: '#059669'
                   }}>
-                    <div>🔢 {t('ui.estimatedNumber') || 'Est. #'}</div>
-                    <div>🥇 {t('ui.bestPosition')}</div>
-                    <div>🆔 ID</div>
+                    <div>🔢 #</div>
+                    <div>🥇 Pos</div>
+                    {isLargeScreen && <div>🆔 ID</div>}
                     <div>👤 {t('table.name')}</div>
-                    <div>📍 {t('table.region')}</div>
+                    <div>📍 Region</div>
                     <div>🏃‍♂️ {t('table.team')}</div>
                   </div>
                   
-                  <div style={{maxHeight: '400px', overflowY: 'auto', overflowX: 'auto'}}>
+                  <div style={{maxHeight: '400px', overflowY: 'auto'}}>
                     {researchResults.map((racer, index) => {
                       const isDefault = isDefaultCyclistById(racer.id, racer.formattedName);
                       const isOrganizer = organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
@@ -754,7 +788,7 @@ function App() {
                         key={index}
                         onClick={() => handleResearchRacerClick(racer)}
                         style={{
-                          padding: 'clamp(0.75rem, 2vw, 1rem)',
+                          padding: 'clamp(0.25rem, 1vw, 0.5rem)',
                           borderBottom: index < researchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
                           cursor: 'pointer',
                           backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' : 
@@ -762,10 +796,9 @@ function App() {
                                           'rgba(255, 255, 255, 0.7)',
                           transition: 'all 0.2s ease',
                           display: 'grid',
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
-                          gap: 'clamp(0.5rem, 2vw, 1rem)',
+                          gridTemplateColumns: getResearchGridColumns(),
+                          gap: 'clamp(0.1rem, 0.5vw, 0.25rem)',
                           alignItems: 'center',
-                          minWidth: '600px',
                           borderLeft: isDefault ? '4px solid #10b981' : 
                                      isOrganizer ? '4px solid #fbbf24' : 
                                      'none',
@@ -786,23 +819,25 @@ function App() {
                           item.style.transform = 'translateX(0)';
                         }}
                       >
-                        <div style={{fontWeight: '800', color: isOrganizer ? '#fbbf24' : '#3b82f6', fontSize: '1.125rem'}}>
-                          🔢 #{racer.estimatedNumber}
+                        <div style={{fontWeight: '800', color: isOrganizer ? '#fbbf24' : '#3b82f6', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
+                          #{racer.estimatedNumber}
                         </div>
-                        <div style={{fontWeight: '800', color: '#059669', fontSize: '1.125rem'}}>
-                          🥇 #{racer.bestPosition}
+                        <div style={{fontWeight: '800', color: '#059669', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
+                          #{racer.bestPosition}
                         </div>
-                        <div style={{fontWeight: '600', color: '#64748b', fontFamily: 'monospace', fontSize: '0.75rem'}}>
-                          🆔 {racer.id}
+                        {isLargeScreen && (
+                          <div style={{fontWeight: '600', color: '#64748b', fontFamily: 'monospace', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-all'}}>
+                            {racer.id}
+                          </div>
+                        )}
+                        <div style={{fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                          {racer.formattedName}
                         </div>
-                        <div style={{fontWeight: '700', color: '#1f2937'}}>
-                          👤 {racer.formattedName}
+                        <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                          {racer.region}
                         </div>
-                        <div style={{fontWeight: '500', color: '#64748b', fontSize: '0.875rem'}}>
-                          📍 {racer.region}
-                        </div>
-                        <div style={{fontWeight: '500', color: '#64748b', fontSize: '0.875rem'}}>
-                          🏃‍♂️ {racer.team}
+                        <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                          {racer.team}
                         </div>
                       </div>
                       );
@@ -932,7 +967,7 @@ function App() {
               {/* Header */}
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
                 <h2 style={{
-                  fontSize: '2rem', 
+                  fontSize: 'clamp(1.25rem, 3.5vw, 2rem)', 
                   fontWeight: '800',
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   WebkitBackgroundClip: 'text',

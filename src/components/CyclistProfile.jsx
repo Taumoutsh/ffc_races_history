@@ -219,7 +219,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
           {/* Header */}
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
             <h2 style={{
-              fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+              fontSize: 'clamp(1.125rem, 3.5vw, 2rem)', 
               fontWeight: '800',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               WebkitBackgroundClip: 'text',
@@ -268,55 +268,59 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
               border: isDefaultProfile ? '1px solid rgba(34, 197, 94, 0.2)' : '1px solid rgba(59, 130, 246, 0.2)',
               boxShadow: isDefaultProfile ? '0 4px 6px -1px rgba(34, 197, 94, 0.1)' : 'none'
             }}>
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                <div>
-                  <h3 style={{fontSize: 'clamp(1.25rem, 3.5vw, 1.5rem)', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem'}}>
-                    🚴‍♂️ {cyclistName || 'Unknown Cyclist'}
-                  </h3>
-                  <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
-                    📋 ID: {cyclistId || 'No ID'}
-                  </p>
-                  <p style={{fontSize: '1rem', color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
-                    🏆 {t('table.totalRaces')}: {safeHistory.length}
-                  </p>
-                  {(() => {
-                    const averagePercentage = calculateAverageTopPercentage();
-                    if (averagePercentage !== null) {
-                      return (
-                        <p style={{fontSize: '1rem', color: '#64748b', fontWeight: '600'}}>
-                          📊 {t('table.averageTopPercentage')}: 
-                          <span style={{
-                            marginLeft: '0.5rem',
-                            background: getPercentageColor(averagePercentage),
-                            color: 'white',
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.375rem',
-                            fontSize: '0.875rem',
-                            fontWeight: '600'
-                          }}>
-                            {averagePercentage}%
-                          </span>
-                        </p>
-                      );
-                    }
-                    return null;
-                  })()}
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem'}}>
+                  <div style={{flex: '1', minWidth: '200px'}}>
+                    <h3 style={{fontSize: 'clamp(1rem, 3vw, 1.5rem)', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem'}}>
+                      🚴‍♂️ {cyclistName || 'Unknown Cyclist'}
+                    </h3>
+                    <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem', fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem'}}>
+                      📋 ID: {cyclistId || 'No ID'}
+                    </p>
+                    <p style={{fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem', color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
+                      🏆 {t('table.totalRaces')}: {safeHistory.length}
+                    </p>
+                    {(() => {
+                      const averagePercentage = calculateAverageTopPercentage();
+                      if (averagePercentage !== null) {
+                        return (
+                          <p style={{fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem', color: '#64748b', fontWeight: '600'}}>
+                            📊 {t('table.averageTopPercentage')}: 
+                            <span style={{
+                              marginLeft: '0.5rem',
+                              background: getPercentageColor(averagePercentage),
+                              color: 'white',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              fontWeight: '600'
+                            }}>
+                              {averagePercentage}%
+                            </span>
+                          </p>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                  {onDefaultChange && cyclistName && (
+                    <div style={{flexShrink: 0}}>
+                      <SelectAsDefaultButton 
+                        cyclist={{ 
+                          firstName: cyclistName.split(' ')[0] || '', 
+                          lastName: cyclistName.split(' ').slice(1).join(' ') || '', 
+                          id: cyclistId 
+                        }}
+                        onDefaultChange={onDefaultChange}
+                        isAlreadyDefault={isDefaultProfile}
+                        translations={{ 
+                          selectAsDefault: t('ui.selectAsDefault'),
+                          alreadySelectedCyclist: t('ui.alreadySelectedCyclist')
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
-                {onDefaultChange && cyclistName && (
-                  <SelectAsDefaultButton 
-                    cyclist={{ 
-                      firstName: cyclistName.split(' ')[0] || '', 
-                      lastName: cyclistName.split(' ').slice(1).join(' ') || '', 
-                      id: cyclistId 
-                    }}
-                    onDefaultChange={onDefaultChange}
-                    isAlreadyDefault={isDefaultProfile}
-                    translations={{ 
-                      selectAsDefault: t('ui.selectAsDefault'),
-                      alreadySelectedCyclist: t('ui.alreadySelectedCyclist')
-                    }}
-                  />
-                )}
               </div>
             </div>
             
@@ -325,7 +329,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
               <button
                 onClick={() => setShowChart(false)}
                 style={{
-                  padding: '0.75rem 1.5rem',
+                  padding: window.innerWidth < 768 ? '0.5rem' : '0.75rem 1.5rem',
                   background: !showChart ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' : 'rgba(248, 250, 252, 0.8)',
                   color: !showChart ? 'white' : '#64748b',
                   border: '1px solid rgba(59, 130, 246, 0.2)',
@@ -334,15 +338,16 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                   fontSize: '0.875rem',
                   fontWeight: '700',
                   boxShadow: !showChart ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: window.innerWidth < 768 ? '44px' : 'auto'
                 }}
               >
-                📊 {t('profile.raceTable')}
+                {window.innerWidth < 768 ? '📊' : `📊 ${t('profile.raceTable')}`}
               </button>
               <button
                 onClick={() => setShowChart(true)}
                 style={{
-                  padding: '0.75rem 1.5rem',
+                  padding: window.innerWidth < 768 ? '0.5rem' : '0.75rem 1.5rem',
                   background: showChart ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' : 'rgba(248, 250, 252, 0.8)',
                   color: showChart ? 'white' : '#64748b',
                   border: '1px solid rgba(59, 130, 246, 0.2)',
@@ -351,16 +356,17 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                   fontSize: '0.875rem',
                   fontWeight: '700',
                   boxShadow: showChart ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: window.innerWidth < 768 ? '44px' : 'auto'
                 }}
               >
-                📈 {t('profile.performanceChart')}
+                {window.innerWidth < 768 ? '📈' : `📈 ${t('profile.performanceChart')}`}
               </button>
               {canShowComparison() && (
                 <button
                   onClick={() => setShowComparison(true)}
                   style={{
-                    padding: '0.75rem 1.5rem',
+                    padding: window.innerWidth < 768 ? '0.5rem' : '0.75rem 1.5rem',
                     background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
                     color: 'white',
                     border: '1px solid rgba(245, 158, 11, 0.2)',
@@ -369,7 +375,8 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                     fontSize: '0.875rem',
                     fontWeight: '700',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    minWidth: window.innerWidth < 768 ? '44px' : 'auto'
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'translateY(-2px)';
@@ -380,7 +387,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                     e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
                   }}
                 >
-                  ⚔️ {t('ui.compareWithDefault')}
+                  {window.innerWidth < 768 ? '⚔️' : `⚔️ ${t('ui.compareWithDefault')}`}
                 </button>
               )}
             </div>
@@ -394,7 +401,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                 <h4 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem'}}>{t('profile.performanceChart')}</h4>
                 <p style={{fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.75rem'}}>{t('ui.clickPointsToViewDetails')}</p>
               </div>
-              <div style={{height: '400px'}}>
+              <div style={{height: 'clamp(300px, 40vh, 400px)'}}>
                 <PerformanceChart 
                   data={sortedHistory.map(race => ({
                     date: race.date,
@@ -412,8 +419,8 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
             // Table View
             <div>
               <div style={{marginBottom: '1.5rem'}}>
-                <h4 style={{fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.75rem', color: '#1f2937'}}>📊 {t('ui.raceHistory')}</h4>
-                <p style={{fontSize: '1rem', color: '#64748b', marginBottom: '0.75rem', fontWeight: '600'}}>
+                <h4 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', marginBottom: '0.75rem', color: '#1f2937'}}>📊 {t('ui.raceHistory')}</h4>
+                <p style={{fontSize: window.innerWidth < 768 ? '0.75rem' : '1rem', color: '#64748b', marginBottom: '0.75rem', fontWeight: '600'}}>
                   👆 {t('ui.clickHeadersToSort')} • 🖱️ {t('ui.clickRacesToViewLeaderboard')}
                 </p>
               </div>
@@ -428,20 +435,22 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                     overflowX: 'auto',
                     WebkitOverflowScrolling: 'touch'
                   }}>
-                    <table style={{width: '100%', borderCollapse: 'collapse', minWidth: '600px'}}>
+                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
                       <thead>
                         <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
                           <th 
                             style={{
                               border: 'none', 
                               borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                              padding: '1rem 1.5rem', 
+                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)', 
                               textAlign: 'left', 
                               cursor: 'pointer', 
                               fontWeight: '700', 
                               color: '#1f2937',
                               transition: 'background-color 0.2s ease',
-                              userSelect: 'none'
+                              userSelect: 'none',
+                              fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                              width: '30%'
                             }}
                             onClick={() => handleSort('date')}
                           >
@@ -454,13 +463,15 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                             style={{
                               border: 'none', 
                               borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                              padding: '1rem 1.5rem', 
+                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)', 
                               textAlign: 'left', 
                               cursor: 'pointer', 
                               fontWeight: '700', 
                               color: '#1f2937',
                               transition: 'background-color 0.2s ease',
-                              userSelect: 'none'
+                              userSelect: 'none',
+                              fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                              width: '40%'
                             }}
                             onClick={() => handleSort('location')}
                           >
@@ -473,13 +484,15 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                             style={{
                               border: 'none', 
                               borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                              padding: '1rem 1.5rem', 
+                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)', 
                               textAlign: 'left', 
                               cursor: 'pointer', 
                               fontWeight: '700', 
                               color: '#1f2937',
                               transition: 'background-color 0.2s ease',
-                              userSelect: 'none'
+                              userSelect: 'none',
+                              fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                              width: '15%'
                             }}
                             onClick={() => handleSort('position')}
                           >
@@ -492,13 +505,15 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                             style={{
                               border: 'none', 
                               borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                              padding: '1rem 1.5rem', 
+                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)', 
                               textAlign: 'left', 
                               cursor: 'pointer', 
                               fontWeight: '700', 
                               color: '#1f2937',
                               transition: 'background-color 0.2s ease',
-                              userSelect: 'none'
+                              userSelect: 'none',
+                              fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                              width: '15%'
                             }}
                             onClick={() => handleSort('percentage')}
                           >
@@ -532,16 +547,16 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                               row.style.boxShadow = 'none';
                             }}
                           >
-                            <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '600', color: '#64748b', minWidth: '120px'}}>
+                            <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '600', color: '#64748b', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
                               {race.date}
                             </td>
-                            <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '500', color: '#374151', minWidth: '150px'}}>
+                            <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#374151', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                               {race.race_name}
                             </td>
-                            <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '800', color: '#3b82f6', fontSize: 'clamp(1rem, 2.5vw, 1.125rem)', minWidth: '80px'}}>
+                            <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '800', color: '#3b82f6', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
                               #{race.rank}
                             </td>
-                            <td style={{border: 'none', padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem)', fontWeight: '700', color: '#059669', fontSize: 'clamp(0.875rem, 2vw, 1rem)', minWidth: '100px'}}>
+                            <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '700', color: '#059669', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', textAlign: 'center'}}>
                               {(() => {
                                 const participantCount = raceParticipantCounts[race.race_id];
                                 const percentage = calculatePercentagePosition(race.rank, participantCount);
