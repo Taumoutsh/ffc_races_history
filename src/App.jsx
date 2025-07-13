@@ -916,14 +916,54 @@ function App() {
             <div style={styles.instructions}>
               <h3 style={styles.instructionsTitle}>{t('ui.howToUse')}</h3>
               <ul style={styles.instructionsList}>
-                <li>📊 <strong>{t('chart.title')}:</strong> {t('ui.instructionPoint')}</li>
-                <li>⏮️⏭️ <strong>{t('ui.instructionChart')}</strong></li>
-                <li>👥 <strong>{t('ui.leaderboard')}:</strong> {t('ui.instructionLeaderboard')}</li>
-                <li>🔍 <strong>{t('ui.searchPlaceholder').replace('...', '')}:</strong> {t('ui.instructionSearch')}</li>
-                <li>🏁 <strong>{t('ui.instructionRaceList')}</strong></li>
-                <li>⭐ <strong>{t('ui.instructionDefaultCyclist')}</strong></li>
-                <li>📋 <strong>{t('ui.instructionSort')}</strong></li>
-                <li>🔬 <strong>{t('ui.instructionResearch')}</strong></li>
+                <li><strong>🚴‍♂️ {t('ui.sectionCyclistSearch')}:</strong>
+                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
+                    <li>🔍 {t('ui.instructionSearch')}</li>
+                    <li>👤 {t('ui.instructionCyclistProfiles')}</li>
+                    <li>⭐ {t('ui.instructionDefaultCyclist')}</li>
+                  </ul>
+                </li>
+                
+                <li><strong>📊 {t('ui.sectionPerformanceCharts')}:</strong>
+                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
+                    <li>📈 {t('ui.instructionPerformanceChart')}</li>
+                    <li>⏮️⏭️ {t('ui.instructionChartNavigation')}</li>
+                    <li>📊 {t('ui.instructionRaceDetails')}</li>
+                    <li>🔄 {t('ui.instructionViewModes')}</li>
+                  </ul>
+                </li>
+                
+                <li><strong>⚔️ {t('ui.sectionComparison')}:</strong>
+                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
+                    <li>⚔️ {t('ui.instructionComparison')}</li>
+                    <li>📅 {t('ui.instructionComparisonTable')}</li>
+                    <li>📊 {t('ui.instructionTopPercentage')}</li>
+                  </ul>
+                </li>
+                
+                <li><strong>🏁 {t('ui.sectionRaceManagement')}:</strong>
+                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
+                    <li>🏁 {t('ui.instructionRaceList')}</li>
+                    <li>👥 {t('ui.instructionLeaderboard')}</li>
+                    <li>📋 {t('ui.instructionSort')}</li>
+                  </ul>
+                </li>
+                
+                <li><strong>🔬 {t('ui.sectionFutureAnalysis')}:</strong>
+                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
+                    <li>🌐 {t('ui.instructionAutoAnalysis')}</li>
+                    <li>🗑️ {t('ui.instructionClearData')}</li>
+                    <li>📄 {t('ui.instructionPDFExport')}</li>
+                    <li>🔬 {t('ui.instructionResearch')}</li>
+                  </ul>
+                </li>
+                
+                <li><strong>🎨 {t('ui.sectionUserExperience')}:</strong>
+                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
+                    <li>🌍 {t('ui.instructionLanguage')}</li>
+                    <li>📱 {t('ui.instructionMobileOptimized')}</li>
+                  </ul>
+                </li>
               </ul>
             </div>
           </div>
