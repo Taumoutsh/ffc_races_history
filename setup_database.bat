@@ -43,10 +43,10 @@ if %errorlevel% neq 0 (
 )
 
 echo Installing Python dependencies...
-pip install -r backend\requirements.txt
+pip install -r requirements.txt
 if %errorlevel% neq 0 (
     echo WARNING: Could not install some dependencies
-    echo Please check backend\requirements.txt and install manually if needed
+    echo Please check requirements.txt and install manually if needed
 )
 
 echo.
@@ -59,7 +59,6 @@ if %errorlevel% equ 0 (
     echo Database setup completed successfully!
     echo.
     echo Running initial data scraping...
-    python scrapers\cycling_scraper.py
     
     if %errorlevel% equ 0 (
         echo.
