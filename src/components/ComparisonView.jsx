@@ -165,7 +165,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
         alignItems: 'center', 
         justifyContent: 'center', 
         zIndex: 50,
-        padding: '1rem'
+        padding: window.innerWidth < 768 ? '0.5rem' : '1rem'
       }}
       onClick={handleBackdropClick}
     >
@@ -174,7 +174,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderRadius: '1.5rem', 
-        maxWidth: '90rem', 
+        maxWidth: '95rem', 
         width: '100%', 
         maxHeight: '90vh', 
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
@@ -185,7 +185,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
         flexDirection: 'column'
       }}>
         <div style={{
-          padding: '2rem',
+          padding: window.innerWidth < 768 ? '1rem' : '1.5rem',
           overflowY: 'auto',
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
@@ -431,7 +431,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: window.innerWidth < 768 ? '25%' : '30%'
+                              width: window.innerWidth < 768 ? '20%' : '25%'
                             }}
                             onClick={() => handleSort('date')}
                           >
@@ -452,7 +452,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: window.innerWidth < 768 ? '30%' : '35%'
+                              width: window.innerWidth < 768 ? '40%' : '45%'
                             }}
                             onClick={() => handleSort('race')}
                           >
@@ -473,7 +473,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: window.innerWidth < 768 ? '22.5%' : '17.5%'
+                              width: window.innerWidth < 768 ? '20%' : '15%'
                             }}
                             onClick={() => handleSort('cyclistPosition')}
                           >
@@ -494,7 +494,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: window.innerWidth < 768 ? '22.5%' : '17.5%'
+                              width: window.innerWidth < 768 ? '20%' : '15%'
                             }}
                             onClick={() => handleSort('defaultPosition')}
                           >
