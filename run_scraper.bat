@@ -31,13 +31,14 @@ if not exist "database" (
     mkdir database
 )
 
-echo Starting the cycling data scraper...
+echo Starting the OPTIMIZED cycling data scraper...
 echo This will update the database with new race data from paysdelaloirecyclisme.fr
+echo Enhanced logging and progress tracking enabled
 echo.
 
-REM Run the scraper
+REM Run the optimized scraper
 cd backend
-python scrapers\cycling_scraper.py
+python scrapers\cycling_scraper_db_optimized.py
 
 REM Check if scraper ran successfully
 if %errorlevel% equ 0 (
