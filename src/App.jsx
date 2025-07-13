@@ -193,9 +193,11 @@ function App() {
   // Get responsive grid columns for research results
   const getResearchGridColumns = () => {
     if (isLargeScreen) {
-      return 'clamp(50px, 8%, 70px) clamp(50px, 8%, 70px) clamp(80px, 12%, 100px) 2fr clamp(80px, 15%, 120px) 2fr';
+      // Desktop: Pos, ID, Name, Region, Team
+      return 'clamp(50px, 8%, 70px) clamp(80px, 12%, 100px) 2fr clamp(80px, 15%, 120px) 2fr';
     } else {
-      return 'clamp(50px, 10%, 70px) clamp(50px, 10%, 70px) 2fr clamp(80px, 15%, 120px) 2fr';
+      // Mobile: Pos, Name, Team (hiding ID and Region)
+      return 'clamp(50px, 10%, 70px) 2fr 2fr';
     }
   };
 
@@ -811,11 +813,10 @@ function App() {
                     fontSize: 'clamp(0.6rem, 1.8vw, 0.7rem)',
                     color: '#059669'
                   }}>
-                    <div>🔢 #</div>
                     <div>🥇 Pos</div>
                     {isLargeScreen && <div>🆔 ID</div>}
                     <div>👤 {t('table.name')}</div>
-                    <div>📍 Region</div>
+                    {isLargeScreen && <div>📍 {t('table.region')}</div>}
                     <div>🏃‍♂️ {t('table.team')}</div>
                   </div>
                   
@@ -860,9 +861,6 @@ function App() {
                           item.style.transform = 'translateX(0)';
                         }}
                       >
-                        <div style={{fontWeight: '800', color: isOrganizer ? '#fbbf24' : '#3b82f6', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
-                          #{racer.estimatedNumber}
-                        </div>
                         <div style={{fontWeight: '800', color: '#059669', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
                           #{racer.bestPosition}
                         </div>
@@ -874,9 +872,11 @@ function App() {
                         <div style={{fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                           {racer.formattedName}
                         </div>
-                        <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                          {racer.region}
-                        </div>
+                        {isLargeScreen && (
+                          <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                            {racer.region}
+                          </div>
+                        )}
                         <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                           {racer.team}
                         </div>

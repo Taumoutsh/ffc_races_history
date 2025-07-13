@@ -404,7 +404,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                 <h4 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem'}}>{t('profile.performanceChart')}</h4>
                 <p style={{fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.75rem'}}>{t('ui.clickPointsToViewDetails')}</p>
               </div>
-              <div style={{height: 'clamp(300px, 40vh, 400px)'}}>
+              <div style={{height: window.innerWidth < 768 ? 'clamp(300px, 42vh, 420px)' : 'clamp(450px, 55vh, 600px)'}}>
                 <PerformanceChart 
                   data={sortedHistory.map(race => ({
                     date: race.date,

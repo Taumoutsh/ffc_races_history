@@ -197,7 +197,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
   };
 
   return (
-    <div style={{width: '100%', height: 'clamp(20rem, 50vh, 28rem)', padding: 'clamp(0.75rem, 3vw, 1.5rem)'}}>
+    <div style={{width: '100%', height: window.innerWidth < 768 ? 'clamp(18rem, 45vh, 26rem)' : 'clamp(28rem, 60vh, 40rem)', padding: 'clamp(0.75rem, 3vw, 1.5rem)'}}>
       <h2 style={{
         fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', 
         fontWeight: '800', 
@@ -419,11 +419,12 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
               axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
             />
             <YAxis 
-              label={{ value: t('chart.yAxisLabel'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: '700', fill: '#64748b', fontSize: window.innerWidth < 768 ? '10px' : '12px' } }}
+              label={window.innerWidth < 768 ? undefined : { value: t('chart.yAxisLabel'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: '700', fill: '#64748b', fontSize: '12px' } }}
               reversed={true}
               domain={[1, 'dataMax']}
-              tick={{ fontSize: window.innerWidth < 768 ? 10 : 12, fontWeight: '600', fill: '#64748b' }}
+              tick={{ fontSize: window.innerWidth < 768 ? 9 : 12, fontWeight: '600', fill: '#64748b' }}
               axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
+              width={window.innerWidth < 768 ? 30 : 60}
             />
             <Tooltip content={<CustomTooltip />} />
             <Line 

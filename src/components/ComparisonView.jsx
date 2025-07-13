@@ -301,7 +301,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
           {chartData.length > 0 ? (
             showChart ? (
               // Chart View
-              <div style={{height: 'clamp(350px, 45vh, 500px)'}}>
+              <div style={{height: window.innerWidth < 768 ? 'clamp(320px, 42vh, 450px)' : 'clamp(500px, 60vh, 700px)'}}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     key={`comparison-chart-${forceUpdate}`}
@@ -320,11 +320,12 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                       axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
                     />
                     <YAxis 
-                      label={{ value: t('chart.yAxisLabel'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: '700', fill: '#64748b' } }}
+                      label={window.innerWidth < 768 ? undefined : { value: t('chart.yAxisLabel'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: '700', fill: '#64748b', fontSize: '12px' } }}
                       reversed={true}
                       domain={[1, 'dataMax']}
-                      tick={{ fontSize: 12, fontWeight: '600', fill: '#64748b' }}
+                      tick={{ fontSize: window.innerWidth < 768 ? 9 : 12, fontWeight: '600', fill: '#64748b' }}
                       axisLine={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }}
+                      width={window.innerWidth < 768 ? 30 : 60}
                     />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend 
