@@ -38,6 +38,22 @@ if not exist "database\cycling_data.db" (
     )
 )
 
+REM Check if virtual environment exists
+if not exist "scraper_env" (
+    echo ERROR: Virtual environment not found
+    echo Please run setup_database.bat first to create the environment
+    pause
+    exit /b 1
+)
+
+echo Activating Python virtual environment...
+call scraper_env\Scripts\activate.bat
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to activate virtual environment
+    pause
+    exit /b 1
+)
+
 echo Installing/updating Python dependencies...
 pip install -r backend\requirements.txt >nul 2>&1
 

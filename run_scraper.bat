@@ -31,6 +31,22 @@ if not exist "database" (
     mkdir database
 )
 
+REM Check if virtual environment exists
+if not exist "scraper_env" (
+    echo ERROR: Virtual environment not found
+    echo Please run setup_database.bat first to create the environment
+    pause
+    exit /b 1
+)
+
+echo Activating Python virtual environment...
+call scraper_env\Scripts\activate.bat
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to activate virtual environment
+    pause
+    exit /b 1
+)
+
 echo Starting the OPTIMIZED cycling data scraper...
 echo This will update the database with new race data from paysdelaloirecyclisme.fr
 echo Enhanced logging and progress tracking enabled

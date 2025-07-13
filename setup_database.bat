@@ -30,6 +30,26 @@ echo Creating directories...
 if not exist "database" mkdir database
 if not exist "backend\logs" mkdir backend\logs
 
+echo Setting up Python virtual environment...
+if not exist "scraper_env" (
+    echo Creating virtual environment...
+    python -m venv scraper_env
+    if %errorlevel% neq 0 (
+        echo ERROR: Failed to create virtual environment
+        echo Please ensure Python is properly installed with venv module
+        pause
+        exit /b 1
+    )
+)
+
+echo Activating virtual environment...
+call scraper_env\Scripts\activate.bat
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to activate virtual environment
+    pause
+    exit /b 1
+)
+
 echo Installing Python dependencies...
 pip install -r backend\requirements.txt
 if %errorlevel% neq 0 (
