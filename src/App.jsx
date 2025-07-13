@@ -451,7 +451,7 @@ function App() {
                 padding: 'clamp(0.75rem, 2vw, 1rem)',
                 border: '2px solid rgba(59, 130, 246, 0.2)',
                 borderRadius: '0.75rem',
-                fontSize: 'clamp(0.875rem, 2vw, 1rem)',
+                fontSize: window.innerWidth < 768 ? '16px' : 'clamp(0.875rem, 2vw, 1rem)',
                 backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 transition: 'all 0.2s ease',
                 outline: 'none'
@@ -642,7 +642,7 @@ function App() {
                       padding: 'clamp(0.5rem, 1.5vw, 0.75rem)',
                       border: '2px solid rgba(59, 130, 246, 0.2)',
                       borderRadius: '0.75rem',
-                      fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
+                      fontSize: window.innerWidth < 768 ? '16px' : 'clamp(0.75rem, 1.8vw, 0.875rem)',
                       backgroundColor: 'rgba(255, 255, 255, 0.8)',
                       transition: 'all 0.2s ease',
                       outline: 'none'
