@@ -17,14 +17,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM Check if we're in the correct directory
-if not exist "backend\database\setup_database.py" (
-    echo ERROR: setup_database.py not found
-    echo Please run this script from the project root directory
-    pause
-    exit /b 1
-)
-
 REM Create necessary directories
 echo Creating directories...
 if not exist "database" mkdir database
