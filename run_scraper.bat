@@ -52,8 +52,10 @@ echo This will update the database with new race data from paysdelaloirecyclisme
 echo Enhanced logging and progress tracking enabled
 echo.
 
+REM Set Python path for imports (Windows syntax)
+set PYTHONPATH=%CD%\backend;%PYTHONPATH%
+
 REM Run the optimized scraper
-cd backend
 python scrapers\cycling_scraper_db_optimized.py
 
 REM Check if scraper ran successfully

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import PerformanceChart from './PerformanceChart';
 import SelectAsDefaultButton from './SelectAsDefaultButton';
-import ComparisonChart from './ComparisonChart';
+import ComparisonView from './ComparisonView';
 import { useTranslation } from '../contexts/LanguageContext';
 import { parseFrenchDate, getPercentageColor, calculatePercentagePosition } from '../utils/dateUtils';
 
@@ -293,7 +293,10 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                               padding: '0.25rem 0.5rem',
                               borderRadius: '0.375rem',
                               fontSize: '0.875rem',
-                              fontWeight: '600'
+                              fontWeight: '600',
+                              width: '3rem',
+                              display: 'inline-block',
+                              textAlign: 'center'
                             }}>
                               {averagePercentage}%
                             </span>
@@ -471,7 +474,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: '40%'
+                              width: window.innerWidth < 768 ? '43%' : '40%'
                             }}
                             onClick={() => handleSort('location')}
                           >
@@ -492,7 +495,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: '15%'
+                              width: window.innerWidth < 768 ? '12%' : '15%'
                             }}
                             onClick={() => handleSort('position')}
                           >
@@ -568,7 +571,10 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                                       padding: '0.25rem 0.5rem',
                                       borderRadius: '0.375rem',
                                       fontSize: '0.875rem',
-                                      fontWeight: '600'
+                                      fontWeight: '600',
+                                      width: '3rem',
+                                      display: 'inline-block',
+                                      textAlign: 'center'
                                     }}>
                                       {percentage}%
                                     </span>
@@ -601,9 +607,9 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
         </div>
       </div>
       
-      {/* Comparison Chart Modal */}
+      {/* Comparison View Modal */}
       {showComparison && getDefaultCyclistInfo && (
-        <ComparisonChart
+        <ComparisonView
           data={findCommonRaces()}
           onPointClick={onPointClick}
           cyclistName={cyclistName}

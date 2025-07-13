@@ -7,7 +7,7 @@
 **Purpose:** Interactive cycling race performance tracking and analysis  
 **Data Source:** SQLite database with REST API  
 **Default Cyclist:** John Doe (configurable dynamically via UI)  
-**Version:** 2.9.1 - Mobile-Optimized Interface
+**Version:** 2.9.2 - Enhanced Comparison & Mobile UX
 
 ## 🚀 Core Features
 
@@ -31,12 +31,15 @@
 - **NEW:** Top % column with red-to-green gradient (lower % = better performance)
 - **NEW:** Average Top % display in cyclist info card
 
-### 4. ⚔️ Performance Comparison Feature (v2.7.0)
+### 4. ⚔️ Performance Comparison Feature (v2.7.0, Enhanced v2.9.2)
 - **Smart Visibility:** Only appears for non-default cyclists with common races
-- **Dual-line Chart:** Blue (current) vs Green (default) performance comparison
+- **Dual View Mode:** Chart/Table toggle similar to cyclist profile
+- **Enhanced Chart:** Fixed iPhone legend overflow with responsive sizing
+- **Comparison Table:** 4-column layout (Date, Race, Cyclist Position, Default Position)
+- **Mobile Optimized:** Compact panels and smart text adaptation
 - **Race Matching:** By race_id or race_name + date
 - **Multilingual:** English/French support
-- **Component:** `ComparisonChart.jsx`
+- **Component:** `ComparisonView.jsx`
 
 ### 5. Search & Navigation
 - Real-time search with French accent support
@@ -100,7 +103,7 @@ src/
 ├── components/
 │   ├── CyclistProfile.jsx
 │   ├── PerformanceChart.jsx
-│   ├── ComparisonChart.jsx       # v2.7.0
+│   ├── ComparisonView.jsx        # v2.7.0 - Upgraded v2.9.2 with table mode
 │   └── RaceLeaderboardModal.jsx
 ├── hooks/
 │   ├── useApiData.js             # Enhanced with scrapeRaceData function
@@ -209,7 +212,19 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 
 ## 📈 Version History
 
-### v2.9.1 (Current) - Mobile-Optimized Interface
+### v2.9.2 (Current) - Enhanced Comparison & Mobile UX
+- ⚔️ **Upgraded Comparison View:** Renamed from ComparisonChart to ComparisonView with dual chart/table modes
+- 📅 **Enhanced Comparison Table:** Added date column with 4-column layout (Date, Race, Cyclist Position, Default Position)
+- 📱 **iPhone Legend Fix:** Resolved chart legend overflow with responsive text sizing and truncation
+- 🎛️ **Compact Mobile Panels:** Reduced comparison info panel size by 30% on iPhone for better space utilization
+- 🔤 **Smart Text Adaptation:** Mobile shows "races" vs desktop "common races" for space optimization
+- 🗑️ **Auto-Analysis Clear Button:** Added functional clear button for race URL input with proper mobile layout
+- 🎨 **Language Switcher Update:** Reversed French/English positions with matching color scheme (French=blue, English=red)
+- 📊 **Consistent Top % Styling:** Fixed background width inconsistency for single vs double digit percentages
+- 📐 **Mobile Table Optimization:** Adjusted position column width and responsive column distribution
+- 🌍 **Cross-Platform Support:** Complete Windows batch script equivalents for all Unix shell scripts
+
+### v2.9.1 - Mobile-Optimized Interface
 - 📱 **Comprehensive Mobile Optimization:** All buttons show emoji-only on mobile devices (<768px)
 - 🔤 **Responsive Typography:** Reduced font sizes on mobile (title: 1rem-2.5rem, subtitle: 0.625rem-1.125rem)
 - 🎛️ **Compact Layouts:** Reduced padding, margins, and spacing across all components
@@ -271,6 +286,6 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 ---
 
 **Last Updated:** January 2025  
-**Current Version:** 2.9.0  
+**Current Version:** 2.9.2  
 **License:** MIT  
 **Repository:** https://github.com/Taumoutsh/ffc_races_history

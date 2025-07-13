@@ -27,7 +27,7 @@ const LanguageSwitcher = () => {
         color: 'black',
         transition: 'all 0.3s ease'
       }}>
-        {isMobile ? '🇬🇧' : '🇬🇧 EN'}
+        {isMobile ? '🇫🇷' : '🇫🇷 FR'}
       </span>
       
       <div
@@ -35,7 +35,7 @@ const LanguageSwitcher = () => {
         style={{
           width: isMobile ? '40px' : '50px',
           height: isMobile ? '20px' : '26px',
-          background: language === 'en' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(59, 130, 246, 0.8)',
+          background: language === 'fr' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(239, 68, 68, 0.8)',
           borderRadius: isMobile ? '10px' : '13px',
           position: 'relative',
           cursor: 'pointer',
@@ -50,7 +50,7 @@ const LanguageSwitcher = () => {
           borderRadius: '50%',
           position: 'absolute',
           top: '1px',
-          left: language === 'en' ? '2px' : (isMobile ? '22px' : '26px'),
+          left: language === 'fr' ? '2px' : (isMobile ? '22px' : '26px'),
           transition: 'all 0.3s ease',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
         }} />
@@ -62,7 +62,7 @@ const LanguageSwitcher = () => {
         color: 'black',
         transition: 'all 0.3s ease'
       }}>
-        {isMobile ? '🇫🇷' : '🇫🇷 FR'}
+        {isMobile ? '🇬🇧' : '🇬🇧 EN'}
       </span>
     </div>
   );

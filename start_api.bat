@@ -65,6 +65,9 @@ echo Press Ctrl+C to stop the server
 echo ======================================
 echo.
 
+REM Set Python path for imports (Windows syntax)
+set PYTHONPATH=%CD%\backend;%PYTHONPATH%
+
 REM Start the API server
 cd backend
 python api\server.py

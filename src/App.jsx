@@ -630,15 +630,15 @@ function App() {
                 }}>
                   {t('ui.urlScrapingHint')}
                 </p>
-                <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: '0.75rem', alignItems: 'stretch', flexWrap: 'wrap'}}>
+                <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: window.innerWidth < 768 ? '0.4rem' : '0.75rem', alignItems: 'stretch', flexWrap: 'nowrap', overflowX: 'auto'}}>
                   <input
                     type="url"
                     value={raceUrl}
                     onChange={(e) => setRaceUrl(e.target.value)}
                     placeholder={t('ui.urlPlaceholder')}
                     style={{
-                      flex: '1 1 250px',
-                      minWidth: '250px',
+                      flex: window.innerWidth < 768 ? '1 1 120px' : '1 1 250px',
+                      minWidth: window.innerWidth < 768 ? '120px' : '250px',
                       padding: 'clamp(0.5rem, 1.5vw, 0.75rem)',
                       border: '2px solid rgba(59, 130, 246, 0.2)',
                       borderRadius: '0.75rem',
@@ -681,6 +681,47 @@ function App() {
                     {window.innerWidth < 768 ? 
                       (isScrapingInProgress ? '🔄' : '🔍') : 
                       (isScrapingInProgress ? `🔄 ${t('ui.extracting')}` : `🔍 ${t('ui.extractData')}`)}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRaceUrl('')}
+                    disabled={!raceUrl.trim()}
+                    style={{
+                      padding: window.innerWidth < 768 ? 
+                        'clamp(0.5rem, 1.5vw, 0.75rem)' : 
+                        'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem)',
+                      background: raceUrl.trim() ? 
+                        'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' :
+                        'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.75rem',
+                      cursor: raceUrl.trim() ? 'pointer' : 'not-allowed',
+                      fontWeight: '600',
+                      fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.2s ease',
+                      whiteSpace: 'nowrap',
+                      minWidth: '44px',
+                      maxWidth: window.innerWidth < 768 ? '60px' : 'auto',
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      opacity: raceUrl.trim() ? 1 : 0.8
+                    }}
+                    onMouseEnter={(e) => {
+                      if (raceUrl.trim()) {
+                        e.target.style.transform = 'translateY(-1px)';
+                        e.target.style.boxShadow = '0 6px 12px -2px rgba(0, 0, 0, 0.15)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                    }}
+                  >
+                    {window.innerWidth < 768 ? '🗑️' : `🗑️ ${t('ui.clear') || 'Clear'}`}
                   </button>
                 </form>
                 

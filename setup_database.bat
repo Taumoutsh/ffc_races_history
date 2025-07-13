@@ -43,14 +43,16 @@ if %errorlevel% neq 0 (
 )
 
 echo Installing Python dependencies...
-pip install -r requirements.txt
+pip install -r backend\requirements.txt
 if %errorlevel% neq 0 (
     echo WARNING: Could not install some dependencies
-    echo Please check requirements.txt and install manually if needed
+    echo Please check backend\requirements.txt and install manually if needed
 )
 
 echo.
 echo Setting up the SQLite database...
+REM Set Python path for imports (Windows syntax)
+set PYTHONPATH=%CD%\backend;%PYTHONPATH%
 cd backend
 python database\setup_database.py
 
@@ -59,6 +61,7 @@ if %errorlevel% equ 0 (
     echo Database setup completed successfully!
     echo.
     echo Running initial data scraping...
+    python scrapers\cycling_scraper_db_optimized.py
     
     if %errorlevel% equ 0 (
         echo.
