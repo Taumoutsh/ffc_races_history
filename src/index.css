@@ -21,11 +21,15 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
   background: var(--gradient-primary);
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   letter-spacing: -0.011em;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  /* Safari URL bar management */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
 }
 
 /* Modern scrollbar styling */
@@ -133,6 +137,22 @@ h1, h2, h3, h4, h5, h6 {
   .modal {
     margin: 0.5rem;
     max-height: 95vh;
+    max-height: 95dvh; /* Dynamic viewport height for mobile browsers */
+  }
+  
+  /* Safari URL bar management on mobile */
+  body {
+    height: 100vh;
+    height: 100dvh;
+    position: fixed;
+    overflow: hidden;
+  }
+  
+  #root {
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
