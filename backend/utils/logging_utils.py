@@ -8,7 +8,7 @@ import sys
 from typing import Optional
 from pathlib import Path
 
-from config.constants import LOG_LEVEL, LOG_FORMAT, LOG_DATE_FORMAT
+from backend.config.constants import LOG_LEVEL, LOG_FORMAT, LOG_DATE_FORMAT
 
 
 def setup_logging(
