@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Tuple, Any
 from contextlib import contextmanager
 
 from utils.logging_utils import get_database_logger
-from config.constants import DB_TIMEOUT, DB_ISOLATION_LEVEL, SCHEMA_FILE
+from backend.config.constants import DB_TIMEOUT, DB_ISOLATION_LEVEL, SCHEMA_FILE
 
 
 class DatabaseError(Exception):

@@ -12,7 +12,7 @@ from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 import requests
 
-from config.constants import (
+from backend.config.constants import (
     FRENCH_DATE_PATTERNS, GENERIC_DATE_PATTERNS, DEFAULT_DATE,
     CLUB_NUMBER_PATTERN, HEADER_KEYWORDS, MIN_PARTICIPANT_CELLS,
     REQUEST_TIMEOUT, MAX_RETRIES, RETRY_BACKOFF_FACTOR,
