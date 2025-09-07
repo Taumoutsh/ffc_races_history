@@ -168,7 +168,7 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
           overflow: 'hidden'
         }}>
           <div style={{
-            overflowX: 'auto',
+            overflow: 'hidden',
             WebkitOverflowScrolling: 'touch',
             scrollbarWidth: 'thin',
             scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'

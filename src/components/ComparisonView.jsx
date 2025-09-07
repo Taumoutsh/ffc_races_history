@@ -413,7 +413,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                   overflow: 'hidden'
                 }}>
                   <div style={{
-                    overflowX: 'auto',
+                    overflow: 'hidden',
                     WebkitOverflowScrolling: 'touch'
                   }}>
                     <table style={{width: '100%', borderCollapse: 'collapse'}}>
