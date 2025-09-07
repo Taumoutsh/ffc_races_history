@@ -36,16 +36,10 @@ if not exist "%DB_PATH%" (
     REM Create backup of existing database
     echo 💾 Creating database backup...
     
-    REM Generate timestamp using PowerShell (more reliable)
-    for /f "usebackq delims=" %%i in (`powershell -Command "Get-Date -Format 'yyyyMMdd_HHmmss'"`) do set timestamp=%%i
-    
-    REM Create backup filename
-    set BACKUP_PATH=%CD%\backend\database\cycling_data_backup_%timestamp%.db
-    
     REM Copy the database to backup
-    copy "%DB_PATH%" "%BACKUP_PATH%" >nul 2>&1
+    copy "%DB_PATH%" "%CD%\backend\database\cycling_data_backup_%date:~6,4%%date:~3,2%%date:~0,2%_%time:~0,2%%time:~3,2%%time:~6,2%.db" >nul 2>&1
     if %ERRORLEVEL% equ 0 (
-        echo ✅ Backup created: cycling_data_backup_%timestamp%.db
+        echo ✅ Backup created: cycling_data_backup_%date:~6,4%%date:~3,2%%date:~0,2%_%time:~0,2%%time:~3,2%%time:~6,2%.db
     ) else (
         echo ⚠️ Backup creation failed, continuing anyway...
     )
