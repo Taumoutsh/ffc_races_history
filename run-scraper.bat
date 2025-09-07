@@ -32,40 +32,37 @@ if not exist "%DB_PATH%" (
         exit /b 1
     )
     echo.
-)
-
-echo 🔧 Available scrapers:
-echo.
-echo   1. Standard scraper (cycling_scraper_db.py)
-echo   2. Optimized scraper (cycling_scraper_db_optimized.py)
-echo   3. Exit
-echo.
-set /p choice="Choose scraper (1-3): "
-
-if "%choice%"=="1" (
-    echo 🏃 Running standard scraper...
-    echo This will collect race data from paysdelaloirecyclisme.fr
-    echo.
-    python backend\scrapers\cycling_scraper_db.py
-) else if "%choice%"=="2" (
-    echo 🚀 Running optimized scraper...
-    echo This will collect race data from paysdelaloirecyclisme.fr (faster)
-    echo.
-    python backend\scrapers\cycling_scraper_db_optimized.py
-) else if "%choice%"=="3" (
-    echo 👋 Exiting...
-    exit /b 0
 ) else (
-    echo ❌ Invalid choice
-    pause
-    exit /b 1
+    REM Create backup of existing database
+    echo 💾 Creating database backup...
+    
+    REM Generate timestamp using PowerShell (more reliable)
+    for /f "usebackq delims=" %%i in (`powershell -Command "Get-Date -Format 'yyyyMMdd_HHmmss'"`) do set timestamp=%%i
+    
+    REM Create backup filename
+    set BACKUP_PATH=%CD%\backend\database\cycling_data_backup_%timestamp%.db
+    
+    REM Copy the database to backup
+    copy "%DB_PATH%" "%BACKUP_PATH%" >nul 2>&1
+    if %ERRORLEVEL% equ 0 (
+        echo ✅ Backup created: cycling_data_backup_%timestamp%.db
+    ) else (
+        echo ⚠️ Backup creation failed, continuing anyway...
+    )
+    echo.
 )
+
+echo Scraping started...
+python backend\scrapers\cycling_scraper_db_optimized.py
 
 if %ERRORLEVEL% equ 0 (
     echo.
     echo 🎉 Scraping completed successfully!
     echo.
     echo 📊 Database updated: %DB_PATH%
+    if defined timestamp if exist "%BACKUP_PATH%" (
+        echo 💾 Previous version backed up as: cycling_data_backup_%timestamp%.db
+    )
     echo.
     echo 🚀 You can now run the app with: run-app.bat
 ) else (
@@ -76,6 +73,9 @@ if %ERRORLEVEL% equ 0 (
     echo   - Check your internet connection
     echo   - Verify the target website is accessible
     echo   - Try running the other scraper option
+    if defined timestamp if exist "%BACKUP_PATH%" (
+        echo   - Your original database backup is safe: cycling_data_backup_%timestamp%.db
+    )
 )
 
 echo.
