@@ -238,7 +238,7 @@ const RacesList = ({ onRaceClick }) => {
             overflow: 'hidden'
           }}>
             <div style={{
-              overflowX: 'auto'
+              overflow: 'hidden'
             }}>
               <table style={{width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed'}}>
                 <thead>
