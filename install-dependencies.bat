@@ -236,36 +236,27 @@ if !errorlevel! equ 0 (
     echo.
     goto :RefreshPath
 ) else (
-    REM Try py launcher as well
-    where py >nul 2>&1
-    if !errorlevel! equ 0 (
-        echo [OK] Python is already installed via py launcher:
-        for /f "delims=" %%i in ('py --version 2^>nul') do echo %%i
+    echo [!] Python not found - downloading and installing...
+    echo.
+        
+    REM Download Python installer
+    echo Downloading Python 3.11...
+    powershell -Command "try { Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.7/python-3.11.7-amd64.exe' -OutFile 'downloads\python.exe' -UseBasicParsing } catch { exit 1 }"
+    
+    if exist downloads\python.exe (
+        echo Installing Python - this may take a few minutes...
+        downloads\python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+        
+        REM Add Python to PATH for current session
+        set "PATH=%PATH%;C:\Program Files\Python311;C:\Program Files\Python311\Scripts"
+        
+        echo [OK] Python installation completed
         echo.
-        goto :RefreshPath
     ) else (
-        echo [!] Python not found - downloading and installing...
-        echo.
-        
-        REM Download Python installer
-        echo Downloading Python 3.11...
-        powershell -Command "try { Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.7/python-3.11.7-amd64.exe' -OutFile 'downloads\python.exe' -UseBasicParsing } catch { exit 1 }"
-        
-        if exist downloads\python.exe (
-            echo Installing Python - this may take a few minutes...
-            downloads\python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
-            
-            REM Add Python to PATH for current session
-            set "PATH=%PATH%;C:\Program Files\Python311;C:\Program Files\Python311\Scripts"
-            
-            echo [OK] Python installation completed
-            echo.
-        ) else (
-            echo [ERROR] Failed to download Python installer
-            echo Please install Python manually from: https://www.python.org/
-            pause
-            exit /b 1
-        )
+        echo [ERROR] Failed to download Python installer
+        echo Please install Python manually from: https://www.python.org/
+        pause
+        exit /b 1
     )
 )
 
