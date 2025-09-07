@@ -112,10 +112,10 @@ class ScrapingProgressLogger:
         
         if success:
             self.success_count += 1
-            self.logger.debug(f"✅ {item_name} ({self.current}/{self.total})")
+            self.logger.debug(f"{item_name} ({self.current}/{self.total})")
         else:
             self.error_count += 1
-            self.logger.warning(f"❌ {item_name} ({self.current}/{self.total})")
+            self.logger.warning(f"{item_name} ({self.current}/{self.total})")
         
         # Log milestone progress
         if self.current % 10 == 0 or self.current == self.total:

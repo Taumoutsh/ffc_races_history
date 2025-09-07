@@ -73,6 +73,7 @@ Thumbs.db
 *.swp
 *.swo
 *~
+downloads/
 
 # Coverage reports
 htmlcov/
@@ -161,3 +162,6 @@ pids
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# NPM generated files
+package-lock.json

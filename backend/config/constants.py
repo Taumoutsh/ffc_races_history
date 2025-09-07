@@ -179,8 +179,8 @@ ERROR_MESSAGES = {
 # =============================================================================
 
 SUCCESS_MESSAGES = {
-    'race_scraped': "✅ Added {count} participants to race {race_id}",
-    'race_skipped': "⏭️  Skipping already scraped race: {name} ({date})",
+    'race_scraped': "Added {count} participants to race {race_id}",
+    'race_skipped': "Skipping already scraped race: {name} ({date})",
     'scraping_complete': "Scraping completed successfully!",
     'database_ready': "Database initialized successfully"
 }
