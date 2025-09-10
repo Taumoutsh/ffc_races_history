@@ -75,7 +75,7 @@ export const translations = {
       viewRaces: 'View all races',
       instructionChart: 'Navigate the chart using hover buttons (← previous 5 races, → next 5 races)',
       instructionRaceList: 'Access the complete race browser using the "🏁 View All Races" button',
-      instructionDefaultCyclist: 'Change the default cyclist by clicking the ⭐ button in any cyclist profile',
+      instructionDefaultCyclistChange: 'Change the default cyclist by clicking the ⭐ button in any cyclist profile',
       instructionResearch: 'Use the research tool to analyze entry lists against the database',
       compareWithDefault: 'Compare with default cyclist',
       urlScraping: 'Auto-extract from race webpage',
@@ -134,6 +134,14 @@ export const translations = {
       raceHistory: 'Race history',
       performanceChart: 'Performance chart',
       raceTable: 'Race table'
+    },
+    dateFilter: {
+      noYearsSelected: 'No years selected',
+      allYears: 'All years',
+      yearsSelected: 'year(s) selected',
+      selectAll: 'Select all',
+      deselectAll: 'Deselect all',
+      totalYears: '{{count}} year(s) available'
     }
   },
   fr: {
@@ -212,7 +220,7 @@ export const translations = {
       viewRaces: 'Voir toutes les courses',
       instructionChart: 'Naviguez dans le graphique avec les boutons au survol (← 5 courses précédentes, → 5 courses suivantes)',
       instructionRaceList: 'Accédez au navigateur complet des courses avec le bouton "🏁 Voir Toutes les Courses"',
-      instructionDefaultCyclist: 'Changez le cycliste par défaut en cliquant sur le bouton ⭐ dans n\'importe quel profil de cycliste',
+      instructionDefaultCyclistChange: 'Changez le cycliste par défaut en cliquant sur le bouton ⭐ dans n\'importe quel profil de cycliste',
       instructionResearch: 'Utilisez l\'outil de recherche pour vérifier les listes d\'engagés dans la base de données',
       compareWithDefault: 'Comparer avec le cycliste par défaut',
       urlScraping: 'Auto-extraction depuis la page web de course',
@@ -271,6 +279,14 @@ export const translations = {
       raceHistory: 'Historique des courses',
       performanceChart: 'Graphique de performance',
       raceTable: 'Tableau des courses'
+    },
+    dateFilter: {
+      noYearsSelected: 'Aucune année sélectionnée',
+      allYears: 'Toutes les années',
+      yearsSelected: 'année(s) sélectionnée(s)',
+      selectAll: 'Tout sélectionner',
+      deselectAll: 'Tout désélectionner',
+      totalYears: '{{count}} année(s) disponible(s)'
     }
   }
 };

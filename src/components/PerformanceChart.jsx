@@ -1,9 +1,10 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
-import { calculatePercentagePosition, getPercentageColor } from '../utils/dateUtils';
+import { calculatePercentagePosition, getPercentageColor, filterDataByYears } from '../utils/dateUtils';
+import DateFilter from './DateFilter';
 
-const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, raceParticipantCounts }) => {
+const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, raceParticipantCounts, selectedYears, onYearsChange }) => {
   const { t } = useTranslation();
   const [forceUpdate, setForceUpdate] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -57,8 +58,9 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
     return dateStr;
   };
 
-  // Transform and sort data chronologically for the chart
-  const allChartData = (data || [])
+  // Filter data by selected years, then transform and sort chronologically for the chart
+  const filteredData = filterDataByYears(data || [], selectedYears);
+  const allChartData = filteredData
     .map(race => ({
       date: formatDateForDisplay(race.date),
       originalDate: race.date, // Keep original for sorting
@@ -102,18 +104,18 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
     }
   };
 
-  const handleClick = (data, index) => {
+  const handleClick = (data) => {
     if (data && data.activePayload && data.activePayload[0]) {
       const clickedData = data.activePayload[0].payload;
       onPointClick(clickedData);
     }
   };
 
-  // Calculate average top percentage for all races
+  // Calculate average top percentage for filtered races
   const calculateAverageTopPercentage = () => {
-    if (!data || !raceParticipantCounts) return null;
+    if (!filteredData || !raceParticipantCounts) return null;
     
-    const validPercentages = data
+    const validPercentages = filteredData
       .map(race => {
         const participantCount = raceParticipantCounts[race.raceId];
         return calculatePercentagePosition(race.position, participantCount);
@@ -198,19 +200,38 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
 
   return (
     <div style={{width: '100%', height: window.innerWidth < 768 ? 'clamp(18rem, 45vh, 26rem)' : 'clamp(28rem, 60vh, 40rem)', padding: 'clamp(0.75rem, 3vw, 1.5rem)'}}>
-      <h2 style={{
-        fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', 
-        fontWeight: '800', 
-        marginBottom: 'clamp(0.5rem, 2vw, 1rem)', 
-        textAlign: 'center',
-        background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
-        WebkitBackgroundClip: 'text',
-        backgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        letterSpacing: '-0.025em'
+      {/* Header with title and date filter */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 'clamp(0.5rem, 2vw, 1rem)',
+        flexWrap: 'wrap',
+        gap: '10px'
       }}>
-        📊 {displayName} - {t('chart.title')}
-      </h2>
+        <h2 style={{
+          fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', 
+          fontWeight: '800', 
+          margin: 0,
+          background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+          WebkitBackgroundClip: 'text',
+          backgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          letterSpacing: '-0.025em'
+        }}>
+          📊 {displayName} - {t('chart.title')}
+        </h2>
+        
+        <DateFilter
+          data={data}
+          selectedYears={selectedYears}
+          onYearsChange={onYearsChange}
+          style={{
+            minWidth: window.innerWidth < 768 ? '120px' : '160px',
+            flexShrink: 0
+          }}
+        />
+      </div>
 
       {/* Cyclist Statistics */}
       {cyclistInfo && (
@@ -246,7 +267,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
               fontSize: '0.9rem',
               fontWeight: '700'
             }}>
-              {data ? data.length : 0}
+              {filteredData ? filteredData.length : 0}
             </span>
           </div>
 

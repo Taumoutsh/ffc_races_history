@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../contexts/LanguageContext.jsx';
+import DateFilter from './DateFilter';
+import { filterDataByYears } from '../utils/dateUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-const RacesList = ({ onRaceClick }) => {
+const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChange }) => {
   const { t } = useTranslation();
   const [allRaces, setAllRaces] = useState([]);
   const [displayedRaces, setDisplayedRaces] = useState([]);
@@ -14,6 +16,11 @@ const RacesList = ({ onRaceClick }) => {
   const [sortBy, setSortBy] = useState('date'); // 'date' or 'name'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Use props if provided, otherwise fall back to internal state
+  const [internalSelectedYears, setInternalSelectedYears] = useState([]);
+  const selectedYears = propSelectedYears !== undefined ? propSelectedYears : internalSelectedYears;
+  const setSelectedYears = onYearsChange || setInternalSelectedYears;
 
   const RACES_PER_PAGE = 20;
 
@@ -66,19 +73,24 @@ const RacesList = ({ onRaceClick }) => {
       .trim();
   };
 
-  // Filter races based on search query
+  // Filter races based on search query and selected years
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredRaces(allRaces);
-    } else {
+    let filtered = allRaces;
+    
+    // Apply year filter first (always apply, filterDataByYears handles empty arrays)
+    filtered = filterDataByYears(filtered, selectedYears);
+    
+    // Then apply search filter
+    if (searchQuery.trim()) {
       const normalizedQuery = normalizeForSearch(searchQuery);
-      const filtered = allRaces.filter(race => 
+      filtered = filtered.filter(race => 
         normalizeForSearch(race.name).includes(normalizedQuery)
       );
-      setFilteredRaces(filtered);
     }
-    setCurrentPage(1); // Reset to first page when searching
-  }, [searchQuery, allRaces]);
+    
+    setFilteredRaces(filtered);
+    setCurrentPage(1); // Reset to first page when filtering
+  }, [searchQuery, allRaces, selectedYears]);
 
   // Sort filtered races
   useEffect(() => {
@@ -190,12 +202,13 @@ const RacesList = ({ onRaceClick }) => {
           🏁 {t('ui.races')} ({displayedRaces.length})
         </h2>
         
-        {/* Search Input */}
+        {/* Filters - Aligned on same line */}
         <div style={{ 
           display: 'flex', 
           gap: '10px',
           alignItems: 'center',
-          flexWrap: 'wrap'
+          flexWrap: 'wrap',
+          justifyContent: 'flex-end'
         }}>
           <input
             type="text"
@@ -209,9 +222,18 @@ const RacesList = ({ onRaceClick }) => {
               background: 'rgba(255, 255, 255, 0.8)',
               color: '#1f2937',
               fontSize: '16px',
-              minWidth: 'clamp(200px, 50vw, 300px)',
-              width: '100%',
-              maxWidth: '400px'
+              minWidth: 'clamp(200px, 40vw, 250px)',
+              flex: '1',
+              maxWidth: '300px'
+            }}
+          />
+          <DateFilter
+            data={allRaces}
+            selectedYears={selectedYears}
+            onYearsChange={setSelectedYears}
+            style={{
+              minWidth: window.innerWidth < 768 ? '120px' : '160px',
+              flexShrink: 0
             }}
           />
         </div>
@@ -240,7 +262,7 @@ const RacesList = ({ onRaceClick }) => {
             <div style={{
               overflow: 'hidden'
             }}>
-              <table style={{width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed'}}>
+              <table key={`races-table-${selectedYears.join('-')}`} style={{width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed'}}>
                 <thead>
                   <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
                     <th 

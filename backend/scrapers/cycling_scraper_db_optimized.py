@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 # Import configuration and utilities
 from backend.config.constants import (
-    BASE_URL, DEFAULT_DATE, RACE_SEARCH_PARAMS, RATE_LIMIT_DELAY, MAX_PAGES,
+    BASE_URL, RESULTS_BASE_URL, DEFAULT_DATE, RACE_SEARCH_PARAMS, RATE_LIMIT_DELAY, MAX_PAGES,
     RACE_LINK_SELECTORS, RESULTS_TABLE_SELECTORS, USER_AGENT,
     DEFAULT_DB_PATH, SUCCESS_MESSAGES, ERROR_MESSAGES
 )
@@ -64,6 +64,9 @@ class OptimizedCyclingScraperDB:
         
         # Track processed URLs to avoid duplicates
         self.processed_urls: Set[str] = set()
+        
+        # Track card metadata for fallback
+        self.card_metadata: Dict[str, Dict[str, str]] = {}
     
     def scrape_race_list_page(self, page_num: int) -> List[str]:
         """
@@ -75,7 +78,7 @@ class OptimizedCyclingScraperDB:
         Returns:
             List of race URLs found on the page
         """
-        url = build_search_url(BASE_URL + "/resultats/", RACE_SEARCH_PARAMS, page_num)
+        url = build_search_url(RESULTS_BASE_URL, RACE_SEARCH_PARAMS, page_num)
         
         self.logger.debug(f"Scraping page {page_num}: {url}")
         
@@ -88,15 +91,47 @@ class OptimizedCyclingScraperDB:
         soup = BeautifulSoup(response.content, 'html.parser')
         race_links = []
         
-        # Find race links using configured selectors
-        for selector in RACE_LINK_SELECTORS:
-            links = soup.select(selector)
-            for link in links:
-                href = link.get('href')
-                if href and '/resultats/' in href:
-                    full_url = urljoin(BASE_URL, href)
-                    if full_url not in race_links:
-                        race_links.append(full_url)
+        # Find race cards and extract metadata for fallback
+        race_cards = soup.select('a.card-result[href*="/resultats/"]')
+        
+        for card in race_cards:
+            href = card.get('href')
+            if href and '/resultats/' in href:
+                full_url = urljoin(BASE_URL, href)
+                if full_url not in race_links:
+                    race_links.append(full_url)
+                    
+                    # Extract metadata from card for fallback
+                    try:
+                        # Extract race name from h3 element
+                        name_elem = card.select_one('h3')
+                        card_name = name_elem.get_text().strip() if name_elem else ""
+                        
+                        # Extract date from date element
+                        date_elem = card.select_one('[class*="date"]')
+                        card_date = date_elem.get_text().strip() if date_elem else ""
+                        
+                        # Store metadata for this URL
+                        if card_name or card_date:
+                            self.card_metadata[full_url] = {
+                                'name': card_name,
+                                'date': card_date
+                            }
+                            self.logger.debug(f"Stored card metadata for {full_url}: name='{card_name}', date='{card_date}'")
+                    
+                    except Exception as e:
+                        self.logger.warning(f"Failed to extract card metadata for {full_url}: {e}")
+        
+        # Fallback: use original selectors if no cards found
+        if not race_links:
+            for selector in RACE_LINK_SELECTORS:
+                links = soup.select(selector)
+                for link in links:
+                    href = link.get('href')
+                    if href and '/resultats/' in href:
+                        full_url = urljoin(BASE_URL, href)
+                        if full_url not in race_links:
+                            race_links.append(full_url)
         
         self.stats['pages_scraped'] += 1
         self.logger.debug(f"Found {len(race_links)} race links on page {page_num}")
@@ -133,8 +168,28 @@ class OptimizedCyclingScraperDB:
             
             # Extract race information
             race_title = soup.find('h1')
-            race_name = race_title.get_text().strip() if race_title else "Unknown Race"
+            race_name = race_title.get_text().strip() if race_title else ""
             race_date = extract_race_date(soup)
+            
+            # Use fallback metadata from card if race page data is missing
+            if race_url in self.card_metadata:
+                card_data = self.card_metadata[race_url]
+                
+                # Use card name if page name is missing or generic
+                if not race_name or race_name == "Unknown Race":
+                    if card_data.get('name'):
+                        race_name = card_data['name']
+                        self.logger.info(f"Using card fallback name: {race_name}")
+                
+                # Use card date if page date is missing or default
+                if race_date == DEFAULT_DATE:
+                    if card_data.get('date'):
+                        race_date = card_data['date']
+                        self.logger.info(f"Using card fallback date: {race_date}")
+            
+            # Final fallback for race name
+            if not race_name:
+                race_name = "Unknown Race"
 
             if race_date != DEFAULT_DATE:
                 # Generate race ID
