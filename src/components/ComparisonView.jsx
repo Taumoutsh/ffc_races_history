@@ -1,6 +1,8 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTranslation } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
+import DateFilter from './DateFilter';
+import { filterDataByYears } from '../utils/dateUtils';
 
 const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -8,11 +10,12 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
   const [showChart, setShowChart] = useState(true);
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('asc');
+  const [selectedYears, setSelectedYears] = useState([]);
   
   // Force re-render when data changes
   useEffect(() => {
     setForceUpdate(prev => prev + 1);
-  }, [data, cyclistName, defaultCyclistName]);
+  }, [data, cyclistName, defaultCyclistName, selectedYears]);
 
   useEffect(() => {
     if (isOpen) {
@@ -44,8 +47,9 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
     return new Date(dateStr);
   };
 
-  // Transform and sort data chronologically for the chart
-  const chartData = (data || [])
+  // Filter data by selected years, then transform and sort chronologically for the chart
+  const filteredData = filterDataByYears(data || [], selectedYears);
+  const chartData = filteredData
     .filter(race => race.cyclistPosition && race.defaultPosition && 
              !isNaN(race.cyclistPosition) && !isNaN(race.defaultPosition))
     .sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date));
@@ -93,7 +97,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
     return sortDirection === 'asc' ? <span style={{color: '#2563eb'}}>↑</span> : <span style={{color: '#2563eb'}}>↓</span>;
   };
 
-  const handleClick = (data, index) => {
+  const handleClick = (data) => {
     if (data && data.activePayload && data.activePayload[0]) {
       const clickedData = data.activePayload[0].payload;
       onPointClick(clickedData);
@@ -257,8 +261,8 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
             </div>
           </div>
 
-          {/* View Toggle */}
-          <div style={{marginBottom: '1.5rem', display: 'flex', gap: 'clamp(0.5rem, 2vw, 0.75rem)', justifyContent: 'center', flexWrap: 'wrap'}}>
+          {/* View Toggle with Date Filter - Aligned on same line */}
+          <div style={{marginBottom: '1.5rem', display: 'flex', gap: 'clamp(0.5rem, 2vw, 0.75rem)', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap'}}>
             <button
               onClick={() => setShowChart(true)}
               style={{
@@ -295,6 +299,16 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
             >
               {window.innerWidth < 768 ? '📊' : `📊 ${t('profile.raceTable')}`}
             </button>
+            
+            {/* Date Filter - Aligned with buttons */}
+            <DateFilter
+              data={data || []}
+              selectedYears={selectedYears}
+              onYearsChange={setSelectedYears}
+              style={{
+                minWidth: window.innerWidth < 768 ? '120px' : '180px'
+              }}
+            />
           </div>
 
           {/* Content Area */}
@@ -416,7 +430,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                     overflow: 'hidden',
                     WebkitOverflowScrolling: 'touch'
                   }}>
-                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                    <table key={`comparison-table-${forceUpdate}`} style={{width: '100%', borderCollapse: 'collapse'}}>
                       <thead>
                         <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
                           <th 

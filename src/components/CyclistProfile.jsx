@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import PerformanceChart from './PerformanceChart';
 import SelectAsDefaultButton from './SelectAsDefaultButton';
 import ComparisonView from './ComparisonView';
+import DateFilter from './DateFilter';
 import { useTranslation } from '../contexts/LanguageContext';
-import { parseFrenchDate, getPercentageColor, calculatePercentagePosition } from '../utils/dateUtils';
+import { parseFrenchDate, getPercentageColor, calculatePercentagePosition, filterDataByYears } from '../utils/dateUtils';
 
 const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, api }) => {
   const { t } = useTranslation();
@@ -12,6 +13,8 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
   const [showChart, setShowChart] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [raceParticipantCounts, setRaceParticipantCounts] = useState({});
+  const [selectedYears, setSelectedYears] = useState([]);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(() => {
     if (isOpen) {
@@ -23,23 +26,10 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     }
   }, [isOpen]);
 
-
-  // Function to calculate average top percentage
-  const calculateAverageTopPercentage = () => {
-    const validPercentages = [];
-    safeHistory.forEach(race => {
-      const participantCount = raceParticipantCounts[race.race_id];
-      const percentage = calculatePercentagePosition(race.rank, participantCount);
-      if (percentage !== null) {
-        validPercentages.push(percentage);
-      }
-    });
-    
-    if (validPercentages.length === 0) return null;
-    const average = validPercentages.reduce((sum, p) => sum + p, 0) / validPercentages.length;
-    return Math.round(average);
-  };
-
+  // Force re-render when selectedYears changes
+  useEffect(() => {
+    setForceUpdate(prev => prev + 1);
+  }, [selectedYears]);
 
   // Function to fetch participant count for a race
   const fetchRaceParticipantCount = useCallback(async (raceId) => {
@@ -60,6 +50,25 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
 
   const safeHistory = history || [];
   const isDefaultProfile = isDefaultCyclistById ? isDefaultCyclistById(cyclistId, cyclistName) : false;
+
+  // Filter history by selected years
+  const filteredHistory = filterDataByYears(safeHistory, selectedYears);
+  
+  // Function to calculate average top percentage (using filtered data)
+  const calculateAverageTopPercentage = () => {
+    const validPercentages = [];
+    filteredHistory.forEach(race => {
+      const participantCount = raceParticipantCounts[race.race_id];
+      const percentage = calculatePercentagePosition(race.rank, participantCount);
+      if (percentage !== null) {
+        validPercentages.push(percentage);
+      }
+    });
+    
+    if (validPercentages.length === 0) return null;
+    const average = validPercentages.reduce((sum, p) => sum + p, 0) / validPercentages.length;
+    return Math.round(average);
+  };
 
   // Fetch participant counts for all races when component loads
   useEffect(() => {
@@ -133,7 +142,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     return !isCurrentDefault && getDefaultCyclistInfo() && findCommonRaces().length > 0;
   };
 
-  const sortedHistory = [...safeHistory].sort((a, b) => {
+  const sortedHistory = [...filteredHistory].sort((a, b) => {
     let aVal, bVal;
     
     switch (sortField) {
@@ -278,7 +287,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                       📋 ID: {cyclistId || 'No ID'}
                     </p>
                     <p style={{fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem', color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
-                      🏆 {t('table.totalRaces')}: {safeHistory.length}
+                      🏆 {t('table.totalRaces')}: {filteredHistory.length}{selectedYears.length > 0 && safeHistory.length !== filteredHistory.length ? ` (${safeHistory.length} total)` : ''}
                     </p>
                     {(() => {
                       const averagePercentage = calculateAverageTopPercentage();
@@ -327,8 +336,8 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
               </div>
             </div>
             
-            {/* View Toggle */}
-            <div style={{marginTop: 'clamp(1rem, 3vw, 1.5rem)', display: 'flex', gap: 'clamp(0.5rem, 2vw, 0.75rem)', justifyContent: 'center', flexWrap: 'wrap'}}>
+            {/* View Toggle with Date Filter - Aligned on same line */}
+            <div style={{marginTop: 'clamp(1rem, 3vw, 1.5rem)', display: 'flex', gap: 'clamp(0.5rem, 2vw, 0.75rem)', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap'}}>
               <button
                 onClick={() => setShowChart(false)}
                 style={{
@@ -393,6 +402,16 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                   {window.innerWidth < 768 ? '⚔️' : `⚔️ ${t('ui.compareWithDefault')}`}
                 </button>
               )}
+              
+              {/* Date Filter - Aligned with buttons */}
+              <DateFilter
+                data={safeHistory}
+                selectedYears={selectedYears}
+                onYearsChange={setSelectedYears}
+                style={{
+                  minWidth: window.innerWidth < 768 ? '120px' : '180px'
+                }}
+              />
             </div>
           </div>
 
@@ -415,6 +434,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                   onPointClick={onPointClick}
                   cyclistName={cyclistName}
                   raceParticipantCounts={raceParticipantCounts}
+                  selectedYears={selectedYears}
                 />
               </div>
             </div>
@@ -428,7 +448,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                 </p>
               </div>
 
-              {safeHistory.length > 0 ? (
+              {filteredHistory.length > 0 ? (
                 <div style={{
                   borderRadius: '1rem', 
                   border: '1px solid rgba(59, 130, 246, 0.2)', 
@@ -438,7 +458,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                     overflow: 'hidden',
                     WebkitOverflowScrolling: 'touch'
                   }}>
-                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                    <table key={`cyclist-table-${forceUpdate}`} style={{width: '100%', borderCollapse: 'collapse'}}>
                       <thead>
                         <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
                           <th 

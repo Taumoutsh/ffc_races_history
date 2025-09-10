@@ -93,3 +93,91 @@ export const formatToFrenchDate = (date) => {
   
   return `${day} ${month} ${year}`;
 };
+
+/**
+ * Extract year from French date format
+ * @param {string} dateStr - Date string in French format (e.g., "24 mai 2025")
+ * @returns {number|null} - Year as number or null if parsing fails
+ */
+export const extractYearFromDate = (dateStr) => {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+  
+  const parts = dateStr.split(' ');
+  if (parts.length === 3) {
+    const year = parseInt(parts[2], 10);
+    return isNaN(year) ? null : year;
+  }
+  
+  // Fallback: try to parse with standard Date parsing
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? null : date.getFullYear();
+};
+
+/**
+ * Get available years from race data
+ * @param {Array} data - Array of race objects with date properties
+ * @returns {Array<number>} - Sorted array of unique years (descending)
+ */
+export const getAvailableYears = (data) => {
+  if (!Array.isArray(data)) return [];
+  
+  const years = new Set();
+  
+  data.forEach(item => {
+    // Handle different data structures
+    const dateStr = item.date || item.originalDate;
+    if (dateStr) {
+      const year = extractYearFromDate(dateStr);
+      if (year && year >= 1900 && year <= 2100) { // Reasonable year range
+        years.add(year);
+      }
+    }
+  });
+  
+  return Array.from(years).sort((a, b) => b - a); // Sort descending (newest first)
+};
+
+/**
+ * Filter race data by selected years
+ * @param {Array} data - Array of race objects
+ * @param {Array<number>} selectedYears - Array of selected years
+ * @returns {Array} - Filtered race data
+ */
+export const filterDataByYears = (data, selectedYears) => {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+  
+  // If no years are selected, return empty array (hide all races)
+  if (!Array.isArray(selectedYears) || selectedYears.length === 0) {
+    return [];
+  }
+  
+  return data.filter(item => {
+    const dateStr = item.date || item.originalDate;
+    if (!dateStr) return false;
+    
+    const year = extractYearFromDate(dateStr);
+    return year && selectedYears.includes(year);
+  });
+};
+
+/**
+ * Check if a race matches selected years
+ * @param {string} dateStr - Date string to check
+ * @param {Array<number>} selectedYears - Array of selected years
+ * @returns {boolean} - True if race year is in selected years
+ */
+export const isRaceInSelectedYears = (dateStr, selectedYears) => {
+  if (!dateStr) {
+    return false;
+  }
+  
+  // If no years are selected, show all races
+  if (!Array.isArray(selectedYears) || selectedYears.length === 0) {
+    return true;
+  }
+  
+  const year = extractYearFromDate(dateStr);
+  return year && selectedYears.includes(year);
+};

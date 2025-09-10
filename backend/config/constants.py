@@ -10,16 +10,13 @@ from typing import List, Dict
 # WEB SCRAPING CONFIGURATION
 # =============================================================================
 
-# Base URLs
-BASE_URL = "https://paysdelaloirecyclisme.fr"
-RESULTS_BASE_URL = f"{BASE_URL}/resultats/"
+# Base URLs - Migrated to FFC website
+BASE_URL = "https://velo.ffc.fr"
+RESULTS_BASE_URL = f"{BASE_URL}/resultats-des-courses/"
 
-# Query parameters for race search
+# Query parameters for race search (FFC website)
 RACE_SEARCH_PARAMS = {
-    "_region": "pays-de-la-loire",
-    "_discipline": "route", 
-    "_type_de_courses": "regional",
-    "_licence": "access-1"
+    "_region": "pays-de-la-loire"
 }
 
 # HTTP Configuration
@@ -39,9 +36,10 @@ MAX_RACES_PER_SESSION = 1000  # reasonable limit for scraping
 # HTML SELECTORS AND PATTERNS
 # =============================================================================
 
-# Race listing page selectors
+# Race listing page selectors (FFC website)
 RACE_LINK_SELECTORS = [
-    'a[class*="card-result"]'
+    '.wpgb-card a[href*="/resultats/"]',  # WordPress Grid Builder cards
+    'a[href*="/resultats/"]'  # Fallback for any results links
 ]
 
 # Race detail page selectors
@@ -59,12 +57,13 @@ DATE_SELECTORS = [
 ]
 
 RESULTS_TABLE_SELECTORS = [
+    '.wp-block-table table',  # FFC website uses WordPress block tables
     'table.results',
     'table.leaderboard', 
     'table[class*="result"]',
     'table[class*="classement"]',
     '.results-table table',
-    'table'
+    'table'  # Fallback
 ]
 
 # =============================================================================

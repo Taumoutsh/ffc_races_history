@@ -7,7 +7,7 @@
 **Purpose:** Interactive cycling race performance tracking and analysis  
 **Data Source:** SQLite database with REST API  
 **Default Cyclist:** John Doe (configurable dynamically via UI)  
-**Version:** 2.9.2 - Enhanced Comparison & Mobile UX
+**Version:** 2.9.3 - Date Filter System & Enhanced UX
 
 ## 🚀 Core Features
 
@@ -54,7 +54,17 @@
 - **Enhanced PDF Export:** Custom filename format with race date and export timestamp
 - **Streamlined UI:** Simplified workflow without manual data entry
 
-### 7. Multi-language Support
+### 7. 📅 **Date Filter System** (v2.9.3)
+- **Universal Filtering:** Year-based filtering across all components
+- **Smart Defaults:** Current year (2025) pre-selected for immediate visibility
+- **Granular Control:** Individual year selection/deselection via checkboxes
+- **Hide-All Capability:** When no years selected, all data hidden
+- **Components Coverage:** Performance Chart, Race List, Cyclist Profiles, Comparison Views
+- **LocalStorage Persistence:** Filter state saved across sessions
+- **Responsive Design:** Aligned with existing UI elements (buttons, search inputs)
+- **Multilingual Support:** Proper singular/plural forms in English/French
+
+### 8. Multi-language Support
 - English/French with React Context
 - Complete UI element coverage
 - Header toggle switcher
@@ -102,8 +112,10 @@ POST /api/research/entry-list      # Entry list analysis
 src/
 ├── components/
 │   ├── CyclistProfile.jsx
-│   ├── PerformanceChart.jsx
+│   ├── PerformanceChart.jsx      # v2.9.3 - Enhanced with DateFilter integration
 │   ├── ComparisonView.jsx        # v2.7.0 - Upgraded v2.9.2 with table mode
+│   ├── DateFilter.jsx            # v2.9.3 - Universal year filtering component
+│   ├── RacesList.jsx             # v2.9.3 - Enhanced with date filtering
 │   └── RaceLeaderboardModal.jsx
 ├── hooks/
 │   ├── useApiData.js             # Enhanced with scrapeRaceData function
@@ -111,7 +123,8 @@ src/
 ├── contexts/
 │   └── LanguageContext.jsx
 ├── utils/
-│   ├── dateUtils.js              # v2.7.0 - Date parsing & percentage utilities
+│   ├── dateUtils.js              # v2.7.0 - Date parsing & percentage utilities, v2.9.3 - Enhanced filtering
+│   ├── dateFilterStorage.js      # v2.9.3 - LocalStorage persistence for date filters
 │   ├── pdfGenerator.js           # v2.8.0 - Enhanced PDF export with custom filenames
 │   └── defaultCyclistStorage.js
 └── config/
@@ -212,7 +225,18 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 
 ## 📈 Version History
 
-### v2.9.2 (Current) - Enhanced Comparison & Mobile UX
+### v2.9.3 (Current) - Date Filter System & Enhanced UX
+- 📅 **Universal Date Filter:** Year-based filtering system across all components (Performance Chart, Race List, Cyclist Profiles, Comparison Views)
+- 🎯 **Smart Defaults:** Current year (2025) pre-selected for immediate data visibility
+- 🔄 **Hide-All Capability:** When no years selected, all tables and charts hide data completely
+- 💾 **LocalStorage Persistence:** Filter state automatically saved and restored across sessions
+- 📐 **UI Integration:** Date filters properly aligned with existing buttons and search inputs
+- 🌍 **Enhanced Translations:** Fixed singular/plural forms for "year(s)" in English and "année(s)" in French
+- 🔧 **Component Updates:** PerformanceChart enhanced with integrated DateFilter in header section
+- ❌ **Simplified UX:** Removed "Select All/Deselect All" button for more granular control
+- 🗂️ **New Components:** DateFilter.jsx, dateFilterStorage.js, enhanced dateUtils.js filtering
+
+### v2.9.2 - Enhanced Comparison & Mobile UX
 - ⚔️ **Upgraded Comparison View:** Renamed from ComparisonChart to ComparisonView with dual chart/table modes
 - 📅 **Enhanced Comparison Table:** Added date column with 4-column layout (Date, Race, Cyclist Position, Default Position)
 - 📱 **iPhone Legend Fix:** Resolved chart legend overflow with responsive text sizing and truncation
@@ -286,6 +310,6 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 ---
 
 **Last Updated:** January 2025  
-**Current Version:** 2.9.2  
+**Current Version:** 2.9.3  
 **License:** MIT  
 **Repository:** https://github.com/Taumoutsh/ffc_races_history

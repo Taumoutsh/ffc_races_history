@@ -179,6 +179,8 @@ function App() {
   const [raceUrl, setRaceUrl] = useState('');
   const [scrapedRaceData, setScrapedRaceData] = useState(null);
   const [isScrapingInProgress, setIsScrapingInProgress] = useState(false);
+  const [racesSelectedYears, setRacesSelectedYears] = useState([]);
+  const [chartSelectedYears, setChartSelectedYears] = useState([]);
 
   // Handle window resize for responsive layout
   useEffect(() => {
@@ -912,6 +914,8 @@ function App() {
               cyclistName={getDefaultCyclistInfo().fullName}
               cyclistInfo={getDefaultCyclistInfo()}
               raceParticipantCounts={raceParticipantCounts}
+              selectedYears={chartSelectedYears}
+              onYearsChange={setChartSelectedYears}
             />
             <div style={styles.instructions}>
               <h3 style={styles.instructionsTitle}>{t('ui.howToUse')}</h3>
@@ -1088,7 +1092,11 @@ function App() {
               </div>
 
               {/* Panel Content */}
-              <RacesList onRaceClick={handleRaceClick} />
+              <RacesList 
+                onRaceClick={handleRaceClick}
+                selectedYears={racesSelectedYears}
+                onYearsChange={setRacesSelectedYears}
+              />
             </div>
           </div>
         </div>
