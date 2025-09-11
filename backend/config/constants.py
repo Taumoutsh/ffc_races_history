@@ -18,7 +18,7 @@ RESULTS_BASE_URL = f"{BASE_URL}/resultats-des-courses/"
 AVAILABLE_REGIONS = {
     "pays-de-la-loire": "Pays de la Loire",
     "bretagne": "Bretagne", 
-    "nouvelle-acquitaine": "Nouvelle-Acquitaine"
+    "nouvelle-aquitaine": "Nouvelle-Aquitaine"
 }
 
 # Default region for scraping
