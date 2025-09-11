@@ -10,9 +10,9 @@ if "%REGION%"=="" set REGION=pays-de-la-loire
 REM Validate region
 if "%REGION%"=="pays-de-la-loire" goto valid_region
 if "%REGION%"=="bretagne" goto valid_region
-if "%REGION%"=="nouvelle-acquitaine" goto valid_region
+if "%REGION%"=="nouvelle-aquitaine" goto valid_region
 echo Invalid region: %REGION%
-echo Available regions: pays-de-la-loire, bretagne, nouvelle-acquitaine
+echo Available regions: pays-de-la-loire, bretagne, nouvelle-aquitaine
 pause
 exit /b 1
 
@@ -40,7 +40,7 @@ if not exist backend\database mkdir backend\database
 REM Display region information
 if "%REGION%"=="pays-de-la-loire" set REGION_NAME=Pays de la Loire
 if "%REGION%"=="bretagne" set REGION_NAME=Bretagne  
-if "%REGION%"=="nouvelle-acquitaine" set REGION_NAME=Nouvelle-Aquitaine
+if "%REGION%"=="nouvelle-aquitaine" set REGION_NAME=Nouvelle-Aquitaine
 
 echo Running database scraper...
 echo Target region: %REGION_NAME% (%REGION%)
