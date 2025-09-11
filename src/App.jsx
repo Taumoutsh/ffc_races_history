@@ -240,7 +240,7 @@ function App() {
   const handleInputChange = async (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    if (value.trim()) {
+    if (value.trim().length >= 2) {
       const results = await searchCyclist(value.trim());
       setSearchResults(results);
     } else {

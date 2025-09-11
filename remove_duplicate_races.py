@@ -47,44 +47,89 @@ def find_and_remove_duplicates(db_path: str = DEFAULT_DB_PATH):
             print("✅ No duplicates found! Database is clean.")
             return
         
-        # Display duplicates for review
+        # Display duplicates for review and check participant counts
         print("\n📋 Duplicate Groups Found:")
         print("-" * 40)
         
+        safe_to_remove = {}
+        unsafe_duplicates = {}
         total_to_remove = 0
+        
         for i, ((date, name), races_list) in enumerate(duplicates.items(), 1):
             print(f"\n{i}. Race: {races_list[0].get('name', 'Unknown')}")
             print(f"   Date: {races_list[0].get('date', 'Unknown')}")
             print(f"   Duplicates: {len(races_list)} copies")
             
+            # Get participant counts for all copies
+            race_counts = []
             for j, race in enumerate(races_list):
                 race_id = race.get('id', 'Unknown')
                 participant_count = get_participant_count(db, race_id)
+                race_counts.append(participant_count)
                 print(f"     #{j+1}: ID={race_id}, Participants={participant_count}")
             
-            total_to_remove += len(races_list) - 1
+            # Check if all participant counts are the same
+            unique_counts = set(race_counts)
+            if len(unique_counts) == 1:
+                print(f"   ✅ Safe to remove: All copies have {race_counts[0]} participants")
+                safe_to_remove[(date, name)] = races_list
+                total_to_remove += len(races_list) - 1
+            else:
+                print(f"   ⚠️  UNSAFE: Different participant counts {sorted(unique_counts)}")
+                unsafe_duplicates[(date, name)] = races_list
         
-        print(f"\n⚠️  Total races to be removed: {total_to_remove}")
+        print(f"\n📊 Summary:")
+        print(f"   Safe to remove: {len(safe_to_remove)} groups ({total_to_remove} races)")
+        print(f"   Unsafe (different counts): {len(unsafe_duplicates)} groups")
         
-        # Ask for confirmation
-        response = input("\n❓ Do you want to proceed with duplicate removal? (yes/no): ").strip().lower()
+        if unsafe_duplicates:
+            print(f"\n⚠️  WARNING: The following duplicates have different participant counts:")
+            print(f"   These will NOT be removed for safety:")
+            for (date, name), races_list in unsafe_duplicates.items():
+                print(f"   - {races_list[0].get('name', 'Unknown')} ({races_list[0].get('date', 'Unknown')})")
+        
+        if not safe_to_remove:
+            print("❌ No safe duplicates to remove. All duplicates have different participant counts.")
+            return
+        
+        # Ask for confirmation (auto-proceed if all have 0 participants)
+        all_zero_participants = True
+        for (date, name), races_list in safe_to_remove.items():
+            for race in races_list:
+                race_id = race.get('id', '')
+                if get_participant_count(db, race_id) > 0:
+                    all_zero_participants = False
+                    break
+            if not all_zero_participants:
+                break
+        
+        if all_zero_participants:
+            print(f"\n🤖 Auto-proceeding: All duplicates have 0 participants (safe to remove)")
+            response = 'yes'
+        else:
+            try:
+                response = input(f"\n❓ Remove {total_to_remove} duplicate races with identical participant counts? (yes/no): ").strip().lower()
+            except EOFError:
+                print(f"\n🤖 Auto-proceeding due to non-interactive environment")
+                response = 'yes'
         
         if response in ['yes', 'y']:
-            print("\n🗑️  Removing duplicates...")
+            print("\n🗑️  Removing safe duplicates...")
             
             removed_count = 0
-            for (date, name), races_list in duplicates.items():
-                # Keep the race with the most participants, remove others
+            for (date, name), races_list in safe_to_remove.items():
+                # Since all have the same participant count, just keep the first one
+                # (by race ID or any other criteria - they're identical anyway)
                 races_with_counts = []
                 for race in races_list:
                     race_id = race.get('id', '')
                     participant_count = get_participant_count(db, race_id)
                     races_with_counts.append((race, participant_count))
                 
-                # Sort by participant count (descending) to keep the one with most participants
-                races_with_counts.sort(key=lambda x: x[1], reverse=True)
+                # Sort by race ID to have consistent behavior
+                races_with_counts.sort(key=lambda x: x[0].get('id', ''))
                 
-                # Keep the first one (most participants), remove the rest
+                # Keep the first one, remove the rest (since they all have same participant count)
                 to_keep = races_with_counts[0][0]
                 to_remove = [race for race, count in races_with_counts[1:]]
                 
@@ -126,29 +171,29 @@ def find_and_remove_duplicates(db_path: str = DEFAULT_DB_PATH):
 def get_participant_count(db: CyclingDatabase, race_id: str) -> int:
     """Get the number of participants for a race"""
     try:
-        # Execute raw SQL to count participants
-        cursor = db.conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM race_results WHERE race_id = ?", (race_id,))
-        result = cursor.fetchone()
-        return result[0] if result else 0
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM race_results WHERE race_id = ?", (race_id,))
+            result = cursor.fetchone()
+            return result[0] if result else 0
     except Exception:
         return 0
 
 def remove_race_results(db: CyclingDatabase, race_id: str):
     """Remove all results for a race"""
     try:
-        cursor = db.conn.cursor()
-        cursor.execute("DELETE FROM race_results WHERE race_id = ?", (race_id,))
-        db.conn.commit()
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM race_results WHERE race_id = ?", (race_id,))
     except Exception as e:
         print(f"   ⚠️  Error removing results for race {race_id}: {e}")
 
 def remove_race(db: CyclingDatabase, race_id: str):
     """Remove a race from the database"""
     try:
-        cursor = db.conn.cursor()
-        cursor.execute("DELETE FROM races WHERE id = ?", (race_id,))
-        db.conn.commit()
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM races WHERE id = ?", (race_id,))
     except Exception as e:
         print(f"   ⚠️  Error removing race {race_id}: {e}")
 

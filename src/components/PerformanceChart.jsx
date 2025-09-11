@@ -58,8 +58,8 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
     return dateStr;
   };
 
-  // Filter data by selected years, then transform and sort chronologically for the chart
-  const filteredData = filterDataByYears(data || [], selectedYears);
+  // Filter and transform data chronologically for the chart
+  const filteredData = selectedYears && onYearsChange ? filterDataByYears(data || [], selectedYears) : (data || []);
   const allChartData = filteredData
     .map(race => ({
       date: formatDateForDisplay(race.date),
@@ -111,7 +111,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
     }
   };
 
-  // Calculate average top percentage for filtered races
+  // Calculate average top percentage for filtered data
   const calculateAverageTopPercentage = () => {
     if (!filteredData || !raceParticipantCounts) return null;
     
@@ -200,10 +200,10 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
 
   return (
     <div style={{width: '100%', height: window.innerWidth < 768 ? 'clamp(18rem, 45vh, 26rem)' : 'clamp(28rem, 60vh, 40rem)', padding: 'clamp(0.75rem, 3vw, 1.5rem)'}}>
-      {/* Header with title and date filter */}
+      {/* Header with title and optional date filter */}
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: selectedYears && onYearsChange ? 'space-between' : 'center',
         alignItems: 'center',
         marginBottom: 'clamp(0.5rem, 2vw, 1rem)',
         flexWrap: 'wrap',
@@ -222,15 +222,18 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
           📊 {displayName} - {t('chart.title')}
         </h2>
         
-        <DateFilter
-          data={data}
-          selectedYears={selectedYears}
-          onYearsChange={onYearsChange}
-          style={{
-            minWidth: window.innerWidth < 768 ? '120px' : '160px',
-            flexShrink: 0
-          }}
-        />
+        {/* Only show date filter if props are provided (from App.jsx) */}
+        {selectedYears && onYearsChange && (
+          <DateFilter
+            data={data}
+            selectedYears={selectedYears}
+            onYearsChange={onYearsChange}
+            style={{
+              minWidth: window.innerWidth < 768 ? '120px' : '160px',
+              flexShrink: 0
+            }}
+          />
+        )}
       </div>
 
       {/* Cyclist Statistics */}
