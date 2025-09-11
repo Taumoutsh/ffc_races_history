@@ -261,7 +261,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
             </div>
           </div>
 
-          {/* View Toggle with Date Filter - Aligned on same line */}
+          {/* View Toggle with Date Filter for Tables only */}
           <div style={{marginBottom: '1.5rem', display: 'flex', gap: 'clamp(0.5rem, 2vw, 0.75rem)', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap'}}>
             <button
               onClick={() => setShowChart(true)}
@@ -300,26 +300,30 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
               {window.innerWidth < 768 ? '📊' : `📊 ${t('profile.raceTable')}`}
             </button>
             
-            {/* Date Filter - Aligned with buttons */}
-            <DateFilter
-              data={data || []}
-              selectedYears={selectedYears}
-              onYearsChange={setSelectedYears}
-              style={{
-                minWidth: window.innerWidth < 768 ? '120px' : '180px'
-              }}
-            />
+            {/* Date Filter - Only show when table view is active */}
+            {!showChart && (
+              <DateFilter
+                data={data || []}
+                selectedYears={selectedYears}
+                onYearsChange={setSelectedYears}
+                style={{
+                  minWidth: window.innerWidth < 768 ? '120px' : '180px'
+                }}
+              />
+            )}
           </div>
 
           {/* Content Area */}
-          {chartData.length > 0 ? (
+          {filteredData.length > 0 ? (
             showChart ? (
               // Chart View
               <div style={{height: window.innerWidth < 768 ? 'clamp(320px, 42vh, 450px)' : 'clamp(500px, 60vh, 700px)'}}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     key={`comparison-chart-${forceUpdate}`}
-                    data={chartData}
+                    data={filteredData.filter(race => race.cyclistPosition && race.defaultPosition && 
+             !isNaN(race.cyclistPosition) && !isNaN(race.defaultPosition))
+    .sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date))}
                     margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
                     onClick={handleClick}
                   >
@@ -520,7 +524,36 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                         </tr>
                       </thead>
                       <tbody>
-                        {sortedTableData.map((race, index) => (
+                        {filteredData.filter(race => race.cyclistPosition && race.defaultPosition && 
+             !isNaN(race.cyclistPosition) && !isNaN(race.defaultPosition))
+    .sort((a, b) => {
+    let aVal, bVal;
+    
+    switch (sortField) {
+      case 'date':
+        aVal = parseFrenchDate(a.date);
+        bVal = parseFrenchDate(b.date);
+        break;
+      case 'race':
+        aVal = a.raceName.toLowerCase();
+        bVal = b.raceName.toLowerCase();
+        break;
+      case 'cyclistPosition':
+        aVal = a.cyclistPosition;
+        bVal = b.cyclistPosition;
+        break;
+      case 'defaultPosition':
+        aVal = a.defaultPosition;
+        bVal = b.defaultPosition;
+        break;
+      default:
+        return 0;
+    }
+    
+    if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+    if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  }).map((race, index) => (
                           <tr 
                             key={index}
                             onClick={() => onPointClick && onPointClick(race)}

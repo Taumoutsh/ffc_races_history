@@ -31,6 +31,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     setForceUpdate(prev => prev + 1);
   }, [selectedYears]);
 
+
   // Function to fetch participant count for a race
   const fetchRaceParticipantCount = useCallback(async (raceId) => {
     if (!api || !raceId || raceParticipantCounts[raceId]) return;
@@ -336,7 +337,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
               </div>
             </div>
             
-            {/* View Toggle with Date Filter - Aligned on same line */}
+            {/* View Toggle with Date Filter for Tables only */}
             <div style={{marginTop: 'clamp(1rem, 3vw, 1.5rem)', display: 'flex', gap: 'clamp(0.5rem, 2vw, 0.75rem)', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap'}}>
               <button
                 onClick={() => setShowChart(false)}
@@ -403,15 +404,17 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                 </button>
               )}
               
-              {/* Date Filter - Aligned with buttons */}
-              <DateFilter
-                data={safeHistory}
-                selectedYears={selectedYears}
-                onYearsChange={setSelectedYears}
-                style={{
-                  minWidth: window.innerWidth < 768 ? '120px' : '180px'
-                }}
-              />
+              {/* Date Filter - Only show when table view is active */}
+              {!showChart && (
+                <DateFilter
+                  data={safeHistory}
+                  selectedYears={selectedYears}
+                  onYearsChange={setSelectedYears}
+                  style={{
+                    minWidth: window.innerWidth < 768 ? '120px' : '180px'
+                  }}
+                />
+              )}
             </div>
           </div>
 
@@ -434,7 +437,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                   onPointClick={onPointClick}
                   cyclistName={cyclistName}
                   raceParticipantCounts={raceParticipantCounts}
-                  selectedYears={selectedYears}
                 />
               </div>
             </div>

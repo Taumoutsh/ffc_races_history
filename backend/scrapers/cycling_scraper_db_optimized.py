@@ -16,8 +16,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 # Import configuration and utilities
 from backend.config.constants import (
-    BASE_URL, RESULTS_BASE_URL, DEFAULT_DATE, RACE_SEARCH_PARAMS, RATE_LIMIT_DELAY, MAX_PAGES,
-    RACE_LINK_SELECTORS, RESULTS_TABLE_SELECTORS, USER_AGENT,
+    BASE_URL, RESULTS_BASE_URL, DEFAULT_DATE, get_race_search_params, DEFAULT_REGION, AVAILABLE_REGIONS,
+    RATE_LIMIT_DELAY, MAX_PAGES, RACE_LINK_SELECTORS, RESULTS_TABLE_SELECTORS, USER_AGENT,
     DEFAULT_DB_PATH, SUCCESS_MESSAGES, ERROR_MESSAGES
 )
 from backend.utils.scraper_utils import (
@@ -36,10 +36,17 @@ class OptimizedCyclingScraperDB:
     Optimized database scraper with improved error handling and logging
     """
     
-    def __init__(self, db_path: str = DEFAULT_DB_PATH):
+    def __init__(self, db_path: str = DEFAULT_DB_PATH, region: str = DEFAULT_REGION):
         """Initialize the scraper with database connection and logging"""
         self.logger = get_scraper_logger()
         self.db_path = db_path
+        self.region = region
+        
+        # Validate region
+        if region not in AVAILABLE_REGIONS:
+            raise ValueError(f"Invalid region: {region}. Available regions: {list(AVAILABLE_REGIONS.keys())}")
+        
+        self.logger.info(f"Initializing scraper for region: {AVAILABLE_REGIONS[region]} ({region})")
         
         # Initialize database
         try:
@@ -78,7 +85,8 @@ class OptimizedCyclingScraperDB:
         Returns:
             List of race URLs found on the page
         """
-        url = build_search_url(RESULTS_BASE_URL, RACE_SEARCH_PARAMS, page_num)
+        race_search_params = get_race_search_params(self.region)
+        url = build_search_url(RESULTS_BASE_URL, race_search_params, page_num)
         
         self.logger.debug(f"Scraping page {page_num}: {url}")
         
@@ -397,18 +405,45 @@ class OptimizedCyclingScraperDB:
 
 def main():
     """Main function to run the optimized database scraper"""
+    import argparse
+    
     # Parse command line arguments
-    db_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_DB_PATH
+    parser = argparse.ArgumentParser(description='Optimized cycling results scraper with region support')
+    parser.add_argument('--region', '-r', 
+                       choices=list(AVAILABLE_REGIONS.keys()),
+                       default=DEFAULT_REGION,
+                       help=f'Region to scrape (default: {DEFAULT_REGION})')
+    parser.add_argument('--db-path', '-d',
+                       default=DEFAULT_DB_PATH,
+                       help=f'Database path (default: {DEFAULT_DB_PATH})')
+    
+    # Support legacy usage: python script.py [db_path] [region]
+    if len(sys.argv) > 1 and not sys.argv[1].startswith('-'):
+        # Legacy mode: first arg is db_path, second is region
+        db_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_DB_PATH
+        region = sys.argv[2] if len(sys.argv) > 2 else DEFAULT_REGION
+        
+        # Validate region
+        if region not in AVAILABLE_REGIONS:
+            print(f"❌ Invalid region: {region}")
+            print(f"Available regions: {', '.join(AVAILABLE_REGIONS.keys())}")
+            sys.exit(1)
+    else:
+        # New argument parsing mode
+        args = parser.parse_args()
+        db_path = args.db_path
+        region = args.region
     
     # Initialize logging
     logger = get_scraper_logger()
     
     try:
         logger.info("Starting optimized cycling results scraper (Database version)")
+        logger.info(f"Target region: {AVAILABLE_REGIONS[region]} ({region})")
         logger.info("This may take a while depending on the number of races")
         
         # Use context manager for proper cleanup
-        with OptimizedCyclingScraperDB(db_path) as scraper:
+        with OptimizedCyclingScraperDB(db_path, region) as scraper:
             scraper.scrape_all_races()
         
         logger.info("Scraping completed successfully!")

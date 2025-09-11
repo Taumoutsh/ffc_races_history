@@ -8,13 +8,25 @@ echo "=============================="
 
 # Function to show usage
 show_usage() {
-    echo "Usage: $0 [db|yaml]"
+    echo "Usage: $0 [db|yaml] [region]"
     echo ""
     echo "Options:"
     echo "  db    - Run database scraper (recommended, saves to SQLite)"
     echo "  yaml  - Run legacy YAML scraper (saves to public/data.yaml)"
     echo ""
-    echo "If no option is provided, database scraper will be used by default."
+    echo "Available regions:"
+    echo "  pays-de-la-loire   - Pays de la Loire (default)"
+    echo "  bretagne           - Bretagne"
+    echo "  nouvelle-acquitaine - Nouvelle-Acquitaine"
+    echo ""
+    echo "Examples:"
+    echo "  $0                              # Database scraper, Pays de la Loire"
+    echo "  $0 db pays-de-la-loire          # Database scraper, Pays de la Loire"
+    echo "  $0 db bretagne                  # Database scraper, Bretagne"
+    echo "  $0 db nouvelle-acquitaine       # Database scraper, Nouvelle-Acquitaine"
+    echo "  $0 yaml                         # Legacy YAML scraper"
+    echo ""
+    echo "If no options are provided, database scraper with Pays de la Loire will be used."
     exit 1
 }
 
@@ -54,11 +66,21 @@ cleanup() {
 # Set trap to handle Ctrl+C
 trap cleanup SIGINT SIGTERM
 
-# Check command line argument
+# Check command line arguments
 SCRAPER_TYPE=${1:-db}
+REGION=${2:-pays-de-la-loire}
 
+# Validate scraper type
 if [[ "$SCRAPER_TYPE" != "db" && "$SCRAPER_TYPE" != "yaml" ]]; then
-    echo "❌ Invalid option: $SCRAPER_TYPE"
+    echo "❌ Invalid scraper type: $SCRAPER_TYPE"
+    show_usage
+fi
+
+# Validate region
+VALID_REGIONS=("pays-de-la-loire" "bretagne" "nouvelle-acquitaine")
+if [[ ! " ${VALID_REGIONS[@]} " =~ " ${REGION} " ]]; then
+    echo "❌ Invalid region: $REGION"
+    echo "Available regions: ${VALID_REGIONS[*]}"
     show_usage
 fi
 
@@ -105,19 +127,34 @@ if [ "$SCRAPER_TYPE" == "db" ]; then
         exit 1
     fi
     
-    echo "🌐 Scraping from: paysdelaloirecyclisme.fr"
+    # Display region-specific information
+    case "$REGION" in
+        "pays-de-la-loire")
+            REGION_NAME="Pays de la Loire"
+            ;;
+        "bretagne")
+            REGION_NAME="Bretagne"
+            ;;
+        "nouvelle-acquitaine")
+            REGION_NAME="Nouvelle-Acquitaine"
+            ;;
+    esac
+    
+    echo "🌐 Scraping from: velo.ffc.fr"
+    echo "🏴 Target region: $REGION_NAME ($REGION)"
     echo "⏳ This may take several minutes for new races..."
     echo "📊 Enhanced logging and progress tracking enabled"
     echo ""
     echo "Press Ctrl+C to stop scraping"
     echo ""
     
-    python backend/scrapers/cycling_scraper_db_optimized.py
+    python backend/scrapers/cycling_scraper_db_optimized.py --region "$REGION"
     
 else
     echo "📄 Running YAML scraper (legacy)..."
     echo "📍 Target: public/data.yaml"
-    echo "🌐 Scraping from: paysdelaloirecyclisme.fr"
+    echo "🌐 Scraping from: velo.ffc.fr"
+    echo "🏴 Target region: $REGION_NAME ($REGION) - Note: Legacy scraper only supports Pays de la Loire"
     echo "⏳ This may take several minutes for new races..."
     echo ""
     echo "Press Ctrl+C to stop scraping"

@@ -14,10 +14,25 @@ from typing import List, Dict
 BASE_URL = "https://velo.ffc.fr"
 RESULTS_BASE_URL = f"{BASE_URL}/resultats-des-courses/"
 
-# Query parameters for race search (FFC website)
-RACE_SEARCH_PARAMS = {
-    "_region": "pays-de-la-loire"
+# Available regions for scraping
+AVAILABLE_REGIONS = {
+    "pays-de-la-loire": "Pays de la Loire",
+    "bretagne": "Bretagne", 
+    "nouvelle-acquitaine": "Nouvelle-Acquitaine"
 }
+
+# Default region for scraping
+DEFAULT_REGION = "pays-de-la-loire"
+
+# Query parameters for race search (FFC website) - will be dynamically set
+def get_race_search_params(region: str = DEFAULT_REGION) -> dict:
+    """Get race search parameters for a specific region"""
+    if region not in AVAILABLE_REGIONS:
+        raise ValueError(f"Invalid region: {region}. Available regions: {list(AVAILABLE_REGIONS.keys())}")
+    
+    return {
+        "_region": region
+    }
 
 # HTTP Configuration
 REQUEST_TIMEOUT = 10  # seconds
