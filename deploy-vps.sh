@@ -67,7 +67,7 @@ fi
 cp -r * "${APP_DIR}/"
 cd "${APP_DIR}"
 
-# Copy database if it exists
+# Copy database to data directory if it exists
 log_info "Setting up database..."
 if [ -f "backend/database/cycling_data.db" ]; then
     cp "backend/database/cycling_data.db" "${DATA_DIR}/"
@@ -76,9 +76,16 @@ else
     log_warn "No database found. You may need to run the scraper to populate data."
 fi
 
-# Set proper permissions for Docker volume mounts
-# Docker containers use UID/GID 1001 for appuser
-chmod -R 755 "${DATA_DIR}" "${LOG_DIR}"
+# Set ownership to match Docker container user (UID:GID 1001:1001)
+# This is critical for write permissions
+log_info "Setting proper ownership for Docker volumes..."
+if command -v sudo >/dev/null 2>&1; then
+    sudo chown -R 1001:1001 "${DATA_DIR}" "${LOG_DIR}"
+    log_info "Ownership set to UID:GID 1001:1001 (Docker appuser)"
+else
+    log_warn "Cannot set ownership without sudo - you may need to manually run:"
+    log_warn "sudo chown -R 1001:1001 ${DATA_DIR} ${LOG_DIR}"
+fi
 
 # Create environment file if it doesn't exist
 if [ ! -f ".env" ]; then

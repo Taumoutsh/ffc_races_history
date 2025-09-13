@@ -33,10 +33,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend code
 COPY backend/ ./backend/
-COPY --from=frontend-builder /app/dist ./frontend/dist/
-
-# Copy database if it exists in the build
-COPY backend/database/ ./database/ 2>/dev/null || true
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist/
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/data /app/logs && \
