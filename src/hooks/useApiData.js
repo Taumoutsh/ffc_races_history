@@ -363,6 +363,17 @@ export const useApiData = (dynamicDefaultCyclist) => {
     },
 
     // Get race details from API
+    getRaces: async () => {
+      try {
+        const response = await axios.get(`/races`);
+        return response.data;
+      } catch (err) {
+        console.error('API getRaces error:', err);
+        return null;
+      }
+    },
+
+    // Get race details from API
     getRace: async (raceId) => {
       try {
         const response = await axios.get(`/races/${encodeURIComponent(raceId)}`);

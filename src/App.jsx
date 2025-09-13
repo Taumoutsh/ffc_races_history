@@ -1163,6 +1163,7 @@ function App() {
                 onRaceClick={handleRaceClick}
                 selectedYears={racesSelectedYears}
                 onYearsChange={setRacesSelectedYears}
+                api={api}
               />
             </div>
           </div>

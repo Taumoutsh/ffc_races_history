@@ -5,7 +5,7 @@ import { filterDataByYears } from '../utils/dateUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChange }) => {
+const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChange, api }) => {
   const { t } = useTranslation();
   const [allRaces, setAllRaces] = useState([]);
   const [displayedRaces, setDisplayedRaces] = useState([]);
@@ -28,11 +28,7 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
   useEffect(() => {
     const loadRaces = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/races`);
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status}`);
-        }
-        const racesData = await response.json();
+        const racesData = await api.getRaces();
         setAllRaces(racesData);
         setFilteredRaces(racesData);
       } catch (err) {
