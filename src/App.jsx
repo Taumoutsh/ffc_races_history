@@ -5,9 +5,12 @@ import RaceLeaderboardModal from './components/RaceLeaderboardModal';
 import CyclistProfile from './components/CyclistProfile';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import RacesList from './components/RacesList';
+import UserManagement from './components/admin/UserManagement';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
+import { useAuth } from './contexts/AuthContext';
 import { downloadResearchPDF } from './utils/pdfGenerator.js';
+import axios from 'axios';
 
 const styles = {
   container: {
@@ -162,7 +165,8 @@ const styles = {
 
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
-  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api, apiBaseUrl } = useApiData(defaultCyclist);
+  const { user, logout, isAdmin } = useAuth();
+  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 768);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -181,6 +185,7 @@ function App() {
   const [isScrapingInProgress, setIsScrapingInProgress] = useState(false);
   const [racesSelectedYears, setRacesSelectedYears] = useState([]);
   const [chartSelectedYears, setChartSelectedYears] = useState([]);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   // Handle window resize for responsive layout
   useEffect(() => {
@@ -419,7 +424,7 @@ function App() {
             color: '#6b7280',
             fontSize: '0.75rem',
             marginTop: '1rem'
-          }}>API: {apiBaseUrl}</p>
+          }}>API: {axios.defaults.baseURL}</p>
         </div>
       </div>
     );
@@ -435,7 +440,69 @@ function App() {
             <h1 style={styles.title}>{t('ui.headerTitle')}</h1>
             <p style={styles.subtitle}>{t('ui.headerSubtitle')}</p>
           </div>
-          <LanguageSwitcher />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {/* User Info and Admin Panel */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              padding: '0.5rem 1rem',
+              background: 'rgba(59, 130, 246, 0.1)',
+              borderRadius: '0.75rem',
+              border: '1px solid rgba(59, 130, 246, 0.2)'
+            }}>
+              <span style={{ 
+                color: '#1e40af',
+                fontWeight: '600',
+                fontSize: '0.875rem'
+              }}>
+                👤 {user?.username}
+                {isAdmin && ' 👑'}
+              </span>
+              
+              {isAdmin && (
+                <button
+                  onClick={() => setShowAdminPanel(!showAdminPanel)}
+                  style={{
+                    background: 'linear-gradient(45deg, #8b5cf6, #a855f7)',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    padding: '0.3rem 0.6rem',
+                    color: 'white',
+                    fontWeight: '600',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease'
+                  }}
+                  onMouseOver={(e) => e.target.style.transform = 'translateY(-1px)'}
+                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  {showAdminPanel ? '❌ Close Admin' : '⚙️ Admin'}
+                </button>
+              )}
+              
+              <button
+                onClick={logout}
+                style={{
+                  background: 'linear-gradient(45deg, #ef4444, #dc2626)',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  padding: '0.3rem 0.6rem',
+                  color: 'white',
+                  fontWeight: '600',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseOver={(e) => e.target.style.transform = 'translateY(-1px)'}
+                onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+              >
+                🚪 Logout
+              </button>
+            </div>
+            
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 
@@ -1125,6 +1192,73 @@ function App() {
         getDefaultCyclistInfo={getDefaultCyclistInfo}
         api={api}
       />
+
+      {/* Admin Panel Modal */}
+      {showAdminPanel && isAdmin && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }} onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setShowAdminPanel(false);
+          }
+        }}>
+          <div style={{
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            width: '100%',
+            overflow: 'hidden',
+            borderRadius: '16px',
+            position: 'relative'
+          }}>
+            <button
+              onClick={() => setShowAdminPanel(false)}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                zIndex: 1001,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = 'rgba(239, 68, 68, 0.8)';
+                e.target.style.transform = 'scale(1.1)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                e.target.style.transform = 'scale(1)';
+              }}
+            >
+              ×
+            </button>
+            <div style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+              <UserManagement />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

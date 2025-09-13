@@ -1,53 +1,22 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { appConfig } from '../config/appConfig.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
-// Dynamic API URL detection for network access
-const getApiBaseUrl = () => {
-  // If VITE_API_URL is set during build, use it
-  if (import.meta.env.VITE_API_URL) {
-    console.log('🌐 Using environment API URL:', import.meta.env.VITE_API_URL);
-    return import.meta.env.VITE_API_URL;
-  }
-  
-  // For runtime, detect the current host
-  const currentHost = window.location.hostname;
-  const port = window.location.port;
-  
-  // Log current access method for debugging
-  console.log('🌐 Detecting API URL from current host:', currentHost);
-  
-  // If accessing via network IP or domain, use the same host for API
-  if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
-    const apiUrl = `http://${currentHost}:3001/api`;
-    console.log('🌐 Network access detected, using API URL:', apiUrl);
-    return apiUrl;
-  }
-  
-  // Default to localhost for local development
-  const apiUrl = 'http://localhost:3001/api';
-  console.log('🌐 Local development detected, using API URL:', apiUrl);
-  return apiUrl;
-};
-
-const API_BASE_URL = getApiBaseUrl();
-
-// Log the final API base URL being used
-console.log('🔗 Final API Base URL:', API_BASE_URL);
+// API URL is configured in AuthContext - use the same axios instance
 
 export const useApiData = (dynamicDefaultCyclist) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isAuthenticated, loading: authLoading, token } = useAuth();
 
   useEffect(() => {
     const loadData = async () => {
       try {
         // Load data in YAML-compatible format for easier migration
-        const response = await fetch(`${API_BASE_URL}/export/yaml`);
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status}`);
-        }
-        const jsonData = await response.json();
+        const response = await axios.get('/export/yaml');
+        const jsonData = response.data;
         setData(jsonData);
       } catch (err) {
         let errorMessage = err.message;
@@ -63,8 +32,14 @@ export const useApiData = (dynamicDefaultCyclist) => {
       }
     };
 
-    loadData();
-  }, []);
+    // Only load data when authentication is ready and user is authenticated
+    if (!authLoading && isAuthenticated && token) {
+      loadData();
+    } else if (!authLoading && !isAuthenticated) {
+      // User is not authenticated, don't try to load data
+      setLoading(false);
+    }
+  }, [authLoading, isAuthenticated, token]);
 
   // Helper function to format names (CamelCase for first name, UPPERCASE for last name)
   const formatName = (firstName, lastName) => {
@@ -170,13 +145,8 @@ export const useApiData = (dynamicDefaultCyclist) => {
     
     // Fallback to API if no local data available
     try {
-      const response = await fetch(`${API_BASE_URL}/cyclists/search?q=${encodeURIComponent(query)}`);
-      
-      if (!response.ok) {
-        throw new Error(`Search failed: ${response.status}`);
-      }
-      
-      const results = await response.json();
+      const response = await axios.get(`/cyclists/search?q=${encodeURIComponent(query)}`);
+      const results = response.data;
       
       return results.map(cyclist => ({
         id: cyclist.uci_id,
@@ -279,22 +249,11 @@ export const useApiData = (dynamicDefaultCyclist) => {
     if (!url?.trim()) return null;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/research/scrape-race`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: url.trim()
-        })
+      const response = await axios.post('/research/scrape-race', {
+        url: url.trim()
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Scraping failed: ${response.status}`);
-      }
-      
-      const result = await response.json();
+      const result = response.data;
       return {
         raceName: result.race_name || '',
         raceDate: result.race_date || '',
@@ -313,21 +272,11 @@ export const useApiData = (dynamicDefaultCyclist) => {
     if (!importedRacersList?.trim()) return [];
     
     try {
-      const response = await fetch(`${API_BASE_URL}/research/entry-list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          entryList: importedRacersList
-        })
+      const response = await axios.post('/research/entry-list', {
+        entryList: importedRacersList
       });
       
-      if (!response.ok) {
-        throw new Error(`Research failed: ${response.status}`);
-      }
-      
-      const result = await response.json();
+      const result = response.data;
       
       // Parse the original entry list to get club names and calculate estimated numbers
       const entryLines = importedRacersList.trim().split('\n');
@@ -405,12 +354,8 @@ export const useApiData = (dynamicDefaultCyclist) => {
     // Get cyclist details from API
     getCyclist: async (uciId) => {
       try {
-        const response = await fetch(`${API_BASE_URL}/cyclists/${encodeURIComponent(uciId)}`);
-        if (!response.ok) {
-          if (response.status === 404) return null;
-          throw new Error(`API Error: ${response.status}`);
-        }
-        return await response.json();
+        const response = await axios.get(`/cyclists/${encodeURIComponent(uciId)}`);
+        return response.data;
       } catch (err) {
         console.error('API getCyclist error:', err);
         return null;
@@ -420,12 +365,8 @@ export const useApiData = (dynamicDefaultCyclist) => {
     // Get race details from API
     getRace: async (raceId) => {
       try {
-        const response = await fetch(`${API_BASE_URL}/races/${encodeURIComponent(raceId)}`);
-        if (!response.ok) {
-          if (response.status === 404) return null;
-          throw new Error(`API Error: ${response.status}`);
-        }
-        return await response.json();
+        const response = await axios.get(`/races/${encodeURIComponent(raceId)}`);
+        return response.data;
       } catch (err) {
         console.error('API getRace error:', err);
         return null;
@@ -435,11 +376,8 @@ export const useApiData = (dynamicDefaultCyclist) => {
     // Get database stats
     getStats: async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/stats`);
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status}`);
-        }
-        return await response.json();
+        const response = await axios.get('/stats');
+        return response.data;
       } catch (err) {
         console.error('API getStats error:', err);
         return null;
@@ -449,8 +387,8 @@ export const useApiData = (dynamicDefaultCyclist) => {
     // Health check
     healthCheck: async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/health`);
-        return response.ok;
+        const response = await axios.get('/health');
+        return response.status === 200;
       } catch (err) {
         return false;
       }
@@ -473,7 +411,6 @@ export const useApiData = (dynamicDefaultCyclist) => {
     cleanClubName,
     isDefaultCyclist,
     isDefaultCyclistById,
-    api,
-    apiBaseUrl: API_BASE_URL
+    api
   };
 };

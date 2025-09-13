@@ -12,17 +12,187 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from functools import wraps
 
 # Add project root to path for backend imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from backend.database.models import CyclingDatabase
+from backend.database.auth_models import AuthDatabase
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
 
-# Initialize database
+# Initialize databases
 DB_PATH = os.environ.get('DB_PATH', 'backend/database/cycling_data.db')
+AUTH_DB_PATH = os.environ.get('AUTH_DB_PATH', 'backend/database/auth.db')
 db = CyclingDatabase(DB_PATH)
+auth_db = AuthDatabase(AUTH_DB_PATH)
+
+
+# Authentication middleware
+def require_auth(f):
+    """Decorator to require authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'No token provided'}), 401
+        
+        token = auth_header.split(' ')[1]
+        user = auth_db.validate_session(token)
+        
+        if not user:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+        
+        request.current_user = user
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def require_admin(f):
+    """Decorator to require admin privileges"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not getattr(request, 'current_user', None) or not request.current_user.get('is_admin'):
+            return jsonify({'error': 'Admin privileges required'}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+# Authentication routes
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    """User login endpoint"""
+    try:
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        
+        if not username or not password:
+            return jsonify({'error': 'Username and password required'}), 400
+        
+        user = auth_db.authenticate_user(username, password)
+        if not user:
+            return jsonify({'error': 'Invalid credentials'}), 401
+        
+        token = auth_db.create_session(user['id'], expires_hours=24)
+        
+        return jsonify({
+            'user': user,
+            'token': token,
+            'expires_in': 24 * 60 * 60  # 24 hours in seconds
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/auth/logout', methods=['POST'])
+@require_auth
+def logout():
+    """User logout endpoint"""
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+        auth_db.revoke_session(token)
+    
+    return jsonify({'message': 'Logged out successfully'})
+
+
+@app.route('/api/auth/verify', methods=['GET'])
+@require_auth
+def verify_token():
+    """Verify token and return user info"""
+    return jsonify({'user': request.current_user})
+
+
+@app.route('/api/auth/users', methods=['GET'])
+@require_auth
+@require_admin
+def get_users():
+    """Get all users (admin only)"""
+    users = auth_db.get_all_users()
+    return jsonify(users)
+
+
+@app.route('/api/auth/users', methods=['POST'])
+@require_auth
+@require_admin
+def create_user():
+    """Create new user (admin only)"""
+    try:
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        is_admin = data.get('is_admin', False)
+        
+        if not username or not password:
+            return jsonify({'error': 'Username and password required'}), 400
+        
+        if len(password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        
+        user = auth_db.create_user(username, password, is_admin)
+        if not user:
+            return jsonify({'error': 'Username already exists'}), 409
+        
+        return jsonify(user), 201
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/auth/users/<int:user_id>', methods=['PUT'])
+@require_auth
+@require_admin
+def update_user(user_id):
+    """Update user (admin only)"""
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        is_admin = data.get('is_admin')
+        is_active = data.get('is_active')
+        
+        if password is not None and len(password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        
+        # Build update parameters (AuthDatabase only supports is_admin and is_active updates)
+        update_params = {}
+        if is_admin is not None:
+            update_params['is_admin'] = is_admin
+        if is_active is not None:
+            update_params['is_active'] = is_active
+            
+        success = auth_db.update_user(user_id, **update_params)
+        if not success:
+            return jsonify({'error': 'User not found'}), 404
+        
+        user = auth_db.get_user_by_id(user_id)
+        return jsonify(user)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/auth/users/<int:user_id>', methods=['DELETE'])
+@require_auth
+@require_admin
+def delete_user(user_id):
+    """Delete user (admin only)"""
+    try:
+        # Prevent admin from deleting themselves
+        if user_id == request.current_user['id']:
+            return jsonify({'error': 'Cannot delete your own account'}), 400
+        
+        success = auth_db.delete_user(user_id)
+        if not success:
+            return jsonify({'error': 'User not found'}), 404
+        
+        return jsonify({'message': 'User deleted successfully'})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/health', methods=['GET'])
@@ -44,6 +214,7 @@ def health_check():
 
 
 @app.route('/api/scraping-info', methods=['GET'])
+@require_auth
 def get_scraping_info():
     """Get scraping metadata"""
     info = db.get_scraping_info()
@@ -51,6 +222,7 @@ def get_scraping_info():
 
 
 @app.route('/api/races', methods=['GET'])
+@require_auth
 def get_races():
     """Get all races with basic info"""
     try:
@@ -61,6 +233,7 @@ def get_races():
 
 
 @app.route('/api/races/<race_id>', methods=['GET'])
+@require_auth
 def get_race_details(race_id):
     """Get detailed race information with participants"""
     race = db.get_race_with_participants(race_id)
@@ -71,6 +244,7 @@ def get_race_details(race_id):
 
 
 @app.route('/api/cyclists/search', methods=['GET'])
+@require_auth
 def search_cyclists():
     """Search cyclists by name"""
     query = request.args.get('q', '')
@@ -82,6 +256,7 @@ def search_cyclists():
 
 
 @app.route('/api/cyclists/<uci_id>', methods=['GET'])
+@require_auth
 def get_cyclist_details(uci_id):
     """Get cyclist information and race history"""
     cyclist = db.get_cyclist_by_id(uci_id)
@@ -95,6 +270,7 @@ def get_cyclist_details(uci_id):
 
 
 @app.route('/api/cyclists/<uci_id>/history', methods=['GET'])
+@require_auth
 def get_cyclist_history(uci_id):
     """Get race history for a specific cyclist"""
     history = db.get_cyclist_history(uci_id)
@@ -102,6 +278,7 @@ def get_cyclist_history(uci_id):
 
 
 @app.route('/api/stats', methods=['GET'])
+@require_auth
 def get_database_stats():
     """Get database statistics"""
     stats = db.get_database_stats()
@@ -109,6 +286,7 @@ def get_database_stats():
 
 
 @app.route('/api/export/yaml', methods=['GET'])
+@require_auth
 def export_yaml_format():
     """Export data in original YAML format for compatibility"""
     try:
@@ -119,6 +297,7 @@ def export_yaml_format():
 
 
 @app.route('/api/research/scrape-race', methods=['POST'])
+@require_auth
 def scrape_race_data():
     """Scrape race data from paysdelaloirecyclisme.fr URL"""
     try:
@@ -213,6 +392,7 @@ def scrape_race_data():
 
 
 @app.route('/api/research/entry-list', methods=['POST'])
+@require_auth
 def research_entry_list():
     """Analyze entry list against database"""
     try:

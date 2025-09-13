@@ -10,12 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@rollup/rollup-win32-x64-msvc": "^4.50.1",
+    "axios": "^1.12.1",
+    "bcryptjs": "^3.0.2",
     "js-yaml": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-router-dom": "^7.9.1",
     "recharts": "^2.15.3"
   },
   "devDependencies": {

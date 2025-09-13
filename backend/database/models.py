@@ -7,7 +7,7 @@ import sqlite3
 import json
 import os
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from contextlib import contextmanager
 
 
@@ -275,3 +275,7 @@ class CyclingDatabase:
                 'races': races,
                 'racers_history': racers_history
             }
+    
+
+    # Authentication methods have been moved to AuthDatabase class in auth_models.py
+    # This separation improves security by isolating user data from application data
