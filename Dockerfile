@@ -2,7 +2,7 @@
 # Stage 1: Build React frontend
 FROM node:18-alpine AS frontend-builder
 
-WORKDIR /app/frontend
+WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
@@ -33,7 +33,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend code
 COPY backend/ ./backend/
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist/
+COPY --from=frontend-builder /app/dist ./frontend/dist/
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/data /app/logs && \

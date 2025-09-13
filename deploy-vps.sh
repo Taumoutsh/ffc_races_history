@@ -142,13 +142,6 @@ http {
         add_header X-XSS-Protection "1; mode=block";
         add_header Referrer-Policy "strict-origin-when-cross-origin";
 
-        # Static files (if serving directly)
-        location /static/ {
-            alias /app/frontend/dist/;
-            expires 1y;
-            add_header Cache-Control "public, immutable";
-        }
-
         # API endpoints
         location /api/ {
             limit_req zone=api burst=20 nodelay;
@@ -162,13 +155,19 @@ http {
             proxy_read_timeout 30s;
         }
 
-        # Frontend application
+        # Static assets (JS, CSS, images, etc.)
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            root /usr/share/nginx/html;
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            try_files $uri =404;
+        }
+
+        # Frontend application (SPA)
         location / {
-            proxy_pass http://race-cycling-app:5000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files $uri $uri/ /index.html;
         }
 
         # Health check endpoint
