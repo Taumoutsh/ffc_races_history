@@ -1,15 +1,4 @@
-# Multi-stage Docker build for Race Cycling History App
-# Stage 1: Build React frontend
-FROM node:18-alpine AS frontend-builder
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-
-COPY . .
-RUN npm run build
-
-# Stage 2: Setup Python backend with built frontend
+# Backend-only Docker build for Race Cycling History App
 FROM python:3.11-alpine AS production
 
 # Install system dependencies
@@ -33,8 +22,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend code
 COPY backend/ ./backend/
-# Copy built frontend to a temp location (not overwritten by volume mount)
-COPY --from=frontend-builder /app/dist ./frontend/dist-built/
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/data /app/logs && \

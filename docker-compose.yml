@@ -15,8 +15,6 @@ services:
       - ./logs:/app/logs
       # Optional: Mount additional scripts or configurations
       - ./backend/scrapers:/app/backend/scrapers:ro
-      # Share frontend files with nginx
-      - frontend_dist:/app/frontend/dist
     environment:
       - FLASK_ENV=production
       - DB_PATH=/app/data/cycling_data.db
@@ -34,17 +32,17 @@ services:
 
   # Reverse proxy with static file serving
   nginx:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     container_name: race-cycling-nginx
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
       - ./logs:/var/log/nginx
-      - frontend_dist:/usr/share/nginx/html:ro
     networks:
       - race-cycling-net
 
@@ -77,6 +75,4 @@ volumes:
   race_data:
     driver: local
   race_logs:
-    driver: local
-  frontend_dist:
     driver: local

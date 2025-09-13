@@ -13,16 +13,7 @@ if [ ! -f "/app/data/cycling_data.db" ]; then
     echo "No database found, will be created by the application..."
 fi
 
-# Copy frontend files to shared volume for nginx (only if volume is empty)
-if [ -d "/app/frontend/dist-built" ] && [ ! "$(ls -A /app/frontend/dist 2>/dev/null)" ]; then
-    echo "Copying frontend files to shared volume for nginx..."
-    cp -r /app/frontend/dist-built/* /app/frontend/dist/
-    echo "Frontend files copied successfully"
-elif [ "$(ls -A /app/frontend/dist 2>/dev/null)" ]; then
-    echo "Frontend files already exist in shared volume"
-else
-    echo "Warning: No frontend files found to copy"
-fi
+# Backend only - no frontend files to copy
 
 # Start the application
 exec python -m backend.api.server
