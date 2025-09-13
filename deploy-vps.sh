@@ -159,6 +159,13 @@ http {
             proxy_connect_timeout 30s;
             proxy_send_timeout 30s;
             proxy_read_timeout 30s;
+
+            # Enable POST and other HTTP methods
+            proxy_method $request_method;
+            proxy_pass_request_body on;
+            proxy_pass_request_headers on;
+            proxy_set_header Content-Length $content_length;
+            proxy_set_header Content-Type $content_type;
         }
 
         # Static assets (JS, CSS, images, etc.)
