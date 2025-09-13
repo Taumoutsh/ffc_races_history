@@ -72,6 +72,7 @@ if [ ! -f "docker-compose.yml" ]; then
 fi
 
 cp -r * "${APP_DIR}/"
+cp .env.production "${APP_DIR}/"
 cd "${APP_DIR}"
 
 # Copy database to data directory if it exists

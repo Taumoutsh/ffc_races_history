@@ -3,8 +3,6 @@ import { useTranslation } from '../contexts/LanguageContext.jsx';
 import DateFilter from './DateFilter';
 import { filterDataByYears } from '../utils/dateUtils';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
 const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChange, api }) => {
   const { t } = useTranslation();
   const [allRaces, setAllRaces] = useState([]);
