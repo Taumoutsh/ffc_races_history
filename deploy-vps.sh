@@ -10,10 +10,10 @@ echo "============================================="
 
 # Configuration
 APP_NAME="race-cycling-app"
-APP_DIR="/opt/${APP_NAME}"
-DATA_DIR="/opt/${APP_NAME}/data"
-LOG_DIR="/opt/${APP_NAME}/logs"
-SSL_DIR="/opt/${APP_NAME}/ssl"
+APP_DIR="$HOME/${APP_NAME}"
+DATA_DIR="$HOME/${APP_NAME}/data"
+LOG_DIR="$HOME/${APP_NAME}/logs"
+SSL_DIR="$HOME/${APP_NAME}/ssl"
 
 # Colors for output
 RED='\033[0;31m'
@@ -55,8 +55,7 @@ fi
 
 # Create application directories
 log_info "Creating application directories..."
-sudo mkdir -p "${APP_DIR}" "${DATA_DIR}" "${LOG_DIR}" "${SSL_DIR}"
-sudo chown -R $USER:$USER "${APP_DIR}"
+mkdir -p "${APP_DIR}" "${DATA_DIR}" "${LOG_DIR}" "${SSL_DIR}"
 
 # Copy application files
 log_info "Copying application files..."
@@ -212,9 +211,10 @@ if [ ! -f "${DATA_DIR}/cycling_data.db" ]; then
     log_warn "Make sure to copy your existing database to ${DATA_DIR}/cycling_data.db"
 fi
 
-# Set up log rotation
+# Set up log rotation (optional - requires sudo)
 log_info "Setting up log rotation..."
-sudo bash -c "cat > /etc/logrotate.d/${APP_NAME} << EOF
+if sudo -n true 2>/dev/null; then
+    sudo bash -c "cat > /etc/logrotate.d/${APP_NAME} << EOF
 ${LOG_DIR}/*.log {
     daily
     missingok
@@ -223,17 +223,20 @@ ${LOG_DIR}/*.log {
     notifempty
     create 644 $USER $USER
     postrotate
-        docker-compose -f ${APP_DIR}/docker-compose.yml restart nginx >/dev/null 2>&1 || true
+        docker compose -f ${APP_DIR}/docker-compose.yml restart nginx >/dev/null 2>&1 || true
     endscript
 }
 EOF"
+else
+    log_warn "Skipping log rotation setup - requires sudo access"
+fi
 
 # Build and start services
 log_info "Building Docker images..."
-docker-compose build
+docker compose build
 
 log_info "Starting services..."
-docker-compose up -d
+docker compose up -d
 
 # Wait for services to be ready
 log_info "Waiting for services to start..."
@@ -256,17 +259,17 @@ if curl -f http://localhost/health >/dev/null 2>&1; then
     echo "📝 Logs location: ${LOG_DIR}"
     echo ""
     echo "🔧 Useful commands:"
-    echo "   - View logs: docker-compose -f ${APP_DIR}/docker-compose.yml logs -f"
-    echo "   - Restart: docker-compose -f ${APP_DIR}/docker-compose.yml restart"
-    echo "   - Stop: docker-compose -f ${APP_DIR}/docker-compose.yml down"
-    echo "   - Update: cd ${APP_DIR} && git pull && docker-compose build && docker-compose up -d"
+    echo "   - View logs: docker compose -f ${APP_DIR}/docker-compose.yml logs -f"
+    echo "   - Restart: docker compose -f ${APP_DIR}/docker-compose.yml restart"
+    echo "   - Stop: docker compose -f ${APP_DIR}/docker-compose.yml down"
+    echo "   - Update: cd ${APP_DIR} && git pull && docker compose build && docker compose up -d"
     echo ""
     echo "🕷️  To run the scraper externally:"
-    echo "   - docker-compose --profile scraper up scraper"
+    echo "   - docker compose --profile scraper up scraper"
 
 else
     log_error "❌ Health check failed. Check the logs:"
-    docker-compose logs
+    docker compose logs
     exit 1
 fi
 
