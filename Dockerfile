@@ -35,9 +35,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ ./backend/
 COPY --from=frontend-builder /app/dist ./frontend/dist/
 
+# Copy database if it exists in the build
+COPY backend/database/ ./database/ 2>/dev/null || true
+
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/data /app/logs && \
-    chown -R appuser:appgroup /app
+    chown -R appuser:appgroup /app && \
+    chmod 755 /app/data /app/logs
+
+# Copy entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh && \
+    chown appuser:appgroup /app/entrypoint.sh
 
 # Switch to non-root user
 USER appuser
@@ -49,5 +58,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:5000/api/health')" || exit 1
 
-# Start the Flask server
-CMD ["python", "-m", "backend.api.server"]
+# Start the Flask server via entrypoint
+CMD ["/app/entrypoint.sh"]
