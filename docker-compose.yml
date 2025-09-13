@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Main application service
   race-cycling-app:
@@ -25,8 +23,6 @@ services:
       - HOST=0.0.0.0
     networks:
       - race-cycling-net
-    depends_on:
-      - nginx
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/api/health')"]
       interval: 30s
@@ -48,8 +44,6 @@ services:
       - ./logs:/var/log/nginx
     networks:
       - race-cycling-net
-    depends_on:
-      - race-cycling-app
 
   # Optional: Database scraper service (can be run separately)
   scraper:
