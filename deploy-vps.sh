@@ -161,7 +161,7 @@ http {
         # API endpoints
         location /api/ {
             limit_req zone=api burst=20 nodelay;
-            proxy_pass http://172.16.0.10:5000;
+            proxy_pass http://race-cycling-app:5000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -189,7 +189,7 @@ http {
 
         # Health check endpoint
         location /health {
-            proxy_pass http://172.16.0.10:5000/api/health;
+            proxy_pass http://race-cycling-app:5000/api/health;
             access_log off;
         }
     }

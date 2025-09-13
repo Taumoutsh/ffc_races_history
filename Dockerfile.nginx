@@ -9,7 +9,7 @@ RUN npm install
 COPY . .
 
 # Set build-time environment variables for Vite
-ENV VITE_API_URL="172.16.0.10"
+ENV VITE_API_URL=""
 
 RUN npm run build
 
