@@ -9,11 +9,12 @@ echo "🚀 Race Cycling History App - VPS Deployment"
 echo "============================================="
 
 # Configuration
-APP_NAME="race-cycling-app"
-APP_DIR="$HOME/${APP_NAME}"
-DATA_DIR="$HOME/${APP_NAME}/data"
-LOG_DIR="$HOME/${APP_NAME}/logs"
-SSL_DIR="$HOME/${APP_NAME}/ssl"
+PROJECT_DIR="projects"
+APP_NAME="ffc_races_history"
+APP_DIR="$HOME/$PROJECT_DIR/${APP_NAME}"
+DATA_DIR="$HOME/$PROJECT_DIR/${APP_NAME}/data"
+LOG_DIR="$HOME/$PROJECT_DIR/${APP_NAME}/logs"
+SSL_DIR="$HOME/$PROJECT_DIR/${APP_NAME}/ssl"
 
 # Colors for output
 RED='\033[0;31m'
@@ -77,7 +78,7 @@ if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
     log_info "Ownership set to UID:GID 1001:1001 (Docker appuser)"
 else
     log_warn "Cannot set ownership without sudo - setting permissions to 777 for fallback"
-    chmod 777 "${DATA_DIR}" "${LOG_DIR}"
+    sudo chmod 777 "${DATA_DIR}" "${LOG_DIR}"
 fi
 
 # Copy database to data directory if it exists
