@@ -75,10 +75,20 @@ cp -r * "${APP_DIR}/"
 cd "${APP_DIR}"
 
 # Copy database to data directory if it exists
-log_info "Setting up database..."
+log_info "Setting up cycling data database..."
 if [ -f "backend/database/cycling_data.db" ]; then
     cp "backend/database/cycling_data.db" "${DATA_DIR}/"
     chmod 666 "${DATA_DIR}/cycling_data.db" 2>/dev/null || true
+    log_info "Database copied to data directory"
+else
+    log_warn "No database found. You may need to run the scraper to populate data."
+fi
+
+# Copy auth database to data directory if it exists
+log_info "Setting up auth database..."
+if [ -f "backend/database/auth.db" ]; then
+    cp "backend/database/auth.db" "${DATA_DIR}/"
+    chmod 666 "${DATA_DIR}/auth.db" 2>/dev/null || true
     log_info "Database copied to data directory"
 else
     log_warn "No database found. You may need to run the scraper to populate data."
