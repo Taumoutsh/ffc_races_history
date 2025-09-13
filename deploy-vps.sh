@@ -64,11 +64,6 @@ fi
 
 mkdir -p "${APP_DIR}" "${DATA_DIR}" "${LOG_DIR}" "${SSL_DIR}"
 
-# Ensure current user owns the directories
-if command -v sudo >/dev/null 2>&1; then
-    sudo chown -R $USER:$USER "${APP_DIR}"
-fi
-
 # Copy application files
 log_info "Copying application files..."
 if [ ! -f "docker-compose.yml" ]; then
@@ -79,19 +74,6 @@ fi
 cp -r * "${APP_DIR}/"
 cd "${APP_DIR}"
 
-# Set proper permissions first
-log_info "Setting proper permissions for Docker volumes..."
-chmod 755 "${DATA_DIR}" "${LOG_DIR}"
-
-# Set ownership to match Docker container user (UID:GID 1001:1001) if sudo available
-if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
-    sudo chown -R 1001:1001 "${DATA_DIR}" "${LOG_DIR}"
-    log_info "Ownership set to UID:GID 1001:1001 (Docker appuser)"
-else
-    log_warn "Cannot set ownership without sudo - setting permissions to 777 for fallback"
-    sudo chmod 777 "${DATA_DIR}" "${LOG_DIR}"
-fi
-
 # Copy database to data directory if it exists
 log_info "Setting up database..."
 if [ -f "backend/database/cycling_data.db" ]; then
@@ -100,6 +82,15 @@ if [ -f "backend/database/cycling_data.db" ]; then
     log_info "Database copied to data directory"
 else
     log_warn "No database found. You may need to run the scraper to populate data."
+fi
+
+# Set ownership to match Docker container user (UID:GID 1001:1001) if sudo available
+if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+    sudo chown -R 1001:1001 "${DATA_DIR}" "${LOG_DIR}"
+    log_info "Ownership set to UID:GID 1001:1001 (Docker appuser)"
+else
+    log_warn "Cannot set ownership without sudo - setting permissions to 777 for fallback"
+    sudo chmod 777 "${DATA_DIR}" "${LOG_DIR}"
 fi
 
 # Create environment file if it doesn't exist

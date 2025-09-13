@@ -33,7 +33,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend code
 COPY backend/ ./backend/
-COPY --from=frontend-builder /app/dist ./frontend/dist/
+# Copy built frontend to a temp location (not overwritten by volume mount)
+COPY --from=frontend-builder /app/dist ./frontend/dist-built/
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/data /app/logs && \
