@@ -238,8 +238,8 @@ RUN addgroup -g 1001 -S appgroup && \
 
 USER appuser
 
-# Run scraper
-CMD ["python", "-m", "backend.scrapers.cycling_scraper"]
+# Run optimized scraper
+CMD ["python", "-m", "backend.scrapers.cycling_scraper_db_optimized"]
 EOF
 
 # Initialize database if it doesn't exist
@@ -301,8 +301,23 @@ if curl -f http://localhost/health >/dev/null 2>&1; then
     echo "   - Stop: docker compose -f ${APP_DIR}/docker-compose.yml down"
     echo "   - Update: cd ${APP_DIR} && git pull && docker compose build && docker compose up -d"
     echo ""
-    echo "🕷️  To run the scraper externally:"
-    echo "   - docker compose --profile scraper up scraper"
+    echo "🕷️  Running scraper for all 3 regions..."
+    echo "   This may take several minutes to complete..."
+
+    # Run scraper for each region
+    regions=("pays-de-la-loire" "bretagne" "nouvelle-aquitaine")
+    for region in "${regions[@]}"; do
+        echo "   📍 Scraping region: $region"
+        docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region "$region" || {
+            log_warn "Failed to scrape region: $region"
+        }
+    done
+
+    echo ""
+    echo "🕷️  To run the scraper again manually:"
+    echo "   - docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region pays-de-la-loire"
+    echo "   - docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region bretagne"
+    echo "   - docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region nouvelle-aquitaine"
 
 else
     log_error "❌ Health check failed. Check the logs:"
