@@ -304,6 +304,7 @@ if curl -f http://localhost/health >/dev/null 2>&1; then
     echo "   - docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region pays-de-la-loire"
     echo "   - docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region bretagne"
     echo "   - docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region nouvelle-aquitaine"
+    echo "   - docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region centre-val-de-loire"
 
 else
     log_error "❌ Health check failed. Check the logs:"

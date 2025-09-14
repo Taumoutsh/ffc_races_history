@@ -15,7 +15,7 @@ DATA_DIR="$HOME/$PROJECT_DIR/${APP_NAME}/data"
 BACKUP_DIR="$HOME/database-backups"
 
 # Available regions
-AVAILABLE_REGIONS=("pays-de-la-loire" "bretagne" "nouvelle-aquitaine")
+AVAILABLE_REGIONS=("pays-de-la-loire" "bretagne" "nouvelle-aquitaine" "centre-val-de-loire")
 
 # Colors for output
 RED='\033[0;31m'

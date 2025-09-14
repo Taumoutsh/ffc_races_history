@@ -17,8 +17,9 @@ RESULTS_BASE_URL = f"{BASE_URL}/resultats-des-courses/"
 # Available regions for scraping
 AVAILABLE_REGIONS = {
     "pays-de-la-loire": "Pays de la Loire",
-    "bretagne": "Bretagne", 
-    "nouvelle-aquitaine": "Nouvelle-Aquitaine"
+    "bretagne": "Bretagne",
+    "nouvelle-aquitaine": "Nouvelle-Aquitaine",
+    "centre-val-de-loire": "Centre-Val de Loire"
 }
 
 # Default region for scraping
@@ -44,8 +45,8 @@ RATE_LIMIT_DELAY = 1  # seconds between requests
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 
 # Safety limits
-MAX_PAGES = 100  # prevent infinite loops in pagination
-MAX_RACES_PER_SESSION = 1000  # reasonable limit for scraping
+MAX_PAGES = 110  # prevent infinite loops in pagination
+MAX_RACES_PER_SESSION = 1500  # reasonable limit for scraping
 
 # =============================================================================
 # HTML SELECTORS AND PATTERNS
