@@ -8,6 +8,21 @@ set -e
 echo "🚀 Cycling History App - Docker Deployment"
 echo "============================================="
 
+# Check if domain parameter is provided
+if [ -z "$1" ]; then
+    log_error "Domain name required!"
+    echo ""
+    echo "Usage: $0 <domain-name>"
+    echo "Example: $0 example.domain.com"
+    echo ""
+    echo "The script will:"
+    echo "  1. Look for SSL certificates at /etc/letsencrypt/live/<domain>/"
+    echo "  2. Copy them to the app's SSL directory"
+    echo "  3. Configure nginx with HTTPS (if certificates found) or HTTP only"
+    echo ""
+    exit 1
+fi
+
 # Configuration
 DOMAIN_NAME=$1
 PROJECT_DIR="projects"
@@ -162,9 +177,41 @@ BACKUP_RETENTION_DAYS=30
 EOF
 fi
 
+# SSL Certificate handling
+log_info "Setting up SSL certificates..."
+if [ -n "$DOMAIN_NAME" ]; then
+    # Create SSL directory
+    mkdir -p "${SSL_DIR}"
+
+    # Check if Let's Encrypt certificates exist
+    LETSENCRYPT_CERT_DIR="/etc/letsencrypt/live/${DOMAIN_NAME}"
+    if [ -d "$LETSENCRYPT_CERT_DIR" ]; then
+        log_info "Found Let's Encrypt certificates for $DOMAIN_NAME"
+
+        # Copy certificates to SSL directory
+        sudo cp "$LETSENCRYPT_CERT_DIR/fullchain.pem" "${SSL_DIR}/"
+        sudo cp "$LETSENCRYPT_CERT_DIR/privkey.pem" "${SSL_DIR}/"
+
+        # Set proper permissions
+        sudo chown root:root "${SSL_DIR}/fullchain.pem" "${SSL_DIR}/privkey.pem"
+        sudo chmod 644 "${SSL_DIR}/fullchain.pem"
+        sudo chmod 600 "${SSL_DIR}/privkey.pem"
+
+        log_info "SSL certificates copied and permissions set"
+        SSL_ENABLED=true
+    else
+        log_warn "No SSL certificates found for $DOMAIN_NAME"
+        log_warn "Run: sudo certbot certonly --standalone -d $DOMAIN_NAME"
+        SSL_ENABLED=false
+    fi
+else
+    log_warn "No domain name provided, SSL disabled"
+    SSL_ENABLED=false
+fi
+
 # Create nginx configuration
 log_info "Creating nginx configuration..."
-cat > nginx.conf << 'EOF'
+cat > nginx.conf << EOF
 events {
     worker_connections 1024;
 }
@@ -186,9 +233,25 @@ http {
     # Rate limiting
     limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
 
+$(if [ "$SSL_ENABLED" = "true" ]; then
+cat << 'HTTPS_CONFIG'
+    # HTTP redirect to HTTPS
     server {
         listen 80;
-        server_name _;
+        server_name DOMAIN_PLACEHOLDER www.DOMAIN_PLACEHOLDER;
+        return 301 https://$server_name$request_uri;
+    }
+
+    # HTTPS server
+    server {
+        listen 443 ssl http2;
+        server_name DOMAIN_PLACEHOLDER www.DOMAIN_PLACEHOLDER;
+
+        ssl_certificate /etc/nginx/ssl/fullchain.pem;
+        ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
+        ssl_prefer_server_ciphers off;
 
         # Security headers
         add_header X-Content-Type-Options nosniff;
@@ -231,20 +294,57 @@ http {
             access_log off;
         }
     }
-
-    HTTPS server (uncomment and configure SSL certificates)
+HTTPS_CONFIG
+else
+cat << 'HTTP_CONFIG'
+    # HTTP server (no SSL)
     server {
-        listen 443 ssl http2;
-        server_name ${DOMAIN_NAME};
-    
-        ssl_certificate /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem;
-        ssl_protocols TLSv1.2 TLSv1.3;
-        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
-        ssl_prefer_server_ciphers off;
-    
-        # Same location blocks as HTTP server above
+        listen 80;
+        server_name DOMAIN_PLACEHOLDER www.DOMAIN_PLACEHOLDER;
+
+        # Security headers
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options DENY;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Referrer-Policy "strict-origin-when-cross-origin";
+
+        # API endpoints
+        location /api/ {
+            limit_req zone=api burst=20 nodelay;
+            proxy_pass http://race-cycling-app:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Content-Type $content_type;
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 30s;
+            proxy_read_timeout 30s;
+        }
+
+        # Static assets (JS, CSS, images, etc.)
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            root /usr/share/nginx/html;
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            try_files $uri =404;
+        }
+
+        # Frontend application (SPA)
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Health check endpoint
+        location /health {
+            proxy_pass http://race-cycling-app:5000/api/health;
+            access_log off;
+        }
     }
+HTTP_CONFIG
+fi | sed "s/DOMAIN_PLACEHOLDER/${DOMAIN_NAME:-_}/g")
 }
 EOF
 
