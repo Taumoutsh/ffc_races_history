@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from '../../contexts/LanguageContext';
 import axios from 'axios';
 
-function UserManagement() {
+function UserManagement({ onClose }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -14,6 +15,7 @@ function UserManagement() {
   });
   const [createLoading, setCreateLoading] = useState(false);
   const { user: currentUser } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadUsers();
@@ -25,7 +27,7 @@ function UserManagement() {
       const response = await axios.get('/auth/users');
       setUsers(response.data);
     } catch (error) {
-      setError('Failed to load users');
+      setError(t('admin.failedToLoadUsers') || 'Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -42,14 +44,14 @@ function UserManagement() {
       setShowCreateForm(false);
       loadUsers();
     } catch (error) {
-      setError(error.response?.data?.error || 'Failed to create user');
+      setError(error.response?.data?.error || (t('admin.failedToCreateUser') || 'Failed to create user'));
     } finally {
       setCreateLoading(false);
     }
   };
 
   const handleDeleteUser = async (userId, username) => {
-    if (!confirm(`Are you sure you want to delete user "${username}"?`)) {
+    if (!confirm(t('admin.confirmDeleteUser', { username }) || `Are you sure you want to delete user "${username}"?`)) {
       return;
     }
 
@@ -57,7 +59,7 @@ function UserManagement() {
       await axios.delete(`/auth/users/${userId}`);
       loadUsers();
     } catch (error) {
-      setError(error.response?.data?.error || 'Failed to delete user');
+      setError(error.response?.data?.error || (t('admin.failedToDeleteUser') || 'Failed to delete user'));
     }
   };
 
@@ -68,7 +70,7 @@ function UserManagement() {
       });
       loadUsers();
     } catch (error) {
-      setError(error.response?.data?.error || 'Failed to update user status');
+      setError(error.response?.data?.error || (t('admin.failedToUpdateUserStatus') || 'Failed to update user status'));
     }
   };
 
@@ -76,7 +78,7 @@ function UserManagement() {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: 'white' }}>
         <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔄</div>
-        <div>Loading users...</div>
+        <div>{t('admin.loadingUsers') || 'Loading users...'}</div>
       </div>
     );
   }
@@ -97,7 +99,7 @@ function UserManagement() {
         alignItems: 'center',
         marginBottom: '1.5rem'
       }}>
-        <h2 style={{ margin: 0, fontSize: '1.5rem' }}>👥 User Management</h2>
+        <h2 style={{ margin: 0, fontSize: '1.5rem' }}>👥 {t('admin.userManagement') || 'User Management'}</h2>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <button
             onClick={() => setShowCreateForm(true)}
@@ -105,7 +107,7 @@ function UserManagement() {
               background: 'linear-gradient(45deg, #28a745, #20c997)',
               border: 'none',
               borderRadius: '12px',
-              padding: '0.6rem 1.2rem',
+              padding: window.innerWidth < 768 ? '0.6rem' : '0.6rem 1.2rem',
               color: 'white',
               fontWeight: 'bold',
               cursor: 'pointer',
@@ -114,7 +116,8 @@ function UserManagement() {
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              fontSize: '0.9rem'
+              fontSize: '0.9rem',
+              minWidth: '44px'
             }}
             onMouseOver={(e) => {
               e.target.style.transform = 'translateY(-2px)';
@@ -126,7 +129,36 @@ function UserManagement() {
             }}
           >
             <span style={{ fontSize: '1rem' }}>➕</span>
-            <span>Add User</span>
+            {window.innerWidth >= 768 && <span>{t('admin.addUser') || 'Add User'}</span>}
+          </button>
+
+          <button
+            onClick={onClose}
+            style={{
+              background: 'linear-gradient(45deg, #6c757d, #495057)',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '0.6rem 1.2rem',
+              color: 'white',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(108, 117, 125, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.9rem'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 6px 20px rgba(108, 117, 125, 0.4)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 15px rgba(108, 117, 125, 0.3)';
+            }}
+          >
+            <span style={{ fontSize: '1rem' }}>✕</span>
           </button>
           
           {showCreateForm && (
@@ -184,10 +216,10 @@ function UserManagement() {
           padding: '1rem',
           marginBottom: '1.5rem'
         }}>
-          <h3 style={{ margin: '0 0 1rem 0' }}>Create New User</h3>
+          <h3 style={{ margin: '0 0 1rem 0' }}>{t('admin.createNewUser') || 'Create New User'}</h3>
           <form onSubmit={handleCreateUser}>
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem' }}>Username</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t('admin.username') || 'Username'}</label>
               <input
                 type="text"
                 value={createForm.username}
@@ -202,11 +234,11 @@ function UserManagement() {
                   color: 'white',
                   boxSizing: 'border-box'
                 }}
-                placeholder="Enter username"
+                placeholder={t('admin.enterUsername') || 'Enter username'}
               />
             </div>
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem' }}>Password</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t('admin.password') || 'Password'}</label>
               <input
                 type="password"
                 value={createForm.password}
@@ -222,7 +254,7 @@ function UserManagement() {
                   color: 'white',
                   boxSizing: 'border-box'
                 }}
-                placeholder="Enter password (min 6 characters)"
+                placeholder={t('admin.enterPassword') || 'Enter password (min 6 characters)'}
               />
             </div>
             <div style={{ marginBottom: '1rem' }}>
@@ -233,7 +265,7 @@ function UserManagement() {
                   onChange={(e) => setCreateForm(prev => ({ ...prev, is_admin: e.target.checked }))}
                   style={{ marginRight: '0.5rem' }}
                 />
-                Admin privileges
+                {t('admin.adminPrivileges') || 'Admin privileges'}
               </label>
             </div>
             <button
@@ -250,7 +282,7 @@ function UserManagement() {
                 opacity: createLoading ? 0.7 : 1
               }}
             >
-              {createLoading ? '⏳ Creating...' : '✅ Create User'}
+              {createLoading ? `⏳ ${t('admin.creating') || 'Creating...'}` : `✅ ${t('admin.createUser') || 'Create User'}`}
             </button>
           </form>
         </div>
@@ -264,11 +296,11 @@ function UserManagement() {
         }}>
           <thead>
             <tr style={{ borderBottom: '2px solid rgba(255, 255, 255, 0.2)' }}>
-              <th style={{ padding: '0.75rem', textAlign: 'left' }}>Username</th>
-              <th style={{ padding: '0.75rem', textAlign: 'center' }}>Admin</th>
-              <th style={{ padding: '0.75rem', textAlign: 'center' }}>Status</th>
-              <th style={{ padding: '0.75rem', textAlign: 'center' }}>Last Login</th>
-              <th style={{ padding: '0.75rem', textAlign: 'center' }}>Actions</th>
+              <th style={{ padding: '0.75rem', textAlign: 'left' }}>{t('admin.username') || 'Username'}</th>
+              <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.admin') || 'Admin'}</th>
+              <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.status') || 'Status'}</th>
+              <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.lastLogin') || 'Last Login'}</th>
+              <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.actions') || 'Actions'}</th>
             </tr>
           </thead>
           <tbody>
@@ -284,7 +316,7 @@ function UserManagement() {
                       fontSize: '0.9rem'
                     }}>
                       {user.username}
-                      {user.id === currentUser.id && ' (You)'}
+                      {user.id === currentUser.id && ` (${t('admin.you') || 'You'})`}
                     </span>
                   </div>
                 </td>
@@ -293,17 +325,13 @@ function UserManagement() {
                 </td>
                 <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                   <span style={{
-                    background: user.is_active ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)',
-                    border: user.is_active ? '1px solid rgba(40, 167, 69, 0.5)' : '1px solid rgba(220, 53, 69, 0.5)',
-                    borderRadius: '12px',
-                    padding: '0.2rem 0.5rem',
-                    fontSize: '0.8rem'
+                    fontSize: '1.2rem'
                   }}>
-                    {user.is_active ? '✅ Active' : '❌ Inactive'}
+                    {user.is_active ? '✅' : '❌'}
                   </span>
                 </td>
                 <td style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.9rem' }}>
-                  {user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}
+                  {user.last_login ? new Date(user.last_login).toLocaleDateString() : (t('admin.never') || 'Never')}
                 </td>
                 <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
@@ -320,7 +348,7 @@ function UserManagement() {
                         cursor: user.id === currentUser.id ? 'not-allowed' : 'pointer',
                         opacity: user.id === currentUser.id ? 0.5 : 1
                       }}
-                      title={user.id === currentUser.id ? 'Cannot modify your own status' : ''}
+                      title={user.id === currentUser.id ? (t('admin.cannotModifyOwnStatus') || 'Cannot modify your own status') : ''}
                     >
                       {user.is_active ? '⏸️' : '▶️'}
                     </button>
@@ -337,7 +365,7 @@ function UserManagement() {
                         cursor: user.id === currentUser.id ? 'not-allowed' : 'pointer',
                         opacity: user.id === currentUser.id ? 0.5 : 1
                       }}
-                      title={user.id === currentUser.id ? 'Cannot delete your own account' : ''}
+                      title={user.id === currentUser.id ? (t('admin.cannotDeleteOwnAccount') || 'Cannot delete your own account') : ''}
                     >
                       🗑️
                     </button>
@@ -355,7 +383,7 @@ function UserManagement() {
           padding: '2rem',
           color: 'rgba(255, 255, 255, 0.6)'
         }}>
-          No users found
+          {t('admin.noUsersFound') || 'No users found'}
         </div>
       )}
     </div>

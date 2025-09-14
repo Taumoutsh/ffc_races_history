@@ -3,7 +3,7 @@ import { useApiData } from './hooks/useApiData';
 import PerformanceChart from './components/PerformanceChart';
 import RaceLeaderboardModal from './components/RaceLeaderboardModal';
 import CyclistProfile from './components/CyclistProfile';
-import LanguageSwitcher from './components/LanguageSwitcher';
+import BurgerMenu from './components/BurgerMenu';
 import RacesList from './components/RacesList';
 import UserManagement from './components/admin/UserManagement';
 import { appConfig } from './config/appConfig.js';
@@ -165,7 +165,7 @@ const styles = {
 
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
-  const { user, logout, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 768);
   const [selectedRace, setSelectedRace] = useState(null);
@@ -560,90 +560,10 @@ function App() {
             <h1 style={styles.title}>{t('ui.headerTitle')}</h1>
             <p style={styles.subtitle}>{t('ui.headerSubtitle')}</p>
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: window.innerWidth < 768 ? '0.5rem' : '1rem',
-            flexWrap: 'nowrap' // Prevent wrapping on mobile
-          }}>
-            {/* User Info and Admin Panel */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: window.innerWidth < 768 ? '0.25rem' : '0.5rem',
-              padding: window.innerWidth < 768 ? '0.25rem 0.5rem' : '0.5rem 1rem',
-              background: 'rgba(59, 130, 246, 0.1)',
-              borderRadius: '0.75rem',
-              border: '1px solid rgba(59, 130, 246, 0.2)',
-              minWidth: 0, // Allow shrinking
-              flex: '1 1 auto'
-            }}>
-              <span style={{
-                color: '#1e40af',
-                fontWeight: '600',
-                fontSize: window.innerWidth < 768 ? '0.75rem' : '0.875rem',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}>
-                👤 {user?.username}
-                {isAdmin && ' 👑'}
-              </span>
-
-              {isAdmin && (
-                <button
-                  onClick={() => setShowAdminPanel(!showAdminPanel)}
-                  style={{
-                    background: 'linear-gradient(45deg, #8b5cf6, #a855f7)',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    padding: window.innerWidth < 768 ? '0.2rem 0.4rem' : '0.3rem 0.6rem',
-                    color: 'white',
-                    fontWeight: '600',
-                    fontSize: '0.75rem',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease',
-                    minWidth: window.innerWidth < 768 ? '32px' : 'auto',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  onMouseOver={(e) => e.target.style.transform = 'translateY(-1px)'}
-                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  {window.innerWidth < 768 ?
-                    (showAdminPanel ? '❌' : '⚙️') :
-                    (showAdminPanel ? '❌ Close Admin' : '⚙️ Admin')
-                  }
-                </button>
-              )}
-
-              <button
-                onClick={logout}
-                style={{
-                  background: 'linear-gradient(45deg, #ef4444, #dc2626)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  padding: window.innerWidth < 768 ? '0.2rem 0.4rem' : '0.3rem 0.6rem',
-                  color: 'white',
-                  fontWeight: '600',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease',
-                  minWidth: window.innerWidth < 768 ? '32px' : 'auto',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseOver={(e) => e.target.style.transform = 'translateY(-1px)'}
-                onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-              >
-                {window.innerWidth < 768 ? '🚪' : '🚪 Logout'}
-              </button>
-            </div>
-
-            <LanguageSwitcher />
-          </div>
+          <BurgerMenu
+            showAdminPanel={showAdminPanel}
+            setShowAdminPanel={setShowAdminPanel}
+          />
         </div>
       </header>
 
@@ -1363,40 +1283,8 @@ function App() {
             borderRadius: '16px',
             position: 'relative'
           }}>
-            <button
-              onClick={() => setShowAdminPanel(false)}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '50%',
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                zIndex: 1001,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgba(239, 68, 68, 0.8)';
-                e.target.style.transform = 'scale(1.1)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                e.target.style.transform = 'scale(1)';
-              }}
-            >
-              ×
-            </button>
             <div style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-              <UserManagement />
+              <UserManagement onClose={() => setShowAdminPanel(false)} />
             </div>
           </div>
         </div>
