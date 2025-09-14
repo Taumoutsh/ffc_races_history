@@ -207,7 +207,12 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
         alignItems: 'center',
         marginBottom: 'clamp(0.5rem, 2vw, 1rem)',
         flexWrap: 'wrap',
-        gap: '10px'
+        gap: '10px',
+        // Center align items when wrapping on mobile
+        ...(window.innerWidth < 768 && {
+          justifyContent: 'center',
+          textAlign: 'center'
+        })
       }}>
         <h2 style={{
           fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', 
