@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from '../../contexts/LanguageContext';
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -8,8 +9,9 @@ function LoginForm() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -66,14 +68,14 @@ function LoginForm() {
             fontSize: '1.5rem',
             fontWeight: 'bold'
           }}>
-            🚴‍♂️ Cycling History App
+            🚴‍♂️ {t('auth.appTitle')}
           </h2>
           <p style={{
             color: 'rgba(255, 255, 255, 0.8)',
             margin: 0,
             fontSize: '0.9rem'
           }}>
-            Please sign in to continue
+            {t('auth.signInPrompt')}
           </p>
         </div>
 
@@ -85,7 +87,7 @@ function LoginForm() {
               marginBottom: '0.5rem',
               fontSize: '0.9rem'
             }}>
-              Username
+              {t('auth.username')}
             </label>
             <input
               type="text"
@@ -105,7 +107,7 @@ function LoginForm() {
                 outline: 'none',
                 boxSizing: 'border-box'
               }}
-              placeholder="Enter your username"
+              placeholder={t('auth.usernamePlaceholder')}
             />
           </div>
 
@@ -116,7 +118,7 @@ function LoginForm() {
               marginBottom: '0.5rem',
               fontSize: '0.9rem'
             }}>
-              Password
+              {t('auth.password')}
             </label>
             <input
               type="password"
@@ -136,7 +138,7 @@ function LoginForm() {
                 outline: 'none',
                 boxSizing: 'border-box'
               }}
-              placeholder="Enter your password"
+              placeholder={t('auth.passwordPlaceholder')}
             />
           </div>
 
@@ -185,7 +187,7 @@ function LoginForm() {
               }
             }}
           >
-            {loading ? '🔄 Signing in...' : '🔐 Sign In'}
+            {loading ? `🔄 ${t('auth.signingIn')}` : `🔐 ${t('auth.signIn')}`}
           </button>
         </form>
 
@@ -195,7 +197,7 @@ function LoginForm() {
           fontSize: '0.8rem',
           color: 'rgba(255, 255, 255, 0.6)'
         }}>
-          Secure authentication system
+          {t('auth.secureAuth')}
         </div>
       </div>
     </div>

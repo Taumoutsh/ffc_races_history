@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Race Cycling History App - Docker Deployment Script
+# Cycling History App - Docker Deployment Script
 # This script sets up the application with Docker
 
 set -e
 
-echo "🚀 Race Cycling History App - Docker Deployment"
+echo "🚀 Cycling History App - Docker Deployment"
 echo "============================================="
 
 # Configuration
@@ -117,7 +117,7 @@ fi
 if [ ! -f ".env" ]; then
     log_info "Creating environment file..."
     cat > .env << EOF
-# Race Cycling History App Configuration
+# Cycling History App Configuration
 FLASK_ENV=production
 DB_PATH=/app/data/cycling_data.db
 AUTH_DB_PATH=/app/data/auth.db

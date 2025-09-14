@@ -1,7 +1,7 @@
 export const translations = {
   en: {
     ui: {
-      headerTitle: '🚴 FFC races history',
+      headerTitle: '🚴 Cycling History App',
       headerSubtitle: 'Interactive cycling race performance tracking',
       searchPlaceholder: 'Search for a cyclist...',
       viewProfile: 'View leaderboard',
@@ -142,11 +142,22 @@ export const translations = {
       selectAll: 'Select all',
       deselectAll: 'Deselect all',
       totalYears: '{{count}} year(s) available'
+    },
+    auth: {
+      appTitle: 'Cycling History App',
+      signInPrompt: 'Please sign in to continue',
+      username: 'Username',
+      password: 'Password',
+      usernamePlaceholder: 'Enter your username',
+      passwordPlaceholder: 'Enter your password',
+      signIn: 'Sign In',
+      signingIn: 'Signing in...',
+      secureAuth: 'Secure authentication system'
     }
   },
   fr: {
     ui: {
-      headerTitle: '🚴 Historique des courses FFC',
+      headerTitle: '🚴 Historique Cyclisme App',
       headerSubtitle: 'Suivi interactif des performances de courses cyclistes',
       searchPlaceholder: 'Rechercher un cycliste...',
       viewProfile: 'Voir le classement',
@@ -287,6 +298,17 @@ export const translations = {
       selectAll: 'Tout sélectionner',
       deselectAll: 'Tout désélectionner',
       totalYears: '{{count}} année(s) disponible(s)'
+    },
+    auth: {
+      appTitle: 'Historique Cyclisme App',
+      signInPrompt: 'Veuillez vous connecter pour continuer',
+      username: 'Nom d\'utilisateur',
+      password: 'Mot de passe',
+      usernamePlaceholder: 'Entrez votre nom d\'utilisateur',
+      passwordPlaceholder: 'Entrez votre mot de passe',
+      signIn: 'Se connecter',
+      signingIn: 'Connexion...',
+      secureAuth: 'Système d\'authentification sécurisé'
     }
   }
 };

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Race Cycling History App - Region Scraper with Backup
+# Cycling History App - Region Scraper with Backup
 # This script creates a database backup and runs the optimized scraper for a specific region
 
 set -e
@@ -38,7 +38,7 @@ log_error() {
 
 # Usage function
 show_usage() {
-    echo "🕷️  Race Cycling History App - Region Scraper"
+    echo "🕷️  Cycling History App - Region Scraper"
     echo "============================================="
     echo ""
     echo "Usage: $0 <region>"
@@ -116,7 +116,7 @@ run_scraper() {
 
 # Main function
 main() {
-    echo "🕷️  Race Cycling History App - Region Scraper"
+    echo "🕷️  Cycling History App - Region Scraper"
     echo "============================================="
     echo ""
 
