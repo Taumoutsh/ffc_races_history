@@ -17,4 +17,8 @@ bcrypt>=4.2.0
 pytest>=7.0.0
 pytest-cov>=4.0.0
 
+# OpenSSL
+pyopenssl >= 24.3.0
+cryptography >= 45.0.7
+
 # Note: requests is already included as a dependency for the scraper

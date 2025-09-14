@@ -252,7 +252,7 @@ cat << 'HTTPS_CONFIG'
 
         # API endpoints
         location /api/ {
-            proxy_pass http://race-cycling-app:5000;
+            proxy_pass https://race-cycling-app:5000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -280,7 +280,7 @@ cat << 'HTTPS_CONFIG'
 
         # Health check endpoint
         location /health {
-            proxy_pass http://race-cycling-app:5000/api/health;
+            proxy_pass https://race-cycling-app:5000/api/health;
             access_log off;
         }
     }
