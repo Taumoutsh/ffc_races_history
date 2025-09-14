@@ -346,8 +346,128 @@ function App() {
 
   if (loading) {
     return (
-      <div style={styles.loading}>
-        <div style={{fontSize: '1.25rem'}}>{t('ui.loading')}</div>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        fontFamily: "'Inter', sans-serif"
+      }}>
+        {/* App Logo and Title */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '3rem',
+          animation: 'fadeInUp 0.8s ease-out'
+        }}>
+          <h1 style={{
+            color: 'white',
+            fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+            fontWeight: '800',
+            margin: '0 0 0.5rem 0',
+            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+            letterSpacing: '-0.025em'
+          }}>
+            {t('ui.headerTitle')}
+          </h1>
+          <p style={{
+            color: 'rgba(255,255,255,0.8)',
+            fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
+            margin: '0 auto',
+            maxWidth: '400px',
+            padding: '0 1rem'
+          }}>
+            {t('ui.headerSubtitle')}
+          </p>
+        </div>
+
+        {/* Loading Animation */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.5rem'
+        }}>
+          {/* Spinning Dots */}
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            alignItems: 'center'
+          }}>
+            {[0, 1, 2].map(i => (
+              <div
+                key={i}
+                style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.8)',
+                  animation: `bounce 1.4s ease-in-out infinite both`,
+                  animationDelay: `${i * 0.16}s`
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Loading Text */}
+          <div style={{
+            color: 'white',
+            fontSize: 'clamp(1rem, 2.5vw, 1.1rem)',
+            fontWeight: '500',
+            textAlign: 'center',
+            animation: 'pulse 2s ease-in-out infinite'
+          }}>
+            {t('ui.loading')}...
+          </div>
+        </div>
+
+        {/* CSS Animations */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes fadeInUp {
+              from {
+                opacity: 0;
+                transform: translateY(30px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+
+            @keyframes pulse {
+              0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+              }
+              50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+              }
+            }
+
+            @keyframes bounce {
+              0%, 80%, 100% {
+                transform: scale(0);
+              }
+              40% {
+                transform: scale(1);
+              }
+            }
+
+            @media (max-width: 768px) {
+              .cycling-emoji {
+                font-size: 3rem !important;
+              }
+            }
+          `
+        }} />
       </div>
     );
   }
