@@ -496,7 +496,7 @@ def main():
         print(f"Database connection failed: {e}")
         return
     
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    app.run(host='0.0.0.0', port=port, debug=debug, ssl_context='adhoc')
 
 
 if __name__ == '__main__':
