@@ -9,6 +9,7 @@ echo "🚀 Cycling History App - Docker Deployment"
 echo "============================================="
 
 # Configuration
+DOMAIN_NAME=$1
 PROJECT_DIR="projects"
 APP_NAME="race-cycling-app"
 APP_DIR="$HOME/$PROJECT_DIR/${APP_NAME}"
@@ -231,19 +232,19 @@ http {
         }
     }
 
-    # HTTPS server (uncomment and configure SSL certificates)
-    # server {
-    #     listen 443 ssl http2;
-    #     server_name your-domain.com;
-    #
-    #     ssl_certificate /etc/nginx/ssl/cert.pem;
-    #     ssl_certificate_key /etc/nginx/ssl/key.pem;
-    #     ssl_protocols TLSv1.2 TLSv1.3;
-    #     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
-    #     ssl_prefer_server_ciphers off;
-    #
-    #     # Same location blocks as HTTP server above
-    # }
+    HTTPS server (uncomment and configure SSL certificates)
+    server {
+        listen 443 ssl http2;
+        server_name ${DOMAIN_NAME};
+    
+        ssl_certificate /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
+        ssl_prefer_server_ciphers off;
+    
+        # Same location blocks as HTTP server above
+    }
 }
 EOF
 

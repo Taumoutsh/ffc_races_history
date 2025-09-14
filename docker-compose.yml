@@ -43,6 +43,8 @@ services:
     volumes:
       - ./ssl:/etc/nginx/ssl:ro
       - ./logs:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
     networks:
       - race-cycling-net
 
