@@ -63,17 +63,7 @@ else
     log_info "No running containers found"
 fi
 
-# Create application directories
-log_info "Creating application directories..."
-# Remove existing directories if they have wrong permissions
-if [ -d "${APP_DIR}" ] && ! [ -w "${DATA_DIR}" ] 2>/dev/null; then
-    log_warn "Removing directories with wrong permissions..."
-    sudo rm -rf "${APP_DIR}"
-fi
-
-mkdir -p "${APP_DIR}" "${DATA_DIR}" "${LOG_DIR}" "${SSL_DIR}"
-
-# Save current database before copying new application files
+# Save current database before creating/modifying directories
 if [ -d "${APP_DIR}" ]; then
     log_info "Backing up current database before deployment..."
     BACKUP_DIR="$HOME/database-backups"
@@ -99,6 +89,16 @@ if [ -d "${APP_DIR}" ]; then
 else
     log_info "No existing application directory found - fresh installation"
 fi
+
+# Create application directories
+log_info "Creating application directories..."
+# Remove existing directories if they have wrong permissions
+if [ -d "${APP_DIR}" ] && ! [ -w "${DATA_DIR}" ] 2>/dev/null; then
+    log_warn "Removing directories with wrong permissions..."
+    sudo rm -rf "${APP_DIR}"
+fi
+
+mkdir -p "${APP_DIR}" "${DATA_DIR}" "${LOG_DIR}" "${SSL_DIR}"
 
 # Copy application files
 log_info "Copying application files..."
