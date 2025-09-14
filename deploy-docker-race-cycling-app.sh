@@ -8,21 +8,6 @@ set -e
 echo "🚀 Cycling History App - Docker Deployment"
 echo "============================================="
 
-# Check if domain parameter is provided
-if [ -z "$1" ]; then
-    log_error "Domain name required!"
-    echo ""
-    echo "Usage: $0 <domain-name>"
-    echo "Example: $0 example.domain.com"
-    echo ""
-    echo "The script will:"
-    echo "  1. Look for SSL certificates at /etc/letsencrypt/live/<domain>/"
-    echo "  2. Copy them to the app's SSL directory"
-    echo "  3. Configure nginx with HTTPS (if certificates found) or HTTP only"
-    echo ""
-    exit 1
-fi
-
 # Configuration
 DOMAIN_NAME=$1
 PROJECT_DIR="projects"
@@ -50,6 +35,22 @@ log_warn() {
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
+
+
+# Check if domain parameter is provided
+if [ -z "$1" ]; then
+    log_error "Domain name required!"
+    echo ""
+    echo "Usage: $0 <domain-name>"
+    echo "Example: $0 example.domain.com"
+    echo ""
+    echo "The script will:"
+    echo "  1. Look for SSL certificates at /etc/letsencrypt/live/<domain>/"
+    echo "  2. Copy them to the app's SSL directory"
+    echo "  3. Configure nginx with HTTPS (if certificates found) or HTTP only"
+    echo ""
+    exit 1
+fi
 
 # Check if running as root
 if [[ $EUID -eq 0 ]]; then
@@ -167,13 +168,6 @@ AUTH_DB_PATH=/app/data/auth.db
 PORT=5000
 HOST=0.0.0.0
 
-# Security (change these in production)
-JWT_SECRET_KEY=$(openssl rand -hex 32)
-FLASK_SECRET_KEY=$(openssl rand -hex 32)
-
-# Optional: Database backup settings
-BACKUP_ENABLED=true
-BACKUP_RETENTION_DAYS=30
 EOF
 fi
 
@@ -185,7 +179,7 @@ if [ -n "$DOMAIN_NAME" ]; then
 
     # Check if Let's Encrypt certificates exist
     LETSENCRYPT_CERT_DIR="/etc/letsencrypt/live/${DOMAIN_NAME}"
-    if [ -d "$LETSENCRYPT_CERT_DIR" ]; then
+    if sudo [ -d "$LETSENCRYPT_CERT_DIR" ]; then
         log_info "Found Let's Encrypt certificates for $DOMAIN_NAME"
 
         # Copy certificates to SSL directory
@@ -230,9 +224,6 @@ http {
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
 
-    # Rate limiting
-    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-
 $(if [ "$SSL_ENABLED" = "true" ]; then
 cat << 'HTTPS_CONFIG'
     # HTTP redirect to HTTPS
@@ -261,7 +252,6 @@ cat << 'HTTPS_CONFIG'
 
         # API endpoints
         location /api/ {
-            limit_req zone=api burst=20 nodelay;
             proxy_pass http://race-cycling-app:5000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
