@@ -54,6 +54,15 @@ if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/
     exit 1
 fi
 
+# Stop all running containers before deployment
+log_info "Stopping all running Docker containers..."
+if [ "$(docker ps -q)" ]; then
+    docker stop $(docker ps -q) || log_warn "Some containers could not be stopped"
+    log_info "All containers stopped"
+else
+    log_info "No running containers found"
+fi
+
 # Create application directories
 log_info "Creating application directories..."
 # Remove existing directories if they have wrong permissions
