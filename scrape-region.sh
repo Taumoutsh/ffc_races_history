@@ -141,7 +141,7 @@ main() {
     # Check if app directory exists
     if [ ! -d "${APP_DIR}" ]; then
         log_error "Application directory not found: ${APP_DIR}"
-        log_error "Please run deploy-vps.sh first to set up the application"
+        log_error "Please run deploy-docker-race-cycling-app.sh first to set up the application"
         exit 1
     fi
 

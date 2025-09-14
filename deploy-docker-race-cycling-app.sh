@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Race Cycling History App - VPS Deployment Script
-# This script sets up the application on a VPS with Docker
+# Race Cycling History App - Docker Deployment Script
+# This script sets up the application with Docker
 
 set -e
 
-echo "🚀 Race Cycling History App - VPS Deployment"
+echo "🚀 Race Cycling History App - Docker Deployment"
 echo "============================================="
 
 # Configuration
