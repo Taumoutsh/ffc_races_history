@@ -73,6 +73,33 @@ fi
 
 mkdir -p "${APP_DIR}" "${DATA_DIR}" "${LOG_DIR}" "${SSL_DIR}"
 
+# Save current database before copying new application files
+if [ -d "${APP_DIR}" ]; then
+    log_info "Backing up current database before deployment..."
+    BACKUP_DIR="$HOME/database-backups"
+    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+
+    mkdir -p "${BACKUP_DIR}"
+
+    # Backup existing cycling data database
+    if [ -f "${DATA_DIR}/cycling_data.db" ]; then
+        cp "${DATA_DIR}/cycling_data.db" "${BACKUP_DIR}/cycling_data_pre_deploy_${TIMESTAMP}.db"
+        log_info "Current database backed up to: ${BACKUP_DIR}/cycling_data_pre_deploy_${TIMESTAMP}.db"
+    else
+        log_warn "No existing cycling database found to backup"
+    fi
+
+    # Backup existing auth database
+    if [ -f "${DATA_DIR}/auth.db" ]; then
+        cp "${DATA_DIR}/auth.db" "${BACKUP_DIR}/auth_pre_deploy_${TIMESTAMP}.db"
+        log_info "Current auth database backed up to: ${BACKUP_DIR}/auth_pre_deploy_${TIMESTAMP}.db"
+    else
+        log_warn "No existing auth database found to backup"
+    fi
+else
+    log_info "No existing application directory found - fresh installation"
+fi
+
 # Copy application files
 log_info "Copying application files..."
 if [ ! -f "docker-compose.yml" ]; then
@@ -303,6 +330,9 @@ if curl -f http://localhost/health >/dev/null 2>&1; then
     echo "📁 Application files: ${APP_DIR}"
     echo "📊 Database location: ${DATA_DIR}/cycling_data.db"
     echo "📝 Logs location: ${LOG_DIR}"
+    if [ -d "$HOME/database-backups" ] && [ "$(ls -A $HOME/database-backups 2>/dev/null)" ]; then
+        echo "🗄️  Database backups: $HOME/database-backups/"
+    fi
     echo ""
     echo "🔧 Useful commands:"
     echo "   - View logs: docker compose -f ${APP_DIR}/docker-compose.yml logs -f"
