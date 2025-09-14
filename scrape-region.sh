@@ -105,8 +105,9 @@ run_scraper() {
     # Change to app directory for docker compose
     cd "${APP_DIR}"
 
-    # Run the optimized scraper
-    if docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region "$region"; then
+    # Run the optimized scraper with database path
+    local db_path="/app/data/cycling_data.db"
+    if docker compose run --rm race-cycling-app python -m backend.scrapers.cycling_scraper_db_optimized --region "$region" --db-path "$db_path"; then
         log_info "✅ Scraping completed successfully for region: $region"
     else
         log_error "❌ Scraping failed for region: $region"
