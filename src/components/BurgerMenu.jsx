@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const BurgerMenu = ({ showAdminPanel, setShowAdminPanel }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout, isAdmin } = useAuth();
+  const { t } = useTranslation();
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -143,7 +145,7 @@ const BurgerMenu = ({ showAdminPanel, setShowAdminPanel }) => {
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-            ⚙️ Menu
+            ⚙️ {t('admin.menu') || 'Menu'}
           </h3>
         </div>
 
@@ -170,7 +172,7 @@ const BurgerMenu = ({ showAdminPanel, setShowAdminPanel }) => {
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
             }}>
-              👤 User Info
+              👤 {t('admin.userInfo') || 'User Info'}
             </h4>
             <div style={{
               fontSize: '1rem',
@@ -212,7 +214,7 @@ const BurgerMenu = ({ showAdminPanel, setShowAdminPanel }) => {
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
             }}>
-              🌍 Language
+              🌍 {t('ui.language') || 'Language'}
             </h4>
             <LanguageSwitcher />
           </div>
@@ -247,7 +249,7 @@ const BurgerMenu = ({ showAdminPanel, setShowAdminPanel }) => {
                 e.target.style.boxShadow = '0 4px 6px -1px rgba(139, 92, 246, 0.3)';
               }}
             >
-              ⚙️ {showAdminPanel ? 'Close Admin' : 'Admin Panel'}
+              ⚙️ {showAdminPanel ? (t('admin.closeAdmin') || 'Close Admin') : (t('admin.adminPanel') || 'Admin Panel')}
             </button>
           )}
 
@@ -280,7 +282,7 @@ const BurgerMenu = ({ showAdminPanel, setShowAdminPanel }) => {
               e.target.style.boxShadow = '0 4px 6px -1px rgba(239, 68, 68, 0.3)';
             }}
           >
-            🚪 Logout
+            🚪 {t('admin.logout') || 'Logout'}
           </button>
         </div>
       </div>

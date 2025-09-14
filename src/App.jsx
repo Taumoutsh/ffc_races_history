@@ -1283,40 +1283,8 @@ function App() {
             borderRadius: '16px',
             position: 'relative'
           }}>
-            <button
-              onClick={() => setShowAdminPanel(false)}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '50%',
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                zIndex: 1001,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgba(239, 68, 68, 0.8)';
-                e.target.style.transform = 'scale(1.1)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                e.target.style.transform = 'scale(1)';
-              }}
-            >
-              ×
-            </button>
             <div style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-              <UserManagement />
+              <UserManagement onClose={() => setShowAdminPanel(false)} />
             </div>
           </div>
         </div>
