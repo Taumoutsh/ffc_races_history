@@ -199,7 +199,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
   };
 
   return (
-    <div style={{width: '100%', height: window.innerWidth < 768 ? 'clamp(18rem, 45vh, 26rem)' : 'clamp(28rem, 60vh, 40rem)', padding: 'clamp(0.75rem, 3vw, 1.5rem)'}}>
+    <div style={{width: '100%', ...(window.innerWidth < 768 ? {minHeight: 'clamp(20rem, 40vh, 28rem)', maxHeight: 'clamp(30rem, 65vh, 38rem)', display: 'flex', flexDirection: 'column', overflow: 'hidden'} : {height: 'clamp(28rem, 60vh, 40rem)'}), padding: 'clamp(0.75rem, 3vw, 1.5rem)'}}>
       {/* Header with title and optional date filter */}
       <div style={{
         display: 'flex',
@@ -207,7 +207,12 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
         alignItems: 'center',
         marginBottom: 'clamp(0.5rem, 2vw, 1rem)',
         flexWrap: 'wrap',
-        gap: '10px'
+        gap: '10px',
+        // Center align items when wrapping on mobile
+        ...(window.innerWidth < 768 && {
+          justifyContent: 'center',
+          textAlign: 'center'
+        })
       }}>
         <h2 style={{
           fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', 
@@ -319,7 +324,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
         </div>
       )}
       
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}
+      <div style={{ position: 'relative', width: '100%', height: window.innerWidth < 768 ? 'clamp(19rem, 44vh, 27rem)' : '100%', flex: window.innerWidth < 768 ? '1 1 auto' : 'initial' }}
            onMouseEnter={() => {
              setShowLeftButton(canGoLeft);
              setShowRightButton(canGoRight);
