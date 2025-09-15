@@ -7,7 +7,7 @@
 **Purpose:** Interactive cycling race performance tracking and analysis  
 **Data Source:** SQLite database with REST API  
 **Default Cyclist:** John Doe (configurable dynamically via UI)  
-**Version:** 2.9.3 - Date Filter System & Enhanced UX
+**Version:** 2.9.4 - Admin Message System & Modern Forms
 
 ## 🚀 Core Features
 
@@ -64,7 +64,19 @@
 - **Responsive Design:** Aligned with existing UI elements (buttons, search inputs)
 - **Multilingual Support:** Proper singular/plural forms in English/French
 
-### 8. Multi-language Support
+### 8. 📢 **Admin Message System** (v2.9.4)
+- **Persistent Announcements:** Administrators can broadcast messages to all users
+- **Banner Display:** Messages appear as prominent banners at the top of the main page
+- **Message Types:** Support for Info (ℹ️), Success (✅), Warning (⚠️), and Error (❌) with color-coded styling
+- **Admin Management:** Create, edit, activate/deactivate, and delete messages through admin panel
+- **Modern UI:** Dark theme forms with glassmorphism effects and modern input styling
+- **No User Dismissal:** Messages stay visible until administrators remove them
+- **Multilingual:** Full English/French translation support including "Last updated" timestamps
+- **Visual Hierarchy:** Circular icon backgrounds with color-coded borders and gradients
+- **Responsive Design:** Mobile-optimized with proper touch targets and spacing
+- **Component:** `MessagePanel.jsx` with `UserManagement.jsx` admin interface
+
+### 9. Multi-language Support
 - English/French with React Context
 - Complete UI element coverage
 - Header toggle switcher
@@ -84,6 +96,11 @@ GET /api/races/{id}                # Race details
 GET /api/cyclists/search?q={}      # Search cyclists
 GET /api/cyclists/{id}             # Cyclist details
 POST /api/research/entry-list      # Entry list analysis
+GET /api/messages                  # Get active admin messages (public)
+GET /api/admin/messages            # Get all admin messages (admin only)
+POST /api/admin/messages           # Create admin message (admin only)
+PUT /api/admin/messages/{id}       # Update admin message (admin only)
+DELETE /api/admin/messages/{id}    # Delete admin message (admin only)
 ```
 
 ### Performance
@@ -116,7 +133,10 @@ src/
 │   ├── ComparisonView.jsx        # v2.7.0 - Upgraded v2.9.2 with table mode
 │   ├── DateFilter.jsx            # v2.9.3 - Universal year filtering component
 │   ├── RacesList.jsx             # v2.9.3 - Enhanced with date filtering
-│   └── RaceLeaderboardModal.jsx
+│   ├── MessagePanel.jsx          # v2.9.4 - Admin message system banner
+│   ├── RaceLeaderboardModal.jsx
+│   └── admin/
+│       └── UserManagement.jsx    # v2.9.4 - Enhanced with modern message forms
 ├── hooks/
 │   ├── useApiData.js             # Enhanced with scrapeRaceData function
 │   └── useYamlData.js
@@ -225,7 +245,21 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 
 ## 📈 Version History
 
-### v2.9.3 (Current) - Date Filter System & Enhanced UX
+### v2.9.4 (Current) - Admin Message System & Modern Forms
+- 📢 **Admin Message System:** Complete announcement system for broadcasting messages to all users
+- 🎨 **Banner Display:** Messages appear as prominent top-page banners with color-coded message types (Info, Success, Warning, Error)
+- 🔧 **Admin Management:** Full CRUD operations for messages through enhanced admin panel
+- 🌙 **Modern UI Design:** Dark theme forms with glassmorphism effects, modern inputs, and responsive styling
+- 📱 **Mobile Optimized:** Touch-friendly interface with proper spacing and responsive design
+- 🚫 **Persistent Messages:** No user dismissal - messages stay visible until administrators remove them
+- 🌐 **Multilingual Support:** Complete English/French translations including "Last updated" timestamps
+- ⚡ **Enhanced Forms:** Redesigned user creation and message forms with modern styling and side-by-side button layouts
+- 🎯 **Visual Hierarchy:** Circular icon backgrounds, color-coded borders, and gradient styling
+- 📅 **Updated Timestamps:** Messages display last modification date instead of creation date
+- 🔄 **API Integration:** New REST endpoints for message management (/api/messages, /api/admin/messages)
+- 🗂️ **New Components:** MessagePanel.jsx for public display, enhanced UserManagement.jsx for admin control
+
+### v2.9.3 - Date Filter System & Enhanced UX
 - 📅 **Universal Date Filter:** Year-based filtering system across all components (Performance Chart, Race List, Cyclist Profiles, Comparison Views)
 - 🎯 **Smart Defaults:** Current year (2025) pre-selected for immediate data visibility
 - 🔄 **Hide-All Capability:** When no years selected, all tables and charts hide data completely
@@ -310,6 +344,6 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 ---
 
 **Last Updated:** January 2025  
-**Current Version:** 2.9.3  
+**Current Version:** 2.9.4  
 **License:** MIT  
 **Repository:** https://github.com/Taumoutsh/ffc_races_history

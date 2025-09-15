@@ -6,6 +6,7 @@ import CyclistProfile from './components/CyclistProfile';
 import BurgerMenu from './components/BurgerMenu';
 import RacesList from './components/RacesList';
 import UserManagement from './components/admin/UserManagement';
+import MessagePanel from './components/MessagePanel';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
@@ -80,26 +81,6 @@ const styles = {
     border: '1px solid rgba(255, 255, 255, 0.2)',
     padding: 'clamp(1rem, 3vw, 2rem)',
     marginBottom: '1rem'
-  },
-  instructions: {
-    marginTop: 'clamp(1rem, 3vw, 1.5rem)',
-    padding: 'clamp(0.75rem, 3vw, 1.5rem)',
-    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
-    borderRadius: '1rem',
-    border: '1px solid rgba(59, 130, 246, 0.2)'
-  },
-  instructionsTitle: {
-    fontWeight: '700',
-    color: '#1e40af',
-    marginBottom: 'clamp(0.5rem, 2vw, 0.75rem)',
-    fontSize: 'clamp(1rem, 2.5vw, 1.125rem)'
-  },
-  instructionsList: {
-    color: '#1e40af',
-    fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
-    margin: 0,
-    paddingLeft: 'clamp(0.75rem, 2.5vw, 1rem)',
-    lineHeight: '1.5'
   },
   overviewCard: {
     marginTop: 'clamp(0.5rem, 2vw, 1rem)',
@@ -566,6 +547,15 @@ function App() {
           />
         </div>
       </header>
+
+      {/* Message Panel - Admin messages displayed as banner at top of page */}
+      <div style={{
+        maxWidth: '80rem',
+        margin: '0 auto',
+        padding: '0 1rem'
+      }}>
+        <MessagePanel />
+      </div>
 
       <main style={styles.main}>
         {/* Search Section */}
@@ -1045,68 +1035,12 @@ function App() {
               selectedYears={chartSelectedYears}
               onYearsChange={setChartSelectedYears}
             />
-            <div style={styles.instructions}>
-              <h3 style={styles.instructionsTitle}>{t('ui.howToUse')}</h3>
-              <ul style={styles.instructionsList}>
-                <li><strong>🚴‍♂️ {t('ui.sectionCyclistSearch')}:</strong>
-                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
-                    <li>🔍 {t('ui.instructionSearch')}</li>
-                    <li>👤 {t('ui.instructionCyclistProfiles')}</li>
-                    <li>⭐ {t('ui.instructionDefaultCyclist')}</li>
-                  </ul>
-                </li>
-                
-                <li><strong>📊 {t('ui.sectionPerformanceCharts')}:</strong>
-                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
-                    <li>📈 {t('ui.instructionPerformanceChart')}</li>
-                    <li>⏮️⏭️ {t('ui.instructionChartNavigation')}</li>
-                    <li>📊 {t('ui.instructionRaceDetails')}</li>
-                    <li>🔄 {t('ui.instructionViewModes')}</li>
-                  </ul>
-                </li>
-                
-                <li><strong>⚔️ {t('ui.sectionComparison')}:</strong>
-                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
-                    <li>⚔️ {t('ui.instructionComparison')}</li>
-                    <li>📅 {t('ui.instructionComparisonTable')}</li>
-                    <li>📊 {t('ui.instructionTopPercentage')}</li>
-                  </ul>
-                </li>
-                
-                <li><strong>🏁 {t('ui.sectionRaceManagement')}:</strong>
-                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
-                    <li>🏁 {t('ui.instructionRaceList')}</li>
-                    <li>👥 {t('ui.instructionLeaderboard')}</li>
-                    <li>📋 {t('ui.instructionSort')}</li>
-                  </ul>
-                </li>
-                
-                <li><strong>🔬 {t('ui.sectionFutureAnalysis')}:</strong>
-                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
-                    <li>🌐 {t('ui.instructionAutoAnalysis')}</li>
-                    <li>🗑️ {t('ui.instructionClearData')}</li>
-                    <li>📄 {t('ui.instructionPDFExport')}</li>
-                    <li>🔬 {t('ui.instructionResearch')}</li>
-                  </ul>
-                </li>
-                
-                <li><strong>🎨 {t('ui.sectionUserExperience')}:</strong>
-                  <ul style={{marginTop: '0.25rem', marginLeft: '1rem', fontSize: 'clamp(0.65rem, 1.8vw, 0.8rem)'}}>
-                    <li>🌍 {t('ui.instructionLanguage')}</li>
-                    <li>📱 {t('ui.instructionMobileOptimized')}</li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
           </div>
         ) : (
           <div style={styles.chartCard}>
             <h2 style={{fontSize: '1.25rem', fontWeight: '600', color: '#374151', textAlign: 'center'}}>
               {t('ui.noRaceData')} {getDefaultCyclistInfo().fullName}
             </h2>
-            <p style={{color: '#6b7280', marginTop: '0.5rem', textAlign: 'center'}}>
-              Please check the YAML data file
-            </p>
           </div>
         )}
 

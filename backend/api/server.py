@@ -184,15 +184,118 @@ def delete_user(user_id):
         # Prevent admin from deleting themselves
         if user_id == request.current_user['id']:
             return jsonify({'error': 'Cannot delete your own account'}), 400
-        
+
         success = auth_db.delete_user(user_id)
         if not success:
             return jsonify({'error': 'User not found'}), 404
-        
+
         return jsonify({'message': 'User deleted successfully'})
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# Admin Messages routes
+@app.route('/api/admin/messages', methods=['GET'])
+@require_auth
+@require_admin
+def get_all_admin_messages():
+    """Get all admin messages (admin only)"""
+    messages = auth_db.get_all_messages()
+    return jsonify(messages)
+
+
+@app.route('/api/admin/messages', methods=['POST'])
+@require_auth
+@require_admin
+def create_admin_message():
+    """Create new admin message (admin only)"""
+    try:
+        data = request.get_json()
+        title = data.get('title', '').strip()
+        content = data.get('content', '').strip()
+        message_type = data.get('message_type', 'info')
+
+        if not title or not content:
+            return jsonify({'error': 'Title and content are required'}), 400
+
+        if message_type not in ['info', 'warning', 'error', 'success']:
+            return jsonify({'error': 'Invalid message type'}), 400
+
+        message = auth_db.create_message(title, content, message_type, request.current_user['id'])
+        if not message:
+            return jsonify({'error': 'Failed to create message'}), 500
+
+        return jsonify(message), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/messages/<int:message_id>', methods=['PUT'])
+@require_auth
+@require_admin
+def update_admin_message(message_id):
+    """Update admin message (admin only)"""
+    try:
+        data = request.get_json()
+        title = data.get('title')
+        content = data.get('content')
+        message_type = data.get('message_type')
+        is_active = data.get('is_active')
+
+        if message_type is not None and message_type not in ['info', 'warning', 'error', 'success']:
+            return jsonify({'error': 'Invalid message type'}), 400
+
+        # Build update parameters
+        update_params = {}
+        if title is not None:
+            update_params['title'] = title.strip()
+        if content is not None:
+            update_params['content'] = content.strip()
+        if message_type is not None:
+            update_params['message_type'] = message_type
+        if is_active is not None:
+            update_params['is_active'] = is_active
+
+        if not update_params:
+            return jsonify({'error': 'No valid fields to update'}), 400
+
+        success = auth_db.update_message(message_id, **update_params)
+        if not success:
+            return jsonify({'error': 'Message not found'}), 404
+
+        # Return updated message
+        messages = auth_db.get_all_messages()
+        updated_message = next((m for m in messages if m['id'] == message_id), None)
+        return jsonify(updated_message)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/messages/<int:message_id>', methods=['DELETE'])
+@require_auth
+@require_admin
+def delete_admin_message(message_id):
+    """Delete admin message (admin only)"""
+    try:
+        success = auth_db.delete_message(message_id)
+        if not success:
+            return jsonify({'error': 'Message not found'}), 404
+
+        return jsonify({'message': 'Message deleted successfully'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/messages', methods=['GET'])
+@require_auth
+def get_active_messages():
+    """Get active admin messages for users"""
+    messages = auth_db.get_active_messages()
+    return jsonify(messages)
 
 
 @app.route('/api/health', methods=['GET'])
