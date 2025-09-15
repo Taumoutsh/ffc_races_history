@@ -6,6 +6,7 @@ import CyclistProfile from './components/CyclistProfile';
 import BurgerMenu from './components/BurgerMenu';
 import RacesList from './components/RacesList';
 import UserManagement from './components/admin/UserManagement';
+import MessagePanel from './components/MessagePanel';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
@@ -566,6 +567,15 @@ function App() {
           />
         </div>
       </header>
+
+      {/* Message Panel - Admin messages displayed as banner at top of page */}
+      <div style={{
+        maxWidth: '80rem',
+        margin: '0 auto',
+        padding: '0 1rem'
+      }}>
+        <MessagePanel />
+      </div>
 
       <main style={styles.main}>
         {/* Search Section */}

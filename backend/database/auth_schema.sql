@@ -40,9 +40,34 @@ BEGIN
     UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 END;
 
+-- Admin messages table for displaying announcements to users
+CREATE TABLE IF NOT EXISTS admin_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    message_type TEXT DEFAULT 'info' CHECK (message_type IN ('info', 'warning', 'error', 'success')),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_by INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- Index for active messages
+CREATE INDEX IF NOT EXISTS idx_messages_active ON admin_messages(is_active);
+CREATE INDEX IF NOT EXISTS idx_messages_created_by ON admin_messages(created_by);
+
+-- Trigger to update message timestamp on any update
+DROP TRIGGER IF EXISTS update_message_timestamp;
+CREATE TRIGGER update_message_timestamp
+AFTER UPDATE ON admin_messages
+BEGIN
+    UPDATE admin_messages SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
 -- View for active sessions with user information
 CREATE VIEW IF NOT EXISTS active_sessions AS
-SELECT 
+SELECT
     s.id as session_id,
     s.token_hash,
     s.expires_at,

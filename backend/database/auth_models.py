@@ -351,35 +351,170 @@ class AuthDatabase:
             print(f"Error cleaning up expired sessions: {e}")
             return 0
     
+    # Admin Messages Methods
+
+    def create_message(self, title: str, content: str, message_type: str, created_by: int) -> Optional[Dict]:
+        """Create a new admin message"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.execute(
+                    """INSERT INTO admin_messages (title, content, message_type, created_by)
+                       VALUES (?, ?, ?, ?) RETURNING *""",
+                    (title, content, message_type, created_by)
+                )
+
+                message_row = cursor.fetchone()
+                if message_row:
+                    conn.commit()
+                    return {
+                        'id': message_row['id'],
+                        'title': message_row['title'],
+                        'content': message_row['content'],
+                        'message_type': message_row['message_type'],
+                        'is_active': bool(message_row['is_active']),
+                        'created_by': message_row['created_by'],
+                        'created_at': message_row['created_at'],
+                        'updated_at': message_row['updated_at']
+                    }
+
+        except Exception as e:
+            print(f"Error creating message: {e}")
+            return None
+
+    def get_active_messages(self) -> List[Dict]:
+        """Get all active admin messages"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.execute(
+                    """SELECT m.*, u.username as created_by_username
+                       FROM admin_messages m
+                       LEFT JOIN users u ON m.created_by = u.id
+                       WHERE m.is_active = 1
+                       ORDER BY m.created_at DESC"""
+                )
+                messages = []
+                for row in cursor.fetchall():
+                    messages.append({
+                        'id': row['id'],
+                        'title': row['title'],
+                        'content': row['content'],
+                        'message_type': row['message_type'],
+                        'is_active': bool(row['is_active']),
+                        'created_by': row['created_by'],
+                        'created_by_username': row['created_by_username'],
+                        'created_at': row['created_at'],
+                        'updated_at': row['updated_at']
+                    })
+                return messages
+        except Exception as e:
+            print(f"Error getting active messages: {e}")
+            return []
+
+    def get_all_messages(self) -> List[Dict]:
+        """Get all admin messages (admin only)"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.execute(
+                    """SELECT m.*, u.username as created_by_username
+                       FROM admin_messages m
+                       LEFT JOIN users u ON m.created_by = u.id
+                       ORDER BY m.created_at DESC"""
+                )
+                messages = []
+                for row in cursor.fetchall():
+                    messages.append({
+                        'id': row['id'],
+                        'title': row['title'],
+                        'content': row['content'],
+                        'message_type': row['message_type'],
+                        'is_active': bool(row['is_active']),
+                        'created_by': row['created_by'],
+                        'created_by_username': row['created_by_username'],
+                        'created_at': row['created_at'],
+                        'updated_at': row['updated_at']
+                    })
+                return messages
+        except Exception as e:
+            print(f"Error getting all messages: {e}")
+            return []
+
+    def update_message(self, message_id: int, **kwargs) -> bool:
+        """Update message fields"""
+        try:
+            valid_fields = ['title', 'content', 'message_type', 'is_active']
+            updates = []
+            values = []
+
+            for field, value in kwargs.items():
+                if field in valid_fields:
+                    updates.append(f"{field} = ?")
+                    values.append(value)
+
+            if not updates:
+                return False
+
+            values.append(message_id)
+
+            with self.get_connection() as conn:
+                conn.execute(
+                    f"UPDATE admin_messages SET {', '.join(updates)} WHERE id = ?",
+                    values
+                )
+                conn.commit()
+                return conn.total_changes > 0
+
+        except Exception as e:
+            print(f"Error updating message: {e}")
+            return False
+
+    def delete_message(self, message_id: int) -> bool:
+        """Delete admin message"""
+        try:
+            with self.get_connection() as conn:
+                conn.execute("DELETE FROM admin_messages WHERE id = ?", (message_id,))
+                conn.commit()
+                return conn.total_changes > 0
+
+        except Exception as e:
+            print(f"Error deleting message: {e}")
+            return False
+
     # Database Health and Stats
-    
+
     def get_auth_stats(self) -> Dict:
         """Get authentication database statistics"""
         try:
             with self.get_connection() as conn:
                 stats = {}
-                
+
                 # User statistics
                 cursor = conn.execute("SELECT COUNT(*) as total FROM users")
                 stats['total_users'] = cursor.fetchone()['total']
-                
+
                 cursor = conn.execute("SELECT COUNT(*) as active FROM users WHERE is_active = 1")
                 stats['active_users'] = cursor.fetchone()['active']
-                
+
                 cursor = conn.execute("SELECT COUNT(*) as admins FROM users WHERE is_admin = 1")
                 stats['admin_users'] = cursor.fetchone()['admins']
-                
+
                 # Session statistics
                 cursor = conn.execute("SELECT COUNT(*) as total FROM user_sessions")
                 stats['total_sessions'] = cursor.fetchone()['total']
-                
+
                 cursor = conn.execute(
                     "SELECT COUNT(*) as active FROM user_sessions WHERE expires_at > datetime('now')"
                 )
                 stats['active_sessions'] = cursor.fetchone()['active']
-                
+
+                # Message statistics
+                cursor = conn.execute("SELECT COUNT(*) as total FROM admin_messages")
+                stats['total_messages'] = cursor.fetchone()['total']
+
+                cursor = conn.execute("SELECT COUNT(*) as active FROM admin_messages WHERE is_active = 1")
+                stats['active_messages'] = cursor.fetchone()['active']
+
                 return stats
-                
+
         except Exception as e:
             print(f"Error getting auth stats: {e}")
             return {}
