@@ -240,14 +240,34 @@ cat << 'HTTPS_CONFIG'
         add_header X-XSS-Protection "1; mode=block";
         add_header Referrer-Policy "strict-origin-when-cross-origin";
 
-        # ALL API endpoints - localhost/internal only
+        # ALL API endpoints - internal access only (same-origin from frontend allowed)
         location /api/ {
-            # Restrict to local/internal access only
-            allow 127.0.0.1;
-            allow ::1;
-            allow 172.16.0.0/12;  # Docker networks
-            allow 10.0.0.0/8;     # Private networks
-            deny all;
+            # Block direct external API access, but allow same-origin requests
+            # This allows frontend to access API while blocking direct API calls
+
+            # Check if request is from the same domain (Referer-based protection)
+            set $allowed 0;
+
+            # Allow localhost/internal networks
+            if ($remote_addr ~ "^(127\.0\.0\.1|::1|172\.(1[6-9]|2[0-9]|3[01])\.|10\.)") {
+                set $allowed 1;
+            }
+
+            # Allow same-origin requests (from frontend)
+            if ($http_referer ~ "^https?://(www\.)?cyclisme\.tomarea\.fr") {
+                set $allowed 1;
+            }
+
+            # Allow requests without referer from localhost
+            if ($http_referer = "") {
+                if ($remote_addr ~ "^(127\.0\.0\.1|::1)") {
+                    set $allowed 1;
+                }
+            }
+
+            if ($allowed = 0) {
+                return 403;
+            }
 
             # Apply rate limiting
             limit_req zone=api burst=20 nodelay;
@@ -327,14 +347,34 @@ cat << 'HTTPS_CONFIG'
         add_header X-XSS-Protection "1; mode=block";
         add_header Referrer-Policy "strict-origin-when-cross-origin";
 
-        # ALL API endpoints - localhost/internal only
+        # ALL API endpoints - internal access only (same-origin from frontend allowed)
         location /api/ {
-            # Restrict to local/internal access only
-            allow 127.0.0.1;
-            allow ::1;
-            allow 172.16.0.0/12;  # Docker networks
-            allow 10.0.0.0/8;     # Private networks
-            deny all;
+            # Block direct external API access, but allow same-origin requests
+            # This allows frontend to access API while blocking direct API calls
+
+            # Check if request is from the same domain (Referer-based protection)
+            set $allowed 0;
+
+            # Allow localhost/internal networks
+            if ($remote_addr ~ "^(127\.0\.0\.1|::1|172\.(1[6-9]|2[0-9]|3[01])\.|10\.)") {
+                set $allowed 1;
+            }
+
+            # Allow same-origin requests (from frontend)
+            if ($http_referer ~ "^https?://(www\.)?cyclisme\.tomarea\.fr") {
+                set $allowed 1;
+            }
+
+            # Allow requests without referer from localhost
+            if ($http_referer = "") {
+                if ($remote_addr ~ "^(127\.0\.0\.1|::1)") {
+                    set $allowed 1;
+                }
+            }
+
+            if ($allowed = 0) {
+                return 403;
+            }
 
             # Apply rate limiting
             limit_req zone=api burst=20 nodelay;
@@ -403,14 +443,34 @@ cat << 'HTTP_CONFIG'
         add_header X-XSS-Protection "1; mode=block";
         add_header Referrer-Policy "strict-origin-when-cross-origin";
 
-        # ALL API endpoints - localhost/internal only
+        # ALL API endpoints - internal access only (same-origin from frontend allowed)
         location /api/ {
-            # Restrict to local/internal access only
-            allow 127.0.0.1;
-            allow ::1;
-            allow 172.16.0.0/12;  # Docker networks
-            allow 10.0.0.0/8;     # Private networks
-            deny all;
+            # Block direct external API access, but allow same-origin requests
+            # This allows frontend to access API while blocking direct API calls
+
+            # Check if request is from the same domain (Referer-based protection)
+            set $allowed 0;
+
+            # Allow localhost/internal networks
+            if ($remote_addr ~ "^(127\.0\.0\.1|::1|172\.(1[6-9]|2[0-9]|3[01])\.|10\.)") {
+                set $allowed 1;
+            }
+
+            # Allow same-origin requests (from frontend)
+            if ($http_referer ~ "^https?://(www\.)?cyclisme\.tomarea\.fr") {
+                set $allowed 1;
+            }
+
+            # Allow requests without referer from localhost
+            if ($http_referer = "") {
+                if ($remote_addr ~ "^(127\.0\.0\.1|::1)") {
+                    set $allowed 1;
+                }
+            }
+
+            if ($allowed = 0) {
+                return 403;
+            }
 
             # Apply rate limiting
             limit_req zone=api burst=20 nodelay;
