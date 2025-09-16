@@ -208,7 +208,7 @@ class CyclingDatabase:
             
             return stats
     
-    def export_yaml_format(self) -> Dict:
+    def get_races_data(self) -> Dict:
         """Export data in original YAML format for compatibility"""
         with self.get_connection() as conn:
             # Get scraping info

@@ -468,7 +468,7 @@ class OptimizedCyclingDatabase:
     # EXPORT AND COMPATIBILITY
     # =============================================================================
     
-    def export_yaml_format(self) -> Dict[str, Any]:
+    def get_races_data(self) -> Dict[str, Any]:
         """
         Export data in original YAML format for compatibility
         

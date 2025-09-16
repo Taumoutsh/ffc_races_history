@@ -15,7 +15,7 @@ export const useApiData = (dynamicDefaultCyclist) => {
     const loadData = async () => {
       try {
         // Load data in YAML-compatible format for easier migration
-        const response = await axios.get('/export/yaml');
+        const response = await axios.get('/races/data');
         const jsonData = response.data;
         setData(jsonData);
       } catch (err) {

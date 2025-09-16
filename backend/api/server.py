@@ -388,12 +388,12 @@ def get_database_stats():
     return jsonify(stats)
 
 
-@app.route('/api/export/yaml', methods=['GET'])
+@app.route('/api/races/data', methods=['GET'])
 @require_auth
-def export_yaml_format():
+def get_races_data():
     """Export data in original YAML format for compatibility"""
     try:
-        data = db.export_yaml_format()
+        data = db.get_races_data()
         return jsonify(data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
