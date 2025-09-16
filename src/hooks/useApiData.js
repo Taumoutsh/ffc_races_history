@@ -336,6 +336,7 @@ export const useApiData = (dynamicDefaultCyclist) => {
           id: racer.db_uci_id || racer.uci_id,
           firstName: racer.first_name,
           lastName: racer.last_name,
+          category: racer.category,
           region: racer.region,
           team: racer.team || racer.club || 'N/A',
           bestPosition: racer.best_position,

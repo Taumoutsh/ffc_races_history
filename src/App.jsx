@@ -7,10 +7,12 @@ import BurgerMenu from './components/BurgerMenu';
 import RacesList from './components/RacesList';
 import UserManagement from './components/admin/UserManagement';
 import MessagePanel from './components/MessagePanel';
+import DateFilter from './components/DateFilter';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
 import { downloadResearchPDF } from './utils/pdfGenerator.js';
+import { filterDataByYears, getPercentageColor, parseFrenchDate } from './utils/dateUtils.js';
 import axios from 'axios';
 
 const styles = {
@@ -70,7 +72,8 @@ const styles = {
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: 'clamp(1rem, 3vw, 2rem)'
+    padding: 'clamp(1rem, 3vw, 2rem)',
+    overflow: 'visible'
   },
   searchCard: {
     background: 'rgba(255, 255, 255, 0.95)',
@@ -157,6 +160,9 @@ function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [researchInput, setResearchInput] = useState('');
   const [researchResults, setResearchResults] = useState([]);
+  const [filteredResearchResults, setFilteredResearchResults] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [availableCategories, setAvailableCategories] = useState([]);
   const [showResearchSection, setShowResearchSection] = useState(false);
   const [organizerClub, setOrganizerClub] = useState('');
   const [showRacesPanel, setShowRacesPanel] = useState(false);
@@ -166,6 +172,9 @@ function App() {
   const [isScrapingInProgress, setIsScrapingInProgress] = useState(false);
   const [racesSelectedYears, setRacesSelectedYears] = useState([]);
   const [chartSelectedYears, setChartSelectedYears] = useState([]);
+  const [historySelectedYears, setHistorySelectedYears] = useState([]);
+  const [historySortField, setHistorySortField] = useState('date');
+  const [historySortDirection, setHistorySortDirection] = useState('desc');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   // Handle window resize for responsive layout
@@ -173,10 +182,38 @@ function App() {
     const handleResize = () => {
       setIsLargeScreen(window.innerWidth >= 768);
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Update available categories and filter results when research results change
+  useEffect(() => {
+    if (researchResults.length > 0) {
+      // Extract unique categories from research results
+      const categories = [...new Set(researchResults.map(racer => racer.category).filter(Boolean))].sort();
+      setAvailableCategories(categories);
+
+      // If no categories are selected, select all by default
+      if (selectedCategories.length === 0) {
+        setSelectedCategories(categories);
+      }
+    } else {
+      setAvailableCategories([]);
+      setSelectedCategories([]);
+    }
+  }, [researchResults]);
+
+  // Filter research results based on selected categories
+  useEffect(() => {
+    if (selectedCategories.length === 0) {
+      // When no categories are selected, show empty list
+      setFilteredResearchResults([]);
+    } else {
+      const filtered = researchResults.filter(racer => selectedCategories.includes(racer.category));
+      setFilteredResearchResults(filtered);
+    }
+  }, [researchResults, selectedCategories]);
 
   // Get responsive grid columns for research results
   const getResearchGridColumns = () => {
@@ -215,6 +252,22 @@ function App() {
     }
   };
 
+  // Sort handler for race history table
+  const handleHistorySort = (field) => {
+    if (historySortField === field) {
+      setHistorySortDirection(historySortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setHistorySortField(field);
+      setHistorySortDirection('asc');
+    }
+  };
+
+  // Sort icon component for race history table
+  const HistorySortIcon = ({ field }) => {
+    if (historySortField !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
+    return historySortDirection === 'asc' ? <span style={{color: '#2563eb'}}>↑</span> : <span style={{color: '#2563eb'}}>↓</span>;
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -247,19 +300,40 @@ function App() {
     updateDefaultCyclist(newDefaultCyclist);
   };
 
+  // Handle category filter toggle
+  const handleCategoryToggle = (category) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(category)) {
+        return prev.filter(c => c !== category);
+      } else {
+        return [...prev, category];
+      }
+    });
+  };
+
+  // Handle select all categories
+  const handleSelectAllCategories = () => {
+    setSelectedCategories(availableCategories);
+  };
+
+  // Handle deselect all categories
+  const handleDeselectAllCategories = () => {
+    setSelectedCategories([]);
+  };
+
   const handleUrlScrape = async (e) => {
     e.preventDefault();
     if (!raceUrl.trim()) return;
-    
+
     setIsScrapingInProgress(true);
     try {
       const scraped = await scrapeRaceData(raceUrl.trim());
       setScrapedRaceData(scraped);
-      
+
       // Auto-populate the form fields with scraped data and automatically process results
       setResearchInput(scraped.entryList);
       setOrganizerClub(scraped.organizerClub);
-      
+
       // Automatically process the research results
       const results = await researchRacers(scraped.entryList, scraped.organizerClub);
       setResearchResults(results);
@@ -887,7 +961,7 @@ function App() {
                     justifyContent: 'space-between',
                     alignItems: 'center'
                   }}>
-                    <span>✅ {t('ui.foundRacers')} ({researchResults.length})</span>
+                    <span>✅ {t('ui.foundRacers')} ({filteredResearchResults.length}/{researchResults.length})</span>
                     <button
                       onClick={handleExportPDF}
                       style={{
@@ -919,7 +993,89 @@ function App() {
                       {window.innerWidth < 768 ? '📄' : `📄 ${t('pdf.exportPDF') || 'Export PDF'}`}
                     </button>
                   </div>
-                  
+
+                  {/* Category Filter */}
+                  {availableCategories.length > 0 && (
+                    <div style={{
+                      padding: '1rem',
+                      borderBottom: '1px solid rgba(34, 197, 94, 0.2)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        marginBottom: '0.5rem',
+                        flexWrap: 'wrap'
+                      }}>
+                        <span style={{
+                          fontWeight: '600',
+                          color: '#059669',
+                          fontSize: '0.9rem'
+                        }}>
+                          🏷️ {t('ui.filterByCategory') || 'Filter by Category'}:
+                        </span>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={handleSelectAllCategories}
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              fontSize: '0.75rem',
+                              backgroundColor: selectedCategories.length === availableCategories.length ? '#10b981' : 'rgba(16, 185, 129, 0.2)',
+                              color: selectedCategories.length === availableCategories.length ? 'white' : '#059669',
+                              border: '1px solid #10b981',
+                              borderRadius: '0.25rem',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            {t('ui.selectAll') || 'All'}
+                          </button>
+                          <button
+                            onClick={handleDeselectAllCategories}
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              fontSize: '0.75rem',
+                              backgroundColor: selectedCategories.length === 0 ? '#ef4444' : 'rgba(239, 68, 68, 0.2)',
+                              color: selectedCategories.length === 0 ? 'white' : '#dc2626',
+                              border: '1px solid #ef4444',
+                              borderRadius: '0.25rem',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            {t('ui.selectNone') || 'None'}
+                          </button>
+                        </div>
+                      </div>
+                      <div style={{
+                        display: 'flex',
+                        gap: '0.5rem',
+                        flexWrap: 'wrap'
+                      }}>
+                        {availableCategories.map(category => (
+                          <button
+                            key={category}
+                            onClick={() => handleCategoryToggle(category)}
+                            style={{
+                              padding: '0.25rem 0.75rem',
+                              fontSize: '0.8rem',
+                              backgroundColor: selectedCategories.includes(category) ? '#3b82f6' : 'rgba(59, 130, 246, 0.1)',
+                              color: selectedCategories.includes(category) ? 'white' : '#3b82f6',
+                              border: '1px solid #3b82f6',
+                              borderRadius: '1rem',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              fontWeight: selectedCategories.includes(category) ? '600' : '500'
+                            }}
+                          >
+                            {category}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Table Header */}
                   <div style={{
                     display: 'grid',
@@ -941,7 +1097,7 @@ function App() {
                   </div>
                   
                   <div style={{maxHeight: '400px', overflowY: 'auto'}}>
-                    {researchResults.map((racer, index) => {
+                    {filteredResearchResults.map((racer, index) => {
                       const isDefault = isDefaultCyclistById(racer.id, racer.formattedName);
                       const isOrganizer = organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
                       
@@ -951,7 +1107,7 @@ function App() {
                         onClick={() => handleResearchRacerClick(racer)}
                         style={{
                           padding: 'clamp(0.25rem, 1vw, 0.5rem)',
-                          borderBottom: index < researchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
+                          borderBottom: index < filteredResearchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
                           cursor: 'pointer',
                           backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' : 
                                           isOrganizer ? 'rgba(255, 193, 7, 0.1)' : 
@@ -1025,16 +1181,298 @@ function App() {
 
         {defaultCyclistRaces.length > 0 ? (
           <div key={`chart-container-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${defaultCyclistRaces.length}`} style={styles.chartCard}>
-            <PerformanceChart 
-              key={`chart-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${Date.now()}`}
-              data={defaultCyclistRaces} 
-              onPointClick={handleChartPointClick}
-              cyclistName={getDefaultCyclistInfo().fullName}
-              cyclistInfo={getDefaultCyclistInfo()}
-              raceParticipantCounts={raceParticipantCounts}
-              selectedYears={chartSelectedYears}
-              onYearsChange={setChartSelectedYears}
-            />
+            <div style={{ overflow: 'hidden', position: 'relative' }}>
+              <PerformanceChart
+                key={`chart-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${Date.now()}`}
+                data={defaultCyclistRaces}
+                onPointClick={handleChartPointClick}
+                cyclistName={getDefaultCyclistInfo().fullName}
+                cyclistInfo={getDefaultCyclistInfo()}
+                raceParticipantCounts={raceParticipantCounts}
+                selectedYears={chartSelectedYears}
+                onYearsChange={setChartSelectedYears}
+              />
+            </div>
+
+            {/* Race History Table */}
+            <div style={{ marginTop: '2rem' }}>
+              <div style={{marginBottom: '1.5rem'}}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '0.75rem',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}>
+                  <h4 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', color: '#1f2937', margin: 0}}>📊 {t('ui.raceHistory')} - {getDefaultCyclistInfo().fullName}</h4>
+                  <DateFilter
+                    data={defaultCyclistRaces}
+                    selectedYears={historySelectedYears}
+                    onYearsChange={setHistorySelectedYears}
+                  />
+                </div>
+              </div>
+
+              <div style={{
+                borderRadius: '1rem',
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  overflow: 'hidden',
+                  WebkitOverflowScrolling: 'touch'
+                }}>
+                  <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                    <thead>
+                      <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
+                        <th
+                          style={{
+                            border: 'none',
+                            borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                            padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontWeight: '700',
+                            color: '#1f2937',
+                            transition: 'background-color 0.2s ease',
+                            userSelect: 'none',
+                            fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                            width: '30%'
+                          }}
+                          onClick={() => handleHistorySort('date')}
+                        >
+                          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                            📅 {t('table.date')}
+                            <HistorySortIcon field="date" />
+                          </div>
+                        </th>
+                        <th
+                          style={{
+                            border: 'none',
+                            borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                            padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontWeight: '700',
+                            color: '#1f2937',
+                            transition: 'background-color 0.2s ease',
+                            userSelect: 'none',
+                            fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                            width: window.innerWidth < 768 ? '43%' : '40%'
+                          }}
+                          onClick={() => handleHistorySort('race')}
+                        >
+                          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                            📍 {t('table.race')}
+                            <HistorySortIcon field="race" />
+                          </div>
+                        </th>
+                        <th
+                          style={{
+                            border: 'none',
+                            borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                            padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontWeight: '700',
+                            color: '#1f2937',
+                            transition: 'background-color 0.2s ease',
+                            userSelect: 'none',
+                            fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                            width: window.innerWidth < 768 ? '12%' : '15%'
+                          }}
+                          onClick={() => handleHistorySort('position')}
+                        >
+                          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                            🏆 {t('table.position')}
+                            <HistorySortIcon field="position" />
+                          </div>
+                        </th>
+                        <th
+                          style={{
+                            border: 'none',
+                            borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                            padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontWeight: '700',
+                            color: '#1f2937',
+                            transition: 'background-color 0.2s ease',
+                            userSelect: 'none',
+                            fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                            width: '15%'
+                          }}
+                          onClick={() => handleHistorySort('percentage')}
+                        >
+                          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                            📊 {t('table.topPercentage')}
+                            <HistorySortIcon field="percentage" />
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                {(() => {
+                  const filteredRaces = filterDataByYears(defaultCyclistRaces, historySelectedYears);
+
+                  // Apply sorting based on current sort field and direction
+                  const sortedRaces = [...filteredRaces].sort((a, b) => {
+                    let aVal, bVal;
+
+                    switch (historySortField) {
+                      case 'date':
+                        aVal = parseFrenchDate(a.date);
+                        bVal = parseFrenchDate(b.date);
+                        break;
+                      case 'race':
+                        const aRaceData = getRaceById(a.raceId);
+                        const bRaceData = getRaceById(b.raceId);
+                        aVal = (aRaceData?.name || 'Unknown Race').toLowerCase();
+                        bVal = (bRaceData?.name || 'Unknown Race').toLowerCase();
+                        break;
+                      case 'position':
+                        aVal = a.position;
+                        bVal = b.position;
+                        break;
+                      case 'percentage': {
+                        const aRaceData = getRaceById(a.raceId);
+                        const bRaceData = getRaceById(b.raceId);
+                        const aTotalParticipants = raceParticipantCounts[a.raceId] || aRaceData?.participant_count || 0;
+                        const bTotalParticipants = raceParticipantCounts[b.raceId] || bRaceData?.participant_count || 0;
+                        aVal = aTotalParticipants > 0 ? Math.round((a.position / aTotalParticipants) * 100) : 0;
+                        bVal = bTotalParticipants > 0 ? Math.round((b.position / bTotalParticipants) * 100) : 0;
+                        break;
+                      }
+                      default:
+                        return 0;
+                    }
+
+                    if (aVal < bVal) return historySortDirection === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return historySortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                  });
+
+                  return sortedRaces.map((race, index) => {
+                    const raceData = getRaceById(race.raceId);
+                    const totalParticipants = raceParticipantCounts[race.raceId] || raceData?.participant_count || 0;
+                    const topPercentage = totalParticipants > 0 ? Math.round((race.position / totalParticipants) * 100) : '-';
+
+                    // Calculate background color based on Top %
+                    const getTopPercentageColor = (percentage) => {
+                      if (percentage === '-') return 'transparent';
+                      const pct = parseFloat(percentage);
+                      if (pct <= 10) return '#dcfce7'; // Light green
+                      if (pct <= 25) return '#fef3c7'; // Light yellow
+                      if (pct <= 50) return '#fed7aa'; // Light orange
+                      return '#fecaca'; // Light red
+                    };
+
+                    return (
+                      <tr
+                        key={`${race.raceId}-${index}`}
+                        onClick={() => handleChartPointClick(race)}
+                        style={{
+                          backgroundColor: index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)',
+                          transition: 'all 0.2s ease',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => {
+                          const row = e.currentTarget;
+                          row.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                          row.style.transform = 'translateX(4px)';
+                          row.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          const row = e.currentTarget;
+                          row.style.backgroundColor = index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)';
+                          row.style.transform = 'translateX(0)';
+                          row.style.boxShadow = 'none';
+                        }}
+                      >
+                        <td style={{
+                          border: 'none',
+                          padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                          fontWeight: '600',
+                          color: '#64748b',
+                          fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
+                          wordBreak: 'break-word'
+                        }}>
+                          {race.date}
+                        </td>
+
+                        <td style={{
+                          border: 'none',
+                          padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                          fontWeight: '500',
+                          color: '#374151',
+                          fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
+                          wordBreak: 'break-word',
+                          maxWidth: '0',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {raceData?.name || 'Unknown Race'}
+                        </td>
+
+                        <td style={{
+                          border: 'none',
+                          padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                          fontWeight: '800',
+                          color: '#3b82f6',
+                          fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                          textAlign: 'center'
+                        }}>
+                          #{race.position}
+                        </td>
+
+                        <td style={{
+                          border: 'none',
+                          padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                          fontWeight: '700',
+                          color: '#059669',
+                          fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
+                          textAlign: 'center'
+                        }}>
+                          {(() => {
+                            if (topPercentage !== '-') {
+                              return (
+                                <span style={{
+                                  background: getPercentageColor(topPercentage),
+                                  color: 'white',
+                                  padding: '0.25rem 0.5rem',
+                                  borderRadius: '0.375rem',
+                                  fontSize: '0.875rem',
+                                  fontWeight: '600',
+                                  width: '3rem',
+                                  display: 'inline-block',
+                                  textAlign: 'center'
+                                }}>
+                                  {topPercentage}%
+                                </span>
+                              );
+                            }
+                            return (
+                              <span style={{
+                                color: '#9ca3af',
+                                fontSize: '0.875rem',
+                                fontStyle: 'italic'
+                              }}>
+                                -
+                              </span>
+                            );
+                          })()}
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div style={styles.chartCard}>

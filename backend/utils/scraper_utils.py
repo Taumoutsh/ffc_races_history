@@ -81,6 +81,44 @@ def is_header_entry(first_name: str, last_name: str) -> bool:
             last_lower in HEADER_KEYWORDS)
 
 
+def convert_abbreviated_months_to_french(date_text: str) -> str:
+    """
+    Convert abbreviated French month names to full French month names
+
+    Args:
+        date_text: Date text that may contain abbreviated French months (e.g. "Sep")
+
+    Returns:
+        Date text with French full month names (e.g. "septembre")
+    """
+    french_abbreviated_to_full = {
+        'jan': 'janvier',
+        'fév': 'février',
+        'fev': 'février',  # Handle without accent
+        'mar': 'mars',
+        'avr': 'avril',
+        'mai': 'mai',
+        'jun': 'juin',
+        'jui': 'juillet',
+        'jul': 'juillet',  # Alternative abbreviation
+        'aoû': 'août',
+        'aou': 'août',     # Handle without accent
+        'sep': 'septembre',
+        'oct': 'octobre',
+        'nov': 'novembre',
+        'déc': 'décembre',
+        'dec': 'décembre'  # Handle without accent
+    }
+
+    # Convert the date text
+    converted_text = date_text
+    for fr_abbrev, fr_full in french_abbreviated_to_full.items():
+        # Case-insensitive replacement
+        converted_text = re.sub(r'\b' + re.escape(fr_abbrev) + r'\b', fr_full, converted_text, flags=re.IGNORECASE)
+
+    return converted_text
+
+
 def extract_race_date(soup: BeautifulSoup) -> str:
     """
     Extract race date from HTML soup using header-race__date div only
@@ -97,21 +135,25 @@ def extract_race_date(soup: BeautifulSoup) -> str:
     if date_elem:
         date_text = date_elem.get_text().strip()
         logger.debug(f"Found date element: {date_text}")
-        
+
+        # Convert abbreviated English months to French if present
+        date_text = convert_abbreviated_months_to_french(date_text)
+        logger.debug(f"Date after month conversion: {date_text}")
+
         # Try French date patterns first
         for pattern in FRENCH_DATE_PATTERNS:
             match = re.search(pattern, date_text, re.IGNORECASE)
             if match:
                 logger.debug(f"Found French date: {match.group(1)}")
                 return match.group(1)
-        
+
         # Try generic date patterns
         for pattern in GENERIC_DATE_PATTERNS:
             match = re.search(pattern, date_text)
             if match:
                 logger.debug(f"Found date: {match.group(1)}")
                 return match.group(1)
-        
+
         # If no pattern matches, return the raw text as fallback
         if date_text:
             logger.debug(f"Using raw date text: {date_text}")
@@ -124,29 +166,35 @@ def extract_race_date(soup: BeautifulSoup) -> str:
 def generate_race_id(race_name: str, race_date: str, race_url: str) -> str:
     """
     Generate a unique race ID based on URL, name, and date
-    
+
     Args:
         race_name: Name of the race
-        race_date: Date of the race  
+        race_date: Date of the race
         race_url: URL of the race page
-        
+
     Returns:
         Unique race ID string
     """
     # Extract unique identifier from URL (preferred method)
-    url_path = urlparse(race_url).path
-    
+    parsed_url = urlparse(race_url)
+    url_path = parsed_url.path
+
     if url_path and '/resultats/' in url_path:
         # Extract race ID from URL (e.g., /resultats/race-name-slug)
         path_parts = url_path.strip('/').split('/')
         if len(path_parts) >= 2:
             url_id = path_parts[-1]  # Last part of URL
+
+            # Include fragment (hash) if present for multi-stage races
+            if parsed_url.fragment:
+                url_id = f"{url_id}_{parsed_url.fragment}"
+
             race_id = f"{RACE_ID_PREFIX}{url_id}"
             logger.debug(f"Generated URL-based race ID: {race_id}")
             return race_id
-    
-    # Fallback: hash name and date
-    content = f"{race_name}_{race_date}".encode('utf-8')
+
+    # Fallback: hash name and date (include URL for uniqueness)
+    content = f"{race_name}_{race_date}_{race_url}".encode('utf-8')
     hash_short = hashlib.md5(content).hexdigest()[:RACE_ID_HASH_LENGTH]
     race_id = f"{RACE_ID_PREFIX}{hash_short}"
     logger.debug(f"Generated hash-based race ID: {race_id}")

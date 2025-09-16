@@ -27,7 +27,7 @@ const LanguageSwitcher = () => {
         color: 'black',
         transition: 'all 0.3s ease'
       }}>
-        {isMobile ? '🇫🇷' : '🇫🇷 FR'}
+        Français
       </span>
       
       <div
@@ -62,7 +62,7 @@ const LanguageSwitcher = () => {
         color: 'black',
         transition: 'all 0.3s ease'
       }}>
-        {isMobile ? '🇬🇧' : '🇬🇧 EN'}
+        English
       </span>
     </div>
   );

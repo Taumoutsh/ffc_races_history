@@ -191,14 +191,6 @@ function LoginForm() {
           </button>
         </form>
 
-        <div style={{
-          textAlign: 'center',
-          marginTop: '1.5rem',
-          fontSize: '0.8rem',
-          color: 'rgba(255, 255, 255, 0.6)'
-        }}>
-          {t('auth.secureAuth')}
-        </div>
       </div>
     </div>
   );
