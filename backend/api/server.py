@@ -599,7 +599,8 @@ def main():
         print(f"Database connection failed: {e}")
         return
     
-    app.run(host='0.0.0.0', port=port, debug=debug, ssl_context='adhoc')
+    # Remove SSL context for Docker deployment - nginx handles SSL termination
+    app.run(host='0.0.0.0', port=port, debug=debug)
 
 
 if __name__ == '__main__':
