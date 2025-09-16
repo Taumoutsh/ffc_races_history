@@ -1,19 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Configure axios base URL
+// Configure axios base URL - use relative URLs for nginx proxy
 const getApiBaseUrl = () => {
+  // Check for explicit API URL override
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  
+
+  // For development, check if we're on localhost and use direct API port
   const currentHost = window.location.hostname;
-  
-  if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
-    return `http://${currentHost}:3001/api`;
+  if ((currentHost === 'localhost' || currentHost === '127.0.0.1') && import.meta.env.DEV) {
+    return 'http://localhost:5000/api';
   }
-  
-  return 'http://localhost:3001/api';
+
+  // For production/docker, use relative URL (nginx will proxy)
+  return '/api';
 };
 
 axios.defaults.baseURL = getApiBaseUrl();

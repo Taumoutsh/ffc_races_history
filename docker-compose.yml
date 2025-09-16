@@ -6,8 +6,9 @@ services:
       dockerfile: Dockerfile
     container_name: race-cycling-app
     restart: unless-stopped
-    ports:
-      - "5000:5000"
+    # Internal port only - no public exposure
+    expose:
+      - "5000"
     volumes:
       # Mount database directory for external scraping access
       - ./data:/app/data

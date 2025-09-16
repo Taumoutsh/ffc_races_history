@@ -224,6 +224,9 @@ http {
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
 
+    # Rate limiting for API endpoints
+    limit_req_zone \$binary_remote_addr zone=api:10m rate=10r/s;
+
 $(if [ "$SSL_ENABLED" = "true" ]; then
 cat << 'HTTPS_CONFIG'
     # HTTP redirect to HTTPS
@@ -252,15 +255,35 @@ cat << 'HTTPS_CONFIG'
 
         # API endpoints
         location /api/ {
-            proxy_pass https://race-cycling-app:5000;
+            # Apply rate limiting
+            limit_req zone=api burst=20 nodelay;
+
+            # Proxy to internal Flask service
+            proxy_pass http://race-cycling-app:5000/api/;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header Content-Type $content_type;
+
+            # Timeouts
             proxy_connect_timeout 30s;
             proxy_send_timeout 30s;
             proxy_read_timeout 30s;
+
+            # CORS headers (if needed)
+            add_header Access-Control-Allow-Origin * always;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization" always;
+
+            # Handle preflight requests
+            if ($request_method = 'OPTIONS') {
+                add_header Access-Control-Allow-Origin * always;
+                add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+                add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization" always;
+                add_header Content-Length 0;
+                add_header Content-Type text/plain;
+                return 204;
+            }
         }
 
         # Static assets (JS, CSS, images, etc.)
@@ -280,8 +303,9 @@ cat << 'HTTPS_CONFIG'
 
         # Health check endpoint
         location /health {
-            proxy_pass https://race-cycling-app:5000/api/health;
             access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
         }
     }
 HTTPS_CONFIG
@@ -300,16 +324,35 @@ cat << 'HTTP_CONFIG'
 
         # API endpoints
         location /api/ {
+            # Apply rate limiting
             limit_req zone=api burst=20 nodelay;
-            proxy_pass http://race-cycling-app:5000;
+
+            # Proxy to internal Flask service
+            proxy_pass http://race-cycling-app:5000/api/;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header Content-Type $content_type;
+
+            # Timeouts
             proxy_connect_timeout 30s;
             proxy_send_timeout 30s;
             proxy_read_timeout 30s;
+
+            # CORS headers (if needed)
+            add_header Access-Control-Allow-Origin * always;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization" always;
+
+            # Handle preflight requests
+            if ($request_method = 'OPTIONS') {
+                add_header Access-Control-Allow-Origin * always;
+                add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+                add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization" always;
+                add_header Content-Length 0;
+                add_header Content-Type text/plain;
+                return 204;
+            }
         }
 
         # Static assets (JS, CSS, images, etc.)
@@ -329,8 +372,9 @@ cat << 'HTTP_CONFIG'
 
         # Health check endpoint
         location /health {
-            proxy_pass http://race-cycling-app:5000/api/health;
             access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
         }
     }
 HTTP_CONFIG
