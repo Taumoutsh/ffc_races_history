@@ -149,10 +149,10 @@ class OptimizedCyclingScraperDB:
     def scrape_race_details(self, race_url: str) -> bool:
         """
         Scrape individual race details and save to database
-        
+
         Args:
             race_url: URL of the race page to scrape
-            
+
         Returns:
             True if race was successfully scraped, False otherwise
         """
@@ -161,82 +161,133 @@ class OptimizedCyclingScraperDB:
             self.logger.debug(f"Already processed in session: {race_url}")
             self.stats['skipped_races'] += 1
             return False
-        
+
         self.logger.debug(f"Scraping race: {race_url}")
-        
+
         # Fetch page content
         response = get_page_with_retry(self.session, race_url)
         if not response:
             self.logger.error(f"Failed to fetch race page: {race_url}")
             self.stats['errors'] += 1
             return False
-        
+
         try:
             soup = BeautifulSoup(response.content, 'html.parser')
-            
+
             # Extract race information
             race_title = soup.find('h1')
-            race_name = race_title.get_text().strip() if race_title else ""
+            base_race_name = race_title.get_text().strip() if race_title else ""
             race_date = extract_race_date(soup)
-            
+
             # Use fallback metadata from card if race page data is missing
             if race_url in self.card_metadata:
                 card_data = self.card_metadata[race_url]
-                
+
                 # Use card name if page name is missing or generic
-                if not race_name or race_name == "Unknown Race":
+                if not base_race_name or base_race_name == "Unknown Race":
                     if card_data.get('name'):
-                        race_name = card_data['name']
-                        self.logger.info(f"Using card fallback name: {race_name}")
-                
+                        base_race_name = card_data['name']
+                        self.logger.info(f"Using card fallback name: {base_race_name}")
+
                 # Use card date if page date is missing or default
                 if race_date == DEFAULT_DATE:
                     if card_data.get('date'):
                         race_date = card_data['date']
                         self.logger.info(f"Using card fallback date: {race_date}")
-            
+
             # Final fallback for race name
-            if not race_name:
-                race_name = "Unknown Race"
+            if not base_race_name:
+                base_race_name = "Unknown Race"
 
             if race_date != DEFAULT_DATE:
-                # Generate race ID
-                race_id = generate_race_id(race_name, race_date, race_url)
-                
-                # Check if race already exists in database
-                if self.db.race_exists(race_id):
-                    self.logger.debug(f"Race already exists: {race_name} ({race_date})")
-                    self.stats['skipped_races'] += 1
+                # Check for multi-stage races with etapes
+                etape_stages = self._find_etape_stages(soup)
+
+                if etape_stages:
+                    # Process each etape as a separate race
+                    self.logger.info(f"Found {len(etape_stages)} etapes for race: {base_race_name}")
+                    races_processed = 0
+
+                    for i, etape_info in enumerate(etape_stages):
+                        try:
+                            self.logger.info(f"Starting etape {i+1}/{len(etape_stages)}: {etape_info['etape_name']}")
+                            etape_name = f"{base_race_name} - {etape_info['etape_name']}"
+                            race_id = generate_race_id(etape_name, race_date, race_url + f"#{etape_info['payload']}")
+
+                            self.logger.debug(f"Processing etape: {etape_name} with race_id: {race_id}")
+
+                            # Check if this etape already exists
+                            if self.db.race_exists(race_id):
+                                self.logger.info(f"Etape already exists, skipping: {etape_name}")
+                                continue
+
+                            # Find results table for this etape
+                            self.logger.debug(f"Looking for results table with payload: {etape_info['payload']}")
+                            results_table = self._find_etape_results_table(soup, etape_info['payload'])
+                            if not results_table:
+                                self.logger.warning(f"No results table found for etape: {etape_info['etape_name']}")
+                                continue
+
+                            self.logger.debug(f"Found results table for etape: {etape_info['etape_name']}")
+
+                            # Add etape race to database
+                            self.db.add_or_update_race(race_id, race_date, etape_name)
+                            self.stats['new_races'] += 1
+                            self.logger.debug(f"Added etape race to database: {etape_name}")
+
+                            # Process participants for this etape
+                            participants_added = self._process_race_participants(results_table, race_id)
+
+                            self.logger.info(f"Etape processed successfully: {etape_name} with {participants_added} participants")
+                            races_processed += 1
+                        except Exception as e:
+                            self.logger.error(f"Error processing etape {i+1} ({etape_info['etape_name']}): {str(e)}")
+                            self.stats['errors'] += 1
+                            import traceback
+                            self.logger.debug(f"Traceback: {traceback.format_exc()}")
+                            continue  # Continue with next etape instead of failing entirely
+
                     self.processed_urls.add(race_url)
-                    return False
-                
-                # Find results table
-                results_table = find_results_table(soup, RESULTS_TABLE_SELECTORS)
-                if not results_table:
-                    self.logger.warning(f"No results table found: {race_url}")
-                    self.stats['errors'] += 1
-                    return False
-                
-                # Add race to database
-                self.db.add_or_update_race(race_id, race_date, race_name)
-                self.stats['new_races'] += 1
-                
-                # Process participants
-                participants_added = self._process_race_participants(
-                    results_table, race_id
-                )
-                
-                self.logger.info(
-                    SUCCESS_MESSAGES['race_scraped'].format(
-                        count=participants_added, race_id=race_id
+                    return races_processed > 0
+
+                else:
+                    # Standard single race processing
+                    race_id = generate_race_id(base_race_name, race_date, race_url)
+
+                    # Check if race already exists in database
+                    if self.db.race_exists(race_id):
+                        self.logger.debug(f"Race already exists: {base_race_name} ({race_date})")
+                        self.stats['skipped_races'] += 1
+                        self.processed_urls.add(race_url)
+                        return False
+
+                    # Find results table
+                    results_table = find_results_table(soup, RESULTS_TABLE_SELECTORS)
+                    if not results_table:
+                        self.logger.warning(f"No results table found: {race_url}")
+                        self.stats['errors'] += 1
+                        return False
+
+                    # Add race to database
+                    self.db.add_or_update_race(race_id, race_date, base_race_name)
+                    self.stats['new_races'] += 1
+
+                    # Process participants
+                    participants_added = self._process_race_participants(
+                        results_table, race_id
                     )
-                )
-                
-                self.processed_urls.add(race_url)
-                return True
+
+                    self.logger.info(
+                        SUCCESS_MESSAGES['race_scraped'].format(
+                            count=participants_added, race_id=race_id
+                        )
+                    )
+
+                    self.processed_urls.add(race_url)
+                    return True
             else:
                 return False
-            
+
         except Exception as e:
             self.logger.error(f"Error processing race {race_url}: {e}")
             self.stats['errors'] += 1
@@ -289,7 +340,124 @@ class OptimizedCyclingScraperDB:
                 continue
         
         return participants_added
-    
+
+    def _find_etape_stages(self, soup) -> List[Dict[str, str]]:
+        """
+        Find etape stages in multi-stage races
+
+        Args:
+            soup: BeautifulSoup object of the race page
+
+        Returns:
+            List of dictionaries with etape information
+        """
+        etape_stages = []
+
+        # First try: Look for <li> elements with select2-results__option class (original approach)
+        li_elements = soup.find_all('li', class_='select2-results__option')
+
+        for li in li_elements:
+            # Get the text content to check for etape
+            li_text = li.get_text().strip()
+
+            # Check if this li contains "Etape", "etape", or "Étape"
+            if any(etape_word in li_text for etape_word in ['Etape', 'etape', 'Étape']):
+                # Extract payload from id attribute
+                li_id = li.get('id', '')
+
+                # Parse id like "select2-resultCategory-result-29be-ranking1" to extract "ranking1"
+                if li_id and '-' in li_id:
+                    payload = li_id.split('-')[-1]  # Get last part after final dash
+
+                    if payload:
+                        etape_stages.append({
+                            'etape_name': li_text,
+                            'payload': payload
+                        })
+                        self.logger.debug(f"Found etape (li method): {li_text} with payload: {payload}")
+
+        # Second try: Look for <select> elements with <option> children (new approach)
+        if not etape_stages:
+            select_elements = soup.find_all('select')
+
+            for select in select_elements:
+                options = select.find_all('option')
+
+                for option in options:
+                    option_text = option.get_text().strip()
+                    option_value = option.get('value', '')
+
+                    # Check if this option contains "Etape", "etape", or "Étape"
+                    if any(etape_word in option_text for etape_word in ['Etape', 'etape', 'Étape']):
+                        if option_value:
+                            etape_stages.append({
+                                'etape_name': option_text,
+                                'payload': option_value
+                            })
+                            self.logger.debug(f"Found etape (select method): {option_text} with payload: {option_value}")
+
+        return etape_stages
+
+    def _find_etape_results_table(self, soup, payload: str):
+        """
+        Find the results table for a specific etape payload
+
+        Args:
+            soup: BeautifulSoup object of the race page
+            payload: The payload identifier (e.g., "ranking1")
+
+        Returns:
+            BeautifulSoup table element or None
+        """
+        # Look for a div with id or class containing the payload
+        target_div = None
+
+        # Try to find div with id containing payload
+        target_div = soup.find('div', id=payload)
+
+        # If not found by id, try to find by class or data attributes
+        if not target_div:
+            target_div = soup.find('div', class_=payload)
+
+        # If still not found, try data attributes or other selectors
+        if not target_div:
+            target_div = soup.find('div', attrs={'data-category': payload})
+
+        # If still not found, search for divs containing the payload in any attribute
+        if not target_div:
+            for div in soup.find_all('div'):
+                div_attrs = div.attrs
+                for attr_name, attr_value in div_attrs.items():
+                    if isinstance(attr_value, str) and payload in attr_value:
+                        target_div = div
+                        break
+                    elif isinstance(attr_value, list) and any(payload in val for val in attr_value):
+                        target_div = div
+                        break
+                if target_div:
+                    break
+
+        if target_div:
+            self.logger.debug(f"Found target div for payload: {payload}")
+
+            # Look for results table within this div using existing selectors
+            from backend.config.constants import RESULTS_TABLE_SELECTORS
+
+            for selector in RESULTS_TABLE_SELECTORS:
+                table = target_div.select_one(selector)
+                if table:
+                    self.logger.debug(f"Found results table with selector: {selector}")
+                    return table
+
+            # If no table found with standard selectors, try generic table search
+            table = target_div.find('table')
+            if table:
+                self.logger.debug("Found results table with generic table selector")
+                return table
+
+        self.logger.warning(f"No results table found for payload: {payload}")
+        return None
+
     def discover_all_races(self) -> List[str]:
         """
         Discover all race URLs by paginating through the results
@@ -425,7 +593,7 @@ def main():
         
         # Validate region
         if region not in AVAILABLE_REGIONS:
-            print(f"❌ Invalid region: {region}")
+            print(f"Invalid region: {region}")
             print(f"Available regions: {', '.join(AVAILABLE_REGIONS.keys())}")
             sys.exit(1)
     else:

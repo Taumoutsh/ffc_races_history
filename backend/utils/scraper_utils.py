@@ -124,29 +124,35 @@ def extract_race_date(soup: BeautifulSoup) -> str:
 def generate_race_id(race_name: str, race_date: str, race_url: str) -> str:
     """
     Generate a unique race ID based on URL, name, and date
-    
+
     Args:
         race_name: Name of the race
-        race_date: Date of the race  
+        race_date: Date of the race
         race_url: URL of the race page
-        
+
     Returns:
         Unique race ID string
     """
     # Extract unique identifier from URL (preferred method)
-    url_path = urlparse(race_url).path
-    
+    parsed_url = urlparse(race_url)
+    url_path = parsed_url.path
+
     if url_path and '/resultats/' in url_path:
         # Extract race ID from URL (e.g., /resultats/race-name-slug)
         path_parts = url_path.strip('/').split('/')
         if len(path_parts) >= 2:
             url_id = path_parts[-1]  # Last part of URL
+
+            # Include fragment (hash) if present for multi-stage races
+            if parsed_url.fragment:
+                url_id = f"{url_id}_{parsed_url.fragment}"
+
             race_id = f"{RACE_ID_PREFIX}{url_id}"
             logger.debug(f"Generated URL-based race ID: {race_id}")
             return race_id
-    
-    # Fallback: hash name and date
-    content = f"{race_name}_{race_date}".encode('utf-8')
+
+    # Fallback: hash name and date (include URL for uniqueness)
+    content = f"{race_name}_{race_date}_{race_url}".encode('utf-8')
     hash_short = hashlib.md5(content).hexdigest()[:RACE_ID_HASH_LENGTH]
     race_id = f"{RACE_ID_PREFIX}{hash_short}"
     logger.debug(f"Generated hash-based race ID: {race_id}")
