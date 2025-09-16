@@ -1,7 +1,7 @@
 export const translations = {
   en: {
     ui: {
-      headerTitle: '🚴 Cycling History App',
+      headerTitle: '🚴 Cyclisme Tomarea',
       headerSubtitle: 'Interactive cycling race performance tracking',
       searchPlaceholder: 'Search for a cyclist...',
       viewProfile: 'View leaderboard',
@@ -35,6 +35,9 @@ export const translations = {
       researchButton: 'Research racers',
       foundRacers: 'Found racers',
       noRacersFound: 'No racers found in database',
+      filterByCategory: 'Filter by Category',
+      selectAll: 'All',
+      selectNone: 'None',
       bestPosition: 'Best position',
       organizerClub: 'Organizer club (optional)',
       organizerClubHint: 'Cyclists from this club will be highlighted in the results',
@@ -121,7 +124,7 @@ export const translations = {
       totalYears: '{{count}} year(s) available'
     },
     auth: {
-      appTitle: 'Cycling History App',
+      appTitle: 'Cyclisme Tomarea',
       signInPrompt: 'Please sign in to continue',
       username: 'Username',
       password: 'Password',
@@ -129,7 +132,6 @@ export const translations = {
       passwordPlaceholder: 'Enter your password',
       signIn: 'Sign In',
       signingIn: 'Signing in...',
-      secureAuth: 'Secure authentication system'
     },
     admin: {
       menu: 'Menu',
@@ -201,7 +203,7 @@ export const translations = {
   },
   fr: {
     ui: {
-      headerTitle: '🚴 Historique Cyclisme App',
+      headerTitle: '🚴 Cyclisme Tomarea',
       headerSubtitle: 'Suivi interactif des performances de courses cyclistes',
       searchPlaceholder: 'Rechercher un cycliste...',
       viewProfile: 'Voir le classement',
@@ -235,6 +237,9 @@ export const translations = {
       researchButton: 'Rechercher les coureurs',
       foundRacers: 'Coureurs trouvés',
       noRacersFound: 'Aucun coureur trouvé dans la base de données',
+      filterByCategory: 'Filtrer par Catégorie',
+      selectAll: 'Tout',
+      selectNone: 'Aucun',
       bestPosition: 'Meilleure position',
       organizerClub: 'Club organisateur (optionnel)',
       organizerClubHint: 'Les cyclistes de ce club seront mis en évidence dans les résultats',
@@ -321,7 +326,7 @@ export const translations = {
       totalYears: '{{count}} année(s) disponible(s)'
     },
     auth: {
-      appTitle: 'Historique Cyclisme App',
+      appTitle: 'Cyclisme Tomarea',
       signInPrompt: 'Veuillez vous connecter pour continuer',
       username: 'Nom d\'utilisateur',
       password: 'Mot de passe',
@@ -329,7 +334,6 @@ export const translations = {
       passwordPlaceholder: 'Entrez votre mot de passe',
       signIn: 'Se connecter',
       signingIn: 'Connexion...',
-      secureAuth: 'Système d\'authentification sécurisé'
     },
     admin: {
       menu: 'Menu',

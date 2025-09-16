@@ -333,7 +333,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
              setShowLeftButton(false);
              setShowRightButton(false);
            }}>
-        
+
         {/* Left navigation button */}
         {canGoLeft && (
           <button

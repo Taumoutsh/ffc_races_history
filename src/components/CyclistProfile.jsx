@@ -9,7 +9,7 @@ import { parseFrenchDate, getPercentageColor, calculatePercentagePosition, filte
 const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, api }) => {
   const { t } = useTranslation();
   const [sortField, setSortField] = useState('date');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortDirection, setSortDirection] = useState('desc');
   const [showChart, setShowChart] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [raceParticipantCounts, setRaceParticipantCounts] = useState({});
@@ -445,9 +445,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
             <div>
               <div style={{marginBottom: '1.5rem'}}>
                 <h4 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', marginBottom: '0.75rem', color: '#1f2937'}}>📊 {t('ui.raceHistory')}</h4>
-                <p style={{fontSize: window.innerWidth < 768 ? '0.75rem' : '1rem', color: '#64748b', marginBottom: '0.75rem', fontWeight: '600'}}>
-                  👆 {t('ui.clickHeadersToSort')} • 🖱️ {t('ui.clickRacesToViewLeaderboard')}
-                </p>
               </div>
 
               {filteredHistory.length > 0 ? (
