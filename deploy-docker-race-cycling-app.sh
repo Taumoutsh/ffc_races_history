@@ -240,8 +240,15 @@ cat << 'HTTPS_CONFIG'
         add_header X-XSS-Protection "1; mode=block";
         add_header Referrer-Policy "strict-origin-when-cross-origin";
 
-        # API endpoints
+        # ALL API endpoints - localhost/internal only
         location /api/ {
+            # Restrict to local/internal access only
+            allow 127.0.0.1;
+            allow ::1;
+            allow 172.16.0.0/12;  # Docker networks
+            allow 10.0.0.0/8;     # Private networks
+            deny all;
+
             # Apply rate limiting
             limit_req zone=api burst=20 nodelay;
 
@@ -320,8 +327,15 @@ cat << 'HTTPS_CONFIG'
         add_header X-XSS-Protection "1; mode=block";
         add_header Referrer-Policy "strict-origin-when-cross-origin";
 
-        # API endpoints
+        # ALL API endpoints - localhost/internal only
         location /api/ {
+            # Restrict to local/internal access only
+            allow 127.0.0.1;
+            allow ::1;
+            allow 172.16.0.0/12;  # Docker networks
+            allow 10.0.0.0/8;     # Private networks
+            deny all;
+
             # Apply rate limiting
             limit_req zone=api burst=20 nodelay;
 
@@ -389,8 +403,15 @@ cat << 'HTTP_CONFIG'
         add_header X-XSS-Protection "1; mode=block";
         add_header Referrer-Policy "strict-origin-when-cross-origin";
 
-        # API endpoints
+        # ALL API endpoints - localhost/internal only
         location /api/ {
+            # Restrict to local/internal access only
+            allow 127.0.0.1;
+            allow ::1;
+            allow 172.16.0.0/12;  # Docker networks
+            allow 10.0.0.0/8;     # Private networks
+            deny all;
+
             # Apply rate limiting
             limit_req zone=api burst=20 nodelay;
 
