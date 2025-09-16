@@ -31,12 +31,12 @@ fi
 chmod +x "$SCRIPT_PATH"
 
 # Crontab entry: Every Thursday at 3:00 AM
-CRON_ENTRY="0 3 * * 4 $SCRIPT_PATH >> $HOME/$PROJECT_DIR/${APP_NAME}/logs/cron.log 2>&1"
+CRON_ENTRY="0 3 * * 4 $SCRIPT_PATH >> $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log 2>&1"
 
 echo -e "${YELLOW}Setting up crontab entry...${NC}"
 echo "Schedule: Every Thursday at 3:00 AM"
 echo "Script: $SCRIPT_PATH"
-echo "Log file: $HOME/$PROJECT_DIR/${APP_NAME}/logs/cron.log"
+echo "Log file: $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log"
 echo ""
 
 # Check if crontab entry already exists
@@ -69,13 +69,13 @@ echo -e "${GREEN}🎯 Summary:${NC}"
 echo "• Weekly data scraping will run every Thursday at 3:00 AM"
 echo "• All 4 regions will be processed: pays-de-la-loire, bretagne, nouvelle-aquitaine, centre-val-de-loire"
 echo "• Database backup will be created before each scraping session"
-echo "• Logs will be saved to: $HOME/$PROJECT_DIR/${APP_NAME}/logs/"
+echo "• Logs will be saved to: $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/"
 echo ""
 echo -e "${YELLOW}📌 Useful commands:${NC}"
 echo "• View crontab: crontab -l"
 echo "• Edit crontab: crontab -e"
 echo "• Remove crontab entry: crontab -l | grep -v '$SCRIPT_PATH' | crontab -"
-echo "• View logs: tail -f $HOME/$PROJECT_DIR/${APP_NAME}/logs/weekly-scrape.log"
+echo "• View logs: tail -f $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/weekly-scrape.log"
 echo "• Test script manually: $SCRIPT_PATH"
 echo ""
 echo -e "${GREEN}Setup complete! 🎉${NC}"

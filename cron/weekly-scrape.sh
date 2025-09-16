@@ -10,7 +10,7 @@ set -e
 PROJECT_DIR="projects"
 APP_NAME="race-cycling-app"
 APP_DIR="$HOME/$PROJECT_DIR/${APP_NAME}"
-LOG_FILE="$HOME/$PROJECT_DIR/${APP_NAME}/logs/weekly-scrape.log"
+LOG_FILE="$HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/weekly-scrape.log"
 SCRAPE_SCRIPT="$HOME/$PROJECT_DIR/${APP_NAME}/scrape-region.sh"
 
 # Available regions
