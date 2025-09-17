@@ -72,7 +72,7 @@ class OptimizedCyclingScraperDB:
         # Track processed URLs to avoid duplicates
         self.processed_urls: Set[str] = set()
         
-        # Track card metadata for fallback
+        # Track card metadata as primary data source
         self.card_metadata: Dict[str, Dict[str, str]] = {}
     
     def scrape_race_list_page(self, page_num: int) -> List[str]:
@@ -99,34 +99,46 @@ class OptimizedCyclingScraperDB:
         soup = BeautifulSoup(response.content, 'html.parser')
         race_links = []
         
-        # Find race cards and extract metadata for fallback
+        # Find race cards and extract metadata - now primary data source
         race_cards = soup.select('a.card-result[href*="/resultats/"]')
-        
+
         for card in race_cards:
             href = card.get('href')
             if href and '/resultats/' in href:
                 full_url = urljoin(BASE_URL, href)
                 if full_url not in race_links:
                     race_links.append(full_url)
-                    
-                    # Extract metadata from card for fallback
+
+                    # Extract comprehensive metadata from card
                     try:
                         # Extract race name from h3 element
                         name_elem = card.select_one('h3')
                         card_name = name_elem.get_text().strip() if name_elem else ""
-                        
-                        # Extract date from date element
-                        date_elem = card.select_one('[class*="date"]')
-                        card_date = date_elem.get_text().strip() if date_elem else ""
-                        
-                        # Store metadata for this URL
-                        if card_name or card_date:
-                            self.card_metadata[full_url] = {
-                                'name': card_name,
-                                'date': card_date
-                            }
-                            self.logger.debug(f"Stored card metadata for {full_url}: name='{card_name}', date='{card_date}'")
-                    
+
+                        # Extract date from time element with class card-result__date
+                        date_elem = card.select_one('time.card-result__date')
+                        raw_date = date_elem.get_text().strip() if date_elem else ""
+
+                        # Process multi-day dates and convert months
+                        card_date = self._process_card_date(raw_date)
+
+                        # Extract location from card-result__place
+                        place_elem = card.select_one('.card-result__place')
+                        card_location = place_elem.get_text().strip() if place_elem else ""
+
+                        # Extract categories from card-result__licences
+                        licences_elem = card.select_one('.card-result__licences')
+                        card_categories = licences_elem.get_text().strip() if licences_elem else ""
+
+                        # Store comprehensive metadata for this URL
+                        self.card_metadata[full_url] = {
+                            'name': card_name,
+                            'date': card_date,
+                            'location': card_location,
+                            'categories': card_categories
+                        }
+                        self.logger.debug(f"Stored card metadata for {full_url}: name='{card_name}', date='{card_date}', location='{card_location}', categories='{card_categories}'")
+
                     except Exception as e:
                         self.logger.warning(f"Failed to extract card metadata for {full_url}: {e}")
         
@@ -174,30 +186,18 @@ class OptimizedCyclingScraperDB:
         try:
             soup = BeautifulSoup(response.content, 'html.parser')
 
-            # Extract race information
-            race_title = soup.find('h1')
-            base_race_name = race_title.get_text().strip() if race_title else ""
-            race_date = extract_race_date(soup)
-
-            # Use fallback metadata from card if race page data is missing
+            # Use ONLY card metadata - no page data extraction
             if race_url in self.card_metadata:
                 card_data = self.card_metadata[race_url]
+                base_race_name = card_data.get('name', 'Unknown Race')
+                race_date = card_data.get('date', DEFAULT_DATE)
 
-                # Use card name if page name is missing or generic
-                if not base_race_name or base_race_name == "Unknown Race":
-                    if card_data.get('name'):
-                        base_race_name = card_data['name']
-                        self.logger.info(f"Using card fallback name: {base_race_name}")
-
-                # Use card date if page date is missing or default
-                if race_date == DEFAULT_DATE:
-                    if card_data.get('date'):
-                        race_date = card_data['date']
-                        self.logger.info(f"Using card fallback date: {race_date}")
-
-            # Final fallback for race name
-            if not base_race_name:
-                base_race_name = "Unknown Race"
+                self.logger.debug(f"Using card data only: name='{base_race_name}', date='{race_date}'")
+            else:
+                # No card metadata available - skip this race
+                self.logger.warning(f"No card metadata available for {race_url}, skipping race")
+                self.stats['errors'] += 1
+                return False
 
             if race_date != DEFAULT_DATE:
                 # Check for multi-stage races with etapes
@@ -457,6 +457,58 @@ class OptimizedCyclingScraperDB:
 
         self.logger.warning(f"No results table found for payload: {payload}")
         return None
+
+    def _process_card_date(self, raw_date: str) -> str:
+        """
+        Process card date text to handle multi-day formats and convert months
+
+        Examples:
+        - "u 25 Maiau 26 Mai2024" -> "25 mai 2024"
+        - "31 mai 2025" -> "31 mai 2025"
+
+        Args:
+            raw_date: Raw date text from card
+
+        Returns:
+            Processed date string with first day only and converted months
+        """
+        if not raw_date:
+            return ""
+
+        import re
+
+        # Handle multi-day format without proper spacing: "u 25 Maiau 26 Mai2024"
+        # Look for pattern: optional "u " + day + month + "au" + day + month + year
+        multi_day_no_space_pattern = r'u?\s*(\d{1,2}\s+\w+?)au\s*\d{1,2}\s+\w+?(\d{4})'
+        match = re.search(multi_day_no_space_pattern, raw_date, re.IGNORECASE)
+
+        if match:
+            first_day_month = match.group(1).strip()
+            year = match.group(2).strip()
+            processed_date = f"{first_day_month} {year}"
+            self.logger.debug(f"Extracted first day from multi-day race (no-space): '{raw_date}' -> '{processed_date}'")
+        else:
+            # Handle standard multi-day format: "Du 25 Mai au 26 Mai 2024" (with spaces)
+            multi_day_pattern = r'Du\s+(\d{1,2}\s+\w+).*?(\d{4})'
+            match = re.search(multi_day_pattern, raw_date, re.IGNORECASE)
+
+            if match:
+                first_day = match.group(1).strip()
+                year = match.group(2).strip()
+                processed_date = f"{first_day} {year}"
+                self.logger.debug(f"Extracted first day from multi-day race: '{raw_date}' -> '{processed_date}'")
+            else:
+                # Single day format, just clean up
+                processed_date = raw_date.strip()
+                # Remove extra spaces
+                processed_date = re.sub(r'\s+', ' ', processed_date)
+
+        # Import and use the convert function
+        from backend.utils.scraper_utils import convert_abbreviated_months_to_french
+        final_date = convert_abbreviated_months_to_french(processed_date)
+
+        self.logger.debug(f"Final processed date: '{raw_date}' -> '{final_date}'")
+        return final_date
 
     def discover_all_races(self) -> List[str]:
         """

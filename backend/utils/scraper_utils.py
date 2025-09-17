@@ -101,6 +101,7 @@ def convert_abbreviated_months_to_french(date_text: str) -> str:
         'jun': 'juin',
         'jui': 'juillet',
         'jul': 'juillet',  # Alternative abbreviation
+        'juil': 'juillet',  # Alternative abbreviation
         'aoû': 'août',
         'aou': 'août',     # Handle without accent
         'sep': 'septembre',
@@ -370,7 +371,7 @@ def build_search_url(base_url: str, params: Dict[str, str], page: int = 1) -> st
     query_parts = [f"{k}={v}" for k, v in params.items()]
     query_string = "&".join(query_parts)
     
-    return f"{base_url}?{query_string}"
+    return f"{base_url}?{query_string}&_recherche=tour+de"
 
 
 def validate_race_data(race_data: Dict[str, Any]) -> bool:
