@@ -132,6 +132,7 @@ export const translations = {
       passwordPlaceholder: 'Enter your password',
       signIn: 'Sign In',
       signingIn: 'Signing in...',
+      invalidCredentials: 'Invalid credentials',
     },
     admin: {
       menu: 'Menu',
@@ -334,6 +335,7 @@ export const translations = {
       passwordPlaceholder: 'Entrez votre mot de passe',
       signIn: 'Se connecter',
       signingIn: 'Connexion...',
+      invalidCredentials: 'Identifiants incorrects',
     },
     admin: {
       menu: 'Menu',

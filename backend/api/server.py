@@ -456,9 +456,6 @@ def scrape_race_data():
         entry_list = ''
         table = soup.find('table')
         if table:
-            # Define allowed categories
-            allowed_categories = ['Open 1', 'Open 2', 'Open 3', 'Access 1', 'Access 2']
-            
             rows = table.find_all('tr')
             for row in rows[1:]:  # Skip header row
                 cells = row.find_all('td')
@@ -471,12 +468,8 @@ def scrape_race_data():
                     region = cells[4].get_text(strip=True)
                     club = cells[5].get_text(strip=True)
                     team = cells[6].get_text(strip=True) if len(cells) > 6 else ''
-                    
-                    # Filter by category - only include allowed categories
-                    if category in allowed_categories:
-                        # Create tab-separated line
-                        line = f"{uci_id}\t{last_name}\t{first_name}\t{category}\t{region}\t{club}\t{team}"
-                        entry_list += line + '\n'
+                    line = f"{uci_id}\t{last_name}\t{first_name}\t{category}\t{region}\t{club}\t{team}"
+                    entry_list += line + '\n'
         
         if not entry_list:
             return jsonify({'error': 'No cyclist table found on the webpage'}), 400

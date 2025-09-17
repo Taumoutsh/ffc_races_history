@@ -265,9 +265,10 @@ const CyclistRaceHistoryTable = ({
                       key={`${raceId}-${index}`}
                       onClick={() => handleRaceClickInternal(race)}
                       style={{
-                        backgroundColor: index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)',
+                        backgroundColor: index % 2 === 0 ? 'rgba(255, 255, 255, 0.9)' : 'rgba(240, 245, 251, 0.9)',
                         transition: 'all 0.2s ease',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        borderBottom: '1px solid rgba(226, 232, 240, 0.3)'
                       }}
                       onMouseEnter={(e) => {
                         const row = e.currentTarget;
@@ -277,7 +278,7 @@ const CyclistRaceHistoryTable = ({
                       }}
                       onMouseLeave={(e) => {
                         const row = e.currentTarget;
-                        row.style.backgroundColor = index % 2 === 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.8)';
+                        row.style.backgroundColor = index % 2 === 0 ? 'rgba(255, 255, 255, 0.9)' : 'rgba(240, 245, 251, 0.9)';
                         row.style.transform = 'translateX(0)';
                         row.style.boxShadow = 'none';
                       }}
@@ -300,10 +301,7 @@ const CyclistRaceHistoryTable = ({
                         color: '#374151',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
                         wordBreak: 'break-word',
-                        maxWidth: '0',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
+                        lineHeight: '1.3'
                       }}>
                         {raceName}
                       </td>
