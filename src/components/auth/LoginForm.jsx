@@ -152,7 +152,7 @@ function LoginForm() {
               color: '#ff6b7a',
               fontSize: '0.9rem'
             }}>
-              {error}
+              {error === 'Invalid credentials' ? t('auth.invalidCredentials') : error}
             </div>
           )}
 

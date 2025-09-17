@@ -11,20 +11,35 @@ function MessagePanel() {
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      loadMessages();
+      // Initial load with loading indicator
+      loadMessages(true);
+
+      // Set up auto-refresh every 20 seconds (without loading indicator)
+      const interval = setInterval(() => {
+        loadMessages(false);
+      }, 20000); // 20 seconds
+
+      // Cleanup interval on component unmount or when auth changes
+      return () => {
+        clearInterval(interval);
+      };
     }
   }, [isAuthenticated, authLoading]);
 
-  const loadMessages = async () => {
+  const loadMessages = async (showLoader = true) => {
     try {
-      setLoading(true);
+      if (showLoader) {
+        setLoading(true);
+      }
       const response = await axios.get('/messages');
       setMessages(response.data);
     } catch (error) {
       console.error('MessagePanel: Failed to load messages:', error);
       setMessages([]);
     } finally {
-      setLoading(false);
+      if (showLoader) {
+        setLoading(false);
+      }
     }
   };
 
