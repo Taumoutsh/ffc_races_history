@@ -2,7 +2,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useTranslation } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
 import DateFilter from './DateFilter';
-import { filterDataByYears } from '../utils/dateUtils';
+import { filterDataByYears, getAvailableYears } from '../utils/dateUtils';
 
 const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -11,7 +11,18 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('asc');
   const [selectedYears, setSelectedYears] = useState([]);
-  
+
+  // Initialize selectedYears when component opens with data
+  useEffect(() => {
+    if (isOpen && data && data.length > 0) {
+      const availableYears = getAvailableYears(data);
+      // If no years are selected but we have data, select all available years
+      if (selectedYears.length === 0 && availableYears.length > 0) {
+        setSelectedYears(availableYears);
+      }
+    }
+  }, [isOpen, data, selectedYears.length]);
+
   // Force re-render when data changes
   useEffect(() => {
     setForceUpdate(prev => prev + 1);
@@ -24,6 +35,9 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
       return () => {
         document.body.style.overflow = originalOverflow || '';
       };
+    } else {
+      // Reset selectedYears when modal closes for fresh initialization next time
+      setSelectedYears([]);
     }
   }, [isOpen]);
 
@@ -48,9 +62,10 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
   };
 
   // Filter data by selected years, then transform and sort chronologically for the chart
-  const filteredData = filterDataByYears(data || [], selectedYears);
+  // If no years are selected, show all data (not empty data)
+  const filteredData = selectedYears.length > 0 ? filterDataByYears(data || [], selectedYears) : (data || []);
   const chartData = filteredData
-    .filter(race => race.cyclistPosition && race.defaultPosition && 
+    .filter(race => race.cyclistPosition && race.defaultPosition &&
              !isNaN(race.cyclistPosition) && !isNaN(race.defaultPosition))
     .sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date));
 
@@ -63,34 +78,6 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
     }
   };
 
-  const sortedTableData = [...chartData].sort((a, b) => {
-    let aVal, bVal;
-    
-    switch (sortField) {
-      case 'date':
-        aVal = parseFrenchDate(a.date);
-        bVal = parseFrenchDate(b.date);
-        break;
-      case 'race':
-        aVal = a.raceName.toLowerCase();
-        bVal = b.raceName.toLowerCase();
-        break;
-      case 'cyclistPosition':
-        aVal = a.cyclistPosition;
-        bVal = b.cyclistPosition;
-        break;
-      case 'defaultPosition':
-        aVal = a.defaultPosition;
-        bVal = b.defaultPosition;
-        break;
-      default:
-        return 0;
-    }
-    
-    if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
 
   const SortIcon = ({ field }) => {
     if (sortField !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
@@ -321,9 +308,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     key={`comparison-chart-${forceUpdate}`}
-                    data={filteredData.filter(race => race.cyclistPosition && race.defaultPosition && 
-             !isNaN(race.cyclistPosition) && !isNaN(race.defaultPosition))
-    .sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date))}
+                    data={chartData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
                     onClick={handleClick}
                   >
@@ -524,11 +509,9 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredData.filter(race => race.cyclistPosition && race.defaultPosition && 
-             !isNaN(race.cyclistPosition) && !isNaN(race.defaultPosition))
-    .sort((a, b) => {
+                        {chartData.sort((a, b) => {
     let aVal, bVal;
-    
+
     switch (sortField) {
       case 'date':
         aVal = parseFrenchDate(a.date);
@@ -549,7 +532,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
       default:
         return 0;
     }
-    
+
     if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
     if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
     return 0;
