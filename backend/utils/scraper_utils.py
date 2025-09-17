@@ -371,7 +371,7 @@ def build_search_url(base_url: str, params: Dict[str, str], page: int = 1) -> st
     query_parts = [f"{k}={v}" for k, v in params.items()]
     query_string = "&".join(query_parts)
     
-    return f"{base_url}?{query_string}&_recherche=tour+de"
+    return f"{base_url}?{query_string}"
 
 
 def validate_race_data(race_data: Dict[str, Any]) -> bool:
