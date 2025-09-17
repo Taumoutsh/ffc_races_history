@@ -94,6 +94,24 @@ create_backup() {
     echo ""
 }
 
+# Clean up old races (older than 1.5 years)
+cleanup_old_races() {
+    log_info "🧹 Cleaning up old races (older than 1.5 years)..."
+
+    # Change to app directory for docker compose
+    cd "${APP_DIR}"
+
+    # Run the cleanup script with default 1.5 years (547 days) cutoff
+    local db_path="/app/data/cycling_data.db"
+    if docker compose run --rm race-cycling-app python -m backend.database.cleanup_old_races --db-path "$db_path" --execute; then
+        log_info "✅ Cleanup completed successfully"
+    else
+        log_warn "⚠️  Cleanup encountered issues (this may be normal if no old races were found)"
+    fi
+
+    echo ""
+}
+
 # Run scraper for specific region
 run_scraper() {
     local region="$1"
@@ -168,6 +186,8 @@ main() {
 
     # Run scraper for the specified region
     if run_scraper "$region"; then
+        # Clean up old races after successful scraping
+        cleanup_old_races
         echo ""
         log_info "🎉 Scraping process completed successfully!"
         echo ""
