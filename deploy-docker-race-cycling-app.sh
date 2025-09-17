@@ -224,9 +224,6 @@ http {
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
 
-    # Rate limiting for API endpoints
-    limit_req_zone \$binary_remote_addr zone=api:10m rate=10r/s;
-
 $(if [ "$SSL_ENABLED" = "true" ]; then
 cat << 'HTTPS_CONFIG'
     # HTTP redirect to HTTPS
@@ -255,9 +252,6 @@ cat << 'HTTPS_CONFIG'
 
         # API endpoints
         location /api/ {
-            # Apply rate limiting
-            limit_req zone=api burst=20 nodelay;
-
             # Proxy to internal Flask service
             proxy_pass http://race-cycling-app:5000/api/;
             proxy_set_header Host $host;
@@ -324,9 +318,6 @@ cat << 'HTTP_CONFIG'
 
         # API endpoints
         location /api/ {
-            # Apply rate limiting
-            limit_req zone=api burst=20 nodelay;
-
             # Proxy to internal Flask service
             proxy_pass http://race-cycling-app:5000/api/;
             proxy_set_header Host $host;
