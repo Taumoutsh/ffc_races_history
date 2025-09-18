@@ -28,7 +28,7 @@ from backend.config.constants import DEFAULT_DB_PATH
 class RaceCleanupScript:
     """Script to cleanup old races from the database"""
 
-    def __init__(self, db_path: str = DEFAULT_DB_PATH, dry_run: bool = True):
+    def __init__(self, db_path: str = DEFAULT_DB_PATH, dry_run: bool = True, skip_confirmation: bool = False):
         """
         Initialize the cleanup script
 
@@ -38,6 +38,7 @@ class RaceCleanupScript:
         """
         self.db_path = db_path
         self.dry_run = dry_run
+        self.skip_confirmation = skip_confirmation
         self.cutoff_date = datetime.now() - timedelta(days=547)  # 1.5 years = ~547 days
 
         # French month mapping
@@ -234,7 +235,10 @@ class RaceCleanupScript:
         # Confirm deletion (if not dry run)
         if not self.dry_run:
             print(f"\nThis will permanently delete {stats['races']} races and {stats['results']} race results.")
-            confirmation = input("Are you sure you want to proceed? (yes/no): ").lower().strip()
+            if not self.skip_confirmation:
+                confirmation = input("Are you sure you want to proceed? (yes/no): ").lower().strip()
+            else:
+                confirmation = 'yes'
 
             if confirmation != 'yes':
                 print("Cleanup cancelled.")
