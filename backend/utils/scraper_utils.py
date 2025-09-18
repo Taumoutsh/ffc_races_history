@@ -99,12 +99,15 @@ def convert_abbreviated_months_to_french(date_text: str) -> str:
         'avr': 'avril',
         'mai': 'mai',
         'jun': 'juin',
+        'juin': 'juin',
         'jui': 'juillet',
         'jul': 'juillet',  # Alternative abbreviation
         'juil': 'juillet',  # Alternative abbreviation
         'aoû': 'août',
         'aou': 'août',     # Handle without accent
+        'août': 'août',     # Handle without accent
         'sep': 'septembre',
+        'sept': 'septembre',
         'oct': 'octobre',
         'nov': 'novembre',
         'déc': 'décembre',
