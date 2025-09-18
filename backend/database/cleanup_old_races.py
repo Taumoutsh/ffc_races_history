@@ -271,17 +271,21 @@ def main():
                        type=int,
                        default=547,
                        help='Days to look back (default: 547 = 1.5 years)')
+    parser.add_argument('--skipconfirmation', '-x',
+                   action='store_true',
+                   help='Skip confirmation ask')
 
     args = parser.parse_args()
 
     # Override cutoff if specified
     dry_run = not args.execute
+    skip_confirmation = not args.skipconfirmation
 
     print("Race Database Cleanup Script")
     print("=" * 50)
 
     # Create and run cleanup script
-    cleanup = RaceCleanupScript(db_path=args.db_path, dry_run=dry_run)
+    cleanup = RaceCleanupScript(db_path=args.db_path, dry_run=dry_run, skip_confirmation=skip_confirmation)
 
     # Override cutoff date if specified
     if args.cutoff_days != 547:
