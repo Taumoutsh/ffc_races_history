@@ -82,7 +82,7 @@ const styles = {
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: 'clamp(1rem, 3vw, 2rem)',
+    padding: 'clamp(0.75rem, 2.5vw, 1.5rem)',
     marginBottom: '1rem'
   },
   overviewCard: {
@@ -792,23 +792,15 @@ function App() {
             <>
               {/* URL Scraping Section */}
               <div style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
+                marginBottom: '0.25rem',
+                padding: '1rem',
                 background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
                 borderRadius: '1rem',
                 border: '1px solid rgba(59, 130, 246, 0.2)'
               }}>
-                <h4 style={{
-                  margin: '0 0 1rem 0',
-                  color: '#1e40af',
-                  fontWeight: '700',
-                  fontSize: 'clamp(1rem, 2.5vw, 1.125rem)'
-                }}>
-                  🌐 {t('ui.urlScraping')}
-                </h4>
                 <p style={{
                   color: '#64748b',
-                  marginBottom: '1rem',
+                  marginBottom: '1.5rem',
                   fontSize: '0.875rem'
                 }}>
                   {t('ui.urlScrapingHint')}
@@ -1168,7 +1160,7 @@ function App() {
 
         {defaultCyclistRaces.length > 0 ? (
           <div key={`chart-container-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${defaultCyclistRaces.length}`} style={styles.chartCard}>
-            <div style={{ overflow: 'hidden', position: 'relative' }}>
+            <div>
               <PerformanceChart
                 key={`chart-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${Date.now()}`}
                 data={defaultCyclistRaces}
