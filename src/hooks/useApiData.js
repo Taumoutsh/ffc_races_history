@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 
 export const useApiData = (dynamicDefaultCyclist) => {
   const [data, setData] = useState(null);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { isAuthenticated, loading: authLoading, token } = useAuth();
@@ -14,18 +15,25 @@ export const useApiData = (dynamicDefaultCyclist) => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Load data in YAML-compatible format for easier migration
-        const response = await axios.get('/races/data');
-        const jsonData = response.data;
+        // Load both race data and database stats
+        const [racesResponse, statsResponse] = await Promise.all([
+          axios.get('/races/data'),
+          axios.get('/stats')
+        ]);
+
+        const jsonData = racesResponse.data;
+        const statsData = statsResponse.data;
+
         setData(jsonData);
+        setStats(statsData);
       } catch (err) {
         let errorMessage = err.message;
-        
+
         // Provide specific error messages for common issues
         if (err.message.includes('Failed to fetch')) {
           errorMessage = `Cannot connect to API server. Check network connection and server status.`;
         }
-        
+
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -410,6 +418,7 @@ export const useApiData = (dynamicDefaultCyclist) => {
 
   return {
     data,
+    stats,
     loading,
     error,
     getDefaultCyclistRaces,
