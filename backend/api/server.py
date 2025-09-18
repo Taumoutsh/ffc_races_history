@@ -13,6 +13,10 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from functools import wraps
+import threading
+import time
+import hashlib
+import json
 
 # Add project root to path for backend imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -27,6 +31,83 @@ DB_PATH = os.environ.get('DB_PATH', 'backend/database/cycling_data.db')
 AUTH_DB_PATH = os.environ.get('AUTH_DB_PATH', 'backend/database/auth.db')
 db = CyclingDatabase(DB_PATH)
 auth_db = AuthDatabase(AUTH_DB_PATH)
+
+# Database monitoring and memoization system
+class DatabaseMonitor:
+    def __init__(self, db_path, db_instance):
+        self.db_path = db_path
+        self.db = db_instance
+        self.current_hash = None
+        self.cached_races_data = None
+        self.cached_json_response = None
+        self.cached_timestamp = None
+        self.lock = threading.Lock()
+        self.monitoring = True
+        self.monitor_thread = None
+
+    def get_database_hash(self):
+        """Calculate hash of the database file"""
+        try:
+            if not os.path.exists(self.db_path):
+                return None
+            with open(self.db_path, 'rb') as f:
+                return hashlib.md5(f.read()).hexdigest()
+        except Exception:
+            return None
+
+    def update_cache(self):
+        """Update the cached races data and pre-serialize JSON response"""
+        try:
+            races_data = self.db.get_races_data()
+            # Pre-serialize the JSON response to avoid repeated serialization
+            json_response = json.dumps(races_data, separators=(',', ':'))
+
+            with self.lock:
+                self.cached_races_data = races_data
+                self.cached_json_response = json_response
+                self.cached_timestamp = datetime.now()
+                self.current_hash = self.get_database_hash()
+            total_races = len(races_data.get('races', {}))
+            print(f"Cache updated at {self.cached_timestamp} with {total_races} races")
+        except Exception as e:
+            print(f"Error updating cache: {e}")
+
+    def get_cached_races(self):
+        """Get cached races data and JSON response"""
+        with self.lock:
+            return self.cached_races_data, self.cached_json_response, self.cached_timestamp
+
+    def monitor_database(self):
+        """Background thread to monitor database changes"""
+        while self.monitoring:
+            try:
+                new_hash = self.get_database_hash()
+                if new_hash and new_hash != self.current_hash:
+                    print(f"Database change detected, updating cache...")
+                    self.update_cache()
+                time.sleep(5)  # Check every 5 seconds
+            except Exception as e:
+                print(f"Error in database monitoring: {e}")
+                time.sleep(10)  # Wait longer if there's an error
+
+    def start_monitoring(self):
+        """Start the background monitoring thread"""
+        # Initial cache update
+        self.update_cache()
+
+        # Start monitoring thread
+        self.monitor_thread = threading.Thread(target=self.monitor_database)
+        self.monitor_thread.start()
+        print("Database monitoring started")
+
+    def stop_monitoring(self):
+        """Stop the background monitoring"""
+        self.monitoring = False
+        if self.monitor_thread:
+            self.monitor_thread.join(timeout=2)
+
+# Initialize database monitor
+db_monitor = DatabaseMonitor(DB_PATH, db)
 
 
 # Authentication middleware
@@ -391,10 +472,29 @@ def get_database_stats():
 @app.route('/api/races/data', methods=['GET'])
 @require_auth
 def get_races_data():
-    """Export data in original YAML format for compatibility"""
+    """Export data in original YAML format for compatibility (optimized with JSON caching)"""
     try:
-        data = db.get_races_data()
-        return jsonify(data)
+        # Get cached races data and pre-serialized JSON
+        cached_races_data, cached_json_response, cache_timestamp = db_monitor.get_cached_races()
+
+        if cached_json_response is not None:
+            # Return pre-serialized JSON response directly
+            from flask import Response
+            response = Response(
+                cached_json_response,
+                mimetype='application/json',
+                status=200
+            )
+            if cache_timestamp:
+                response.headers['X-Cache-Timestamp'] = cache_timestamp.isoformat()
+                response.headers['X-Cache-Status'] = 'HIT'
+            return response
+        else:
+            # Fallback to direct database query if cache is not available
+            data = db.get_races_data()
+            response = jsonify(data)
+            response.headers['X-Cache-Status'] = 'MISS'
+            return response
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -575,12 +675,12 @@ def main():
     """Run the API server"""
     port = int(os.environ.get('PORT', 3001))
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
-    
+
     print(f"Starting Race Cycling API Server...")
     print(f"Database: {DB_PATH}")
     print(f"Port: {port}")
     print(f"Debug: {debug}")
-    
+
     # Check database connectivity
     try:
         stats = db.get_database_stats()
@@ -591,7 +691,17 @@ def main():
     except Exception as e:
         print(f"Database connection failed: {e}")
         return
-    
+
+    # Start database monitoring for race caching
+    try:
+        db_monitor.start_monitoring()
+    except Exception as e:
+        print(f"Warning: Database monitoring failed to start: {e}")
+
+    # Setup cleanup on shutdown
+    import atexit
+    atexit.register(db_monitor.stop_monitoring)
+
     # Remove SSL context for Docker deployment - nginx handles SSL termination
     app.run(host='0.0.0.0', port=port, debug=debug)
 
