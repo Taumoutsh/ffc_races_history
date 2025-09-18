@@ -271,7 +271,7 @@ def main():
                        type=int,
                        default=547,
                        help='Days to look back (default: 547 = 1.5 years)')
-    parser.add_argument('--skipconfirmation', '-x',
+    parser.add_argument('--skipconfirmation', '-s',
                    action='store_true',
                    help='Skip confirmation ask')
 
