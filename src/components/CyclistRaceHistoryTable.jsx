@@ -371,7 +371,7 @@ const CyclistRaceHistoryTable = ({
           color: '#6b7280',
           fontSize: '1rem'
         }}>
-          {selectedYears.length > 0 ? t('ui.noRacesInSelectedYears') || 'No races found for the selected years.' : t('ui.noRaceData') || 'No race history available.'}
+          {selectedYears.length > 0 ? (t('ui.noRacesInSelectedYears') || 'No races found for the selected years.') : (t('ui.noRaceData') || 'No race history available.')}
         </div>
       )}
     </div>

@@ -1200,7 +1200,7 @@ function App() {
         ) : (
           <div style={styles.chartCard}>
             <h2 style={{fontSize: '1.25rem', fontWeight: '600', color: '#374151', textAlign: 'center'}}>
-              {t('ui.noRaceData')} {getDefaultCyclistInfo().fullName}
+              {getDefaultCyclistInfo().fullName}: {t('ui.noRaceData')}
             </h2>
           </div>
         )}
