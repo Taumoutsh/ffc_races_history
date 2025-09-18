@@ -150,7 +150,7 @@ const styles = {
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
   const { isAdmin } = useAuth();
-  const { data, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
+  const { data, stats, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 768);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -1210,13 +1210,13 @@ function App() {
           <div style={styles.statsGrid}>
             <div style={{...styles.statCard, backgroundColor: '#eff6ff'}}>
               <div style={{...styles.statNumber, color: '#2563eb'}}>
-                {data?.scraping_info?.total_races || 0}
+                {stats?.total_races || 0}
               </div>
               <div style={{...styles.statLabel, color: '#1e40af'}}>{t('ui.totalRaces')}</div>
             </div>
             <div style={{...styles.statCard, backgroundColor: '#f0fdf4'}}>
               <div style={{...styles.statNumber, color: '#16a34a'}}>
-                {data?.scraping_info?.total_racers || 0}
+                {stats?.total_cyclists || 0}
               </div>
               <div style={{...styles.statLabel, color: '#15803d'}}>{t('ui.totalRacers')}</div>
             </div>
