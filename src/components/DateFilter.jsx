@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../contexts/LanguageContext';
 import { getAvailableYears } from '../utils/dateUtils';
-import { getSavedSelectedYears, saveSelectedYears, getDefaultSelectedYears } from '../utils/dateFilterStorage';
 
 const DateFilter = ({ 
   data = [], 
@@ -25,21 +24,11 @@ const DateFilter = ({
   useEffect(() => {
     const years = getAvailableYears(data);
     if (years.length > 0 && selectedYears.length === 0) {
-      const savedYears = getSavedSelectedYears();
-      
-      // Check if there's any saved state (even if empty)
-      const hasSavedState = localStorage.getItem('race-cycling-app-date-filter') !== null;
-      
-      if (hasSavedState) {
-        // Use saved selection (even if empty)
-        const validSavedYears = savedYears.filter(year => years.includes(year));
-        onYearsChange(validSavedYears);
-      } else {
-        // Only set default on first visit (no saved state)
-        const defaultYears = getDefaultSelectedYears(data);
-        if (defaultYears.length > 0) {
-          onYearsChange(defaultYears);
-        }
+      // Set default to current year if available, otherwise select all years
+      const currentYear = new Date().getFullYear();
+      const defaultYears = years.includes(currentYear) ? [currentYear] : years;
+      if (defaultYears.length > 0) {
+        onYearsChange(defaultYears);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,9 +50,7 @@ const DateFilter = ({
     const newSelectedYears = selectedYears.includes(year)
       ? selectedYears.filter(y => y !== year)
       : [...selectedYears, year].sort((a, b) => b - a); // Sort descending
-    
-    // Save to localStorage
-    saveSelectedYears(newSelectedYears);
+
     onYearsChange(newSelectedYears);
   };
 
