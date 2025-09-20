@@ -166,7 +166,6 @@ function App() {
   const [showResearchSection, setShowResearchSection] = useState(false);
   const [organizerClub, setOrganizerClub] = useState('');
   const [showRacesPanel, setShowRacesPanel] = useState(false);
-  const [raceParticipantCounts, setRaceParticipantCounts] = useState({});
   const [raceUrl, setRaceUrl] = useState('');
   const [scrapedRaceData, setScrapedRaceData] = useState(null);
   const [isScrapingInProgress, setIsScrapingInProgress] = useState(false);
@@ -356,35 +355,6 @@ function App() {
       alert(t('pdf.exportError') || `PDF export failed: ${result.error}`);
     }
   };
-
-  // Function to fetch participant count for a race
-  const fetchRaceParticipantCount = useCallback(async (raceId) => {
-    if (!api || !raceId || raceParticipantCounts[raceId]) return;
-    
-    try {
-      const raceData = await api.getRace(raceId);
-      if (raceData && raceData.participant_count) {
-        setRaceParticipantCounts(prev => ({
-          ...prev,
-          [raceId]: raceData.participant_count
-        }));
-      }
-    } catch (error) {
-      console.error('Error fetching race participant count:', error);
-    }
-  }, [api, raceParticipantCounts]);
-
-  // Fetch participant counts for default cyclist races
-  useEffect(() => {
-    const defaultCyclistRaces = getDefaultCyclistRaces();
-    if (defaultCyclistRaces.length > 0 && api) {
-      defaultCyclistRaces.forEach(race => {
-        if (race.raceId && !raceParticipantCounts[race.raceId]) {
-          fetchRaceParticipantCount(race.raceId);
-        }
-      });
-    }
-  }, [getDefaultCyclistRaces, api, fetchRaceParticipantCount, raceParticipantCounts]);
 
   if (loading) {
     return (
@@ -1167,7 +1137,6 @@ function App() {
                 onPointClick={handleChartPointClick}
                 cyclistName={getDefaultCyclistInfo().fullName}
                 cyclistInfo={getDefaultCyclistInfo()}
-                raceParticipantCounts={raceParticipantCounts}
                 selectedYears={chartSelectedYears}
                 onYearsChange={setChartSelectedYears}
               />
@@ -1177,7 +1146,6 @@ function App() {
             <div style={{ marginTop: '2rem' }}>
               <CyclistRaceHistoryTable
                 races={defaultCyclistRaces}
-                raceParticipantCounts={raceParticipantCounts}
                 selectedYears={historySelectedYears}
                 onRaceClick={handleTableRaceClick}
                 getRaceById={getRaceById}

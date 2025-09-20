@@ -296,23 +296,26 @@ class OptimizedCyclingScraperDB:
     def _process_race_participants(self, results_table, race_id: str) -> int:
         """
         Process participants from results table
-        
+
         Args:
             results_table: BeautifulSoup table element
             race_id: Race ID for database storage
-            
+
         Returns:
             Number of participants successfully added
         """
         rows = results_table.find_all('tr')
         participants_added = 0
-        
+
+        # Count total participants (excluding header row)
+        total_participants = len(rows) - 1 if len(rows) > 1 else 0
+
         for row in rows[1:]:  # Skip header row
             try:
                 participant_data = extract_participant_data(row)
                 if not participant_data:
                     continue
-                
+
                 # Add cyclist to database
                 self.db.add_or_update_cyclist(
                     uci_id=participant_data['uci_id'],
@@ -322,23 +325,24 @@ class OptimizedCyclingScraperDB:
                     club=participant_data['club_clean'],
                     club_raw=participant_data['club_raw']
                 )
-                
-                # Add race result
+
+                # Add race result with participant count
                 self.db.add_race_result(
                     race_id=race_id,
                     uci_id=participant_data['uci_id'],
                     rank=participant_data['rank'],
+                    race_participant_count=total_participants,
                     raw_data=participant_data['raw_data']
                 )
-                
+
                 participants_added += 1
                 self.stats['new_results'] += 1
-                
+
             except Exception as e:
                 self.logger.warning(f"Error processing participant: {e}")
                 self.stats['errors'] += 1
                 continue
-        
+
         return participants_added
 
     def _find_etape_stages(self, soup) -> List[Dict[str, str]]:

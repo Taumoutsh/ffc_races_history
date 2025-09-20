@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS race_results (
     race_id TEXT NOT NULL,
     uci_id TEXT NOT NULL,
     rank INTEGER NOT NULL,
+    race_participant_count INTEGER DEFAULT NULL,  -- Store participant count for each race result
     raw_data_json TEXT,  -- Store original raw_data array as JSON
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (race_id) REFERENCES races(id) ON DELETE CASCADE,

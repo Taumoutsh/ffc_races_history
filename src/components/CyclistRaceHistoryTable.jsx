@@ -4,7 +4,6 @@ import { parseFrenchDate, getPercentageColor, calculatePercentagePosition, filte
 
 const CyclistRaceHistoryTable = ({
   races,
-  raceParticipantCounts,
   selectedYears,
   onRaceClick,
   getRaceById,
@@ -18,11 +17,6 @@ const CyclistRaceHistoryTable = ({
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
   const [forceUpdate, setForceUpdate] = useState(0);
-
-  // Force re-render when raceParticipantCounts changes
-  useEffect(() => {
-    setForceUpdate(prev => prev + 1);
-  }, [raceParticipantCounts]);
 
   // Also force re-render when races or selectedYears change
   useEffect(() => {
@@ -50,7 +44,8 @@ const CyclistRaceHistoryTable = ({
         raceId: race.raceId || race.race_id,
         name: race.name || race.race_name,
         date: race.date,
-        position: race.position || race.rank
+        position: race.position || race.rank,
+        participant_count: race.participant_count
       };
       onRaceClick(raceData);
     }
@@ -87,26 +82,13 @@ const CyclistRaceHistoryTable = ({
         bVal = b.position || b.rank;
         break;
       case 'percentage': {
-        const aRaceId = a.raceId || a.race_id;
-        const bRaceId = b.raceId || b.race_id;
         const aPosition = a.position || a.rank;
         const bPosition = b.position || b.rank;
-
-        if (getRaceById) {
-          // App.jsx style
-          const aRaceData = getRaceById(aRaceId);
-          const bRaceData = getRaceById(bRaceId);
-          const aTotalParticipants = raceParticipantCounts[aRaceId] || aRaceData?.participant_count || 0;
-          const bTotalParticipants = raceParticipantCounts[bRaceId] || bRaceData?.participant_count || 0;
-          aVal = aTotalParticipants > 0 ? Math.round((aPosition / aTotalParticipants) * 100) : 0;
-          bVal = bTotalParticipants > 0 ? Math.round((bPosition / bTotalParticipants) * 100) : 0;
-        } else {
-          // CyclistProfile.jsx style
-          const aCount = raceParticipantCounts[aRaceId];
-          const bCount = raceParticipantCounts[bRaceId];
-          aVal = calculatePercentagePosition(aPosition, aCount) || 0;
-          bVal = calculatePercentagePosition(bPosition, bCount) || 0;
-        }
+        // App.jsx style
+        const aTotalParticipants = a.participant_count;
+        const bTotalParticipants = b.participant_count;
+        aVal = aTotalParticipants > 0 ? Math.round((aPosition / aTotalParticipants) * 100) : 0;
+        bVal = bTotalParticipants > 0 ? Math.round((bPosition / bTotalParticipants) * 100) : 0;
         break;
       }
       default:
@@ -246,16 +228,13 @@ const CyclistRaceHistoryTable = ({
                   const raceId = race.raceId || race.race_id;
                   const raceName = getRaceById ? (getRaceById(raceId)?.name || 'Unknown Race') : (race.race_name || race.name || 'Unknown Race');
                   const position = race.position || race.rank;
+                  const participantCount = race.participant_count;
 
                   let topPercentage = '-';
                   if (getRaceById) {
-                    // App.jsx style
-                    const raceData = getRaceById(raceId);
-                    const totalParticipants = raceParticipantCounts[raceId] || raceData?.participant_count || 0;
-                    topPercentage = totalParticipants > 0 ? Math.round((position / totalParticipants) * 100) : '-';
+                    topPercentage = participantCount > 0 ? Math.round((position / participantCount) * 100) : '-';
                   } else {
                     // CyclistProfile.jsx style
-                    const participantCount = raceParticipantCounts[raceId];
                     const percentage = calculatePercentagePosition(position, participantCount);
                     topPercentage = percentage !== null ? percentage : '-';
                   }

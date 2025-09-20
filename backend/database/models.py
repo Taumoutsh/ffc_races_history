@@ -77,14 +77,14 @@ class CyclingDatabase:
                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
             """, (uci_id, first_name, last_name, region, club, club_raw))
     
-    def add_race_result(self, race_id: str, uci_id: str, rank: int, raw_data: List) -> None:
+    def add_race_result(self, race_id: str, uci_id: str, rank: int, raw_data: List, race_participant_count: int = None) -> None:
         """Add a race result"""
         with self.get_connection() as conn:
             conn.execute("""
-                INSERT OR REPLACE INTO race_results 
-                (race_id, uci_id, rank, raw_data_json)
-                VALUES (?, ?, ?, ?)
-            """, (race_id, uci_id, rank, json.dumps(raw_data)))
+                INSERT OR REPLACE INTO race_results
+                (race_id, uci_id, rank, race_participant_count, raw_data_json)
+                VALUES (?, ?, ?, ?, ?)
+            """, (race_id, uci_id, rank, race_participant_count, json.dumps(raw_data)))
     
     def race_exists(self, race_id: str) -> bool:
         """Check if race already exists"""
@@ -140,21 +140,21 @@ class CyclingDatabase:
         """Get all race results for a specific cyclist"""
         with self.get_connection() as conn:
             rows = conn.execute("""
-                SELECT r.id as race_id, r.date, r.name as race_name, 
-                       rr.rank, rr.raw_data_json
+                SELECT r.id as race_id, r.date, r.name as race_name,
+                       rr.rank, rr.race_participant_count as participant_count, rr.raw_data_json
                 FROM race_results rr
                 JOIN races r ON rr.race_id = r.id
                 WHERE rr.uci_id = ?
                 ORDER BY r.date DESC
             """, (uci_id,)).fetchall()
-            
+
             history = []
             for row in rows:
                 result = dict(row)
                 result['raw_data'] = json.loads(result['raw_data_json'])
                 del result['raw_data_json']
                 history.append(result)
-            
+
             return history
     
     def search_cyclists(self, query: str) -> List[Dict]:
@@ -262,7 +262,8 @@ class CyclingDatabase:
                             'date': h['date'],
                             'race_id': h['race_id'],
                             'race_name': h['race_name'],
-                            'rank': h['rank']
+                            'rank': h['rank'],
+                            'participant_count': h['participant_count']
                         } for h in history
                     ]
             
