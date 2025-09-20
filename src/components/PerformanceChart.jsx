@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { calculatePercentagePosition, getPercentageColor, filterDataByYears } from '../utils/dateUtils';
 import DateFilter from './DateFilter';
 
-const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, raceParticipantCounts, selectedYears, onYearsChange }) => {
+const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, selectedYears, onYearsChange }) => {
   const { t } = useTranslation();
   const [forceUpdate, setForceUpdate] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -66,7 +66,8 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
       originalDate: race.date, // Keep original for sorting
       position: Number(race.position), // Ensure position is a number
       name: race.name,
-      raceId: race.raceId
+      raceId: race.raceId,
+      participantCount: race.participantCount
     }))
     .filter(race => race.position && !isNaN(race.position)) // Filter out invalid positions
     .sort((a, b) => parseFrenchDate(a.originalDate) - parseFrenchDate(b.originalDate));
@@ -113,15 +114,14 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
 
   // Calculate average top percentage for filtered data
   const calculateAverageTopPercentage = () => {
-    if (!filteredData || !raceParticipantCounts) return null;
-    
+    if (!filteredData) return null;
+
     const validPercentages = filteredData
       .map(race => {
-        const participantCount = raceParticipantCounts[race.raceId];
-        return calculatePercentagePosition(race.position, participantCount);
+        return calculatePercentagePosition(race.position, race.participantCount);
       })
       .filter(percentage => percentage !== null);
-    
+
     if (validPercentages.length === 0) return null;
     
     const sum = validPercentages.reduce((acc, percentage) => acc + percentage, 0);
@@ -131,8 +131,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, racePa
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const raceData = payload[0].payload;
-      const participantCount = raceParticipantCounts?.[raceData.raceId];
-      const percentage = calculatePercentagePosition(raceData.position, participantCount);
+      const percentage = calculatePercentagePosition(raceData.position, raceData.participantCount);
       
       return (
         <div style={{

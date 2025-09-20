@@ -11,7 +11,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
   const { t } = useTranslation();
   const [showChart, setShowChart] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
-  const [raceParticipantCounts, setRaceParticipantCounts] = useState({});
   const [selectedYears, setSelectedYears] = useState([]);
 
   useEffect(() => {
@@ -24,25 +23,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     }
   }, [isOpen]);
 
-
-
-  // Function to fetch participant count for a race
-  const fetchRaceParticipantCount = useCallback(async (raceId) => {
-    if (!api || !raceId || raceParticipantCounts[raceId]) return;
-    
-    try {
-      const raceData = await api.getRace(raceId);
-      if (raceData && raceData.participant_count) {
-        setRaceParticipantCounts(prev => ({
-          ...prev,
-          [raceId]: raceData.participant_count
-        }));
-      }
-    } catch (error) {
-      console.error('Error fetching race participant count:', error);
-    }
-  }, [api, raceParticipantCounts]);
-
   const safeHistory = history || [];
   const isDefaultProfile = isDefaultCyclistById ? isDefaultCyclistById(cyclistId, cyclistName) : false;
 
@@ -53,8 +33,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
   const calculateAverageTopPercentage = () => {
     const validPercentages = [];
     filteredHistory.forEach(race => {
-      const participantCount = raceParticipantCounts[race.race_id];
-      const percentage = calculatePercentagePosition(race.rank, participantCount);
+      const percentage = calculatePercentagePosition(race.rank, race.participant_count);
       if (percentage !== null) {
         validPercentages.push(percentage);
       }
@@ -64,17 +43,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     const average = validPercentages.reduce((sum, p) => sum + p, 0) / validPercentages.length;
     return Math.round(average);
   };
-
-  // Fetch participant counts for all races when component loads
-  useEffect(() => {
-    if (isOpen && safeHistory.length > 0 && api) {
-      safeHistory.forEach(race => {
-        if (race.race_id && !raceParticipantCounts[race.race_id]) {
-          fetchRaceParticipantCount(race.race_id);
-        }
-      });
-    }
-  }, [isOpen, safeHistory, api, fetchRaceParticipantCount, raceParticipantCounts]);
 
   if (!isOpen) return null;
 
@@ -389,11 +357,11 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                     date: race.date,
                     position: race.rank,
                     name: race.race_name,
-                    raceId: race.race_id
+                    raceId: race.race_id,
+                    participantCount: race.participant_count
                   }))}
                   onPointClick={onPointClick}
                   cyclistName={cyclistName}
-                  raceParticipantCounts={raceParticipantCounts}
                 />
               </div>
             </div>
@@ -402,7 +370,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
             <div>
               <CyclistRaceHistoryTable
                 races={safeHistory}
-                raceParticipantCounts={raceParticipantCounts}
                 selectedYears={selectedYears}
                 onRaceClick={handleTableRaceClick}
                 getRaceById={null}

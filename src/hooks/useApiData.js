@@ -116,7 +116,8 @@ export const useApiData = (dynamicDefaultCyclist) => {
           date: race.date,
           name: race.name,
           position: parseInt(cyclistParticipant.raw_data[0]),
-          rank: cyclistParticipant.rank
+          rank: cyclistParticipant.rank,
+          participant_count: race.participants.length
         });
       }
     });
