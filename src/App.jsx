@@ -1143,7 +1143,7 @@ function App() {
             </div>
 
             {/* Race History Table */}
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: window.innerWidth < 768 ? '2rem' : '10rem' }}>
               <CyclistRaceHistoryTable
                 races={defaultCyclistRaces}
                 selectedYears={historySelectedYears}
