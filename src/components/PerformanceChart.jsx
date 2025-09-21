@@ -67,7 +67,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, select
       position: Number(race.position), // Ensure position is a number
       name: race.name,
       raceId: race.raceId,
-      participantCount: race.participantCount
+      participantCount: race.participant_count || race.participantCount
     }))
     .filter(race => race.position && !isNaN(race.position)) // Filter out invalid positions
     .sort((a, b) => parseFrenchDate(a.originalDate) - parseFrenchDate(b.originalDate));
@@ -118,7 +118,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, select
 
     const validPercentages = filteredData
       .map(race => {
-        return calculatePercentagePosition(race.position, race.participantCount);
+        return calculatePercentagePosition(race.position, race.participant_count);
       })
       .filter(percentage => percentage !== null);
 
