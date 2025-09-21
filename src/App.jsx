@@ -103,11 +103,11 @@ const styles = {
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-    gap: 'clamp(0.75rem, 3vw, 1.5rem)'
+    gridTemplateColumns: window.innerWidth < 768 ? 'repeat(3, 1fr)' : 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: 'clamp(0.5rem, 2vw, 1.5rem)'
   },
   statCard: {
-    padding: 'clamp(0.75rem, 3vw, 1.5rem)',
+    padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 0.75rem)' : 'clamp(0.75rem, 3vw, 1.5rem)',
     borderRadius: '1rem',
     border: '1px solid rgba(255, 255, 255, 0.2)',
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
