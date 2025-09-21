@@ -16,6 +16,7 @@ function UserManagement({ onClose }) {
   const [createForm, setCreateForm] = useState({
     username: '',
     password: '',
+    confirmPassword: '',
     is_admin: false
   });
   const [messageForm, setMessageForm] = useState({
@@ -50,9 +51,15 @@ function UserManagement({ onClose }) {
     setCreateLoading(true);
     setError('');
 
+    if (createForm.password !== createForm.confirmPassword) {
+      setError(t('admin.passwordsDoNotMatch') || 'Passwords do not match');
+      setCreateLoading(false);
+      return;
+    }
+
     try {
       await axios.post('/auth/users', createForm);
-      setCreateForm({ username: '', password: '', is_admin: false });
+      setCreateForm({ username: '', password: '', confirmPassword: '', is_admin: false });
       setShowCreateForm(false);
       loadUsers();
     } catch (error) {
@@ -433,6 +440,43 @@ function UserManagement({ onClose }) {
                   outline: 'none'
                 }}
                 placeholder={t('admin.enterPassword') || 'Enter password (min 6 characters)'}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                  e.target.style.background = 'rgba(255, 255, 255, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: 'clamp(1.25rem, 3vw, 1.5rem)' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '0.75rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                color: 'white'
+              }}>{t('admin.confirmPassword') || 'Confirm Password'}</label>
+              <input
+                type="password"
+                value={createForm.confirmPassword}
+                onChange={(e) => setCreateForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                required
+                minLength={6}
+                style={{
+                  width: '100%',
+                  padding: 'clamp(0.75rem, 2vw, 1rem)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '0.5rem',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  boxSizing: 'border-box',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s ease',
+                  outline: 'none'
+                }}
+                placeholder={t('admin.enterConfirmPassword') || 'Confirm password'}
                 onFocus={(e) => {
                   e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
                   e.target.style.background = 'rgba(255, 255, 255, 0.15)';
