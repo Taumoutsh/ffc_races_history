@@ -198,7 +198,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, select
   };
 
   return (
-    <div style={{width: '100%', ...(window.innerWidth < 768 ? {minHeight: 'clamp(20rem, 40vh, 28rem)', maxHeight: 'clamp(30rem, 65vh, 38rem)', display: 'flex', flexDirection: 'column', overflow: 'hidden'} : {height: 'clamp(28rem, 60vh, 40rem)'}), padding: 'clamp(0.75rem, 3vw, 1.5rem)'}}>
+    <div style={{width: '100%', ...(window.innerWidth < 768 ? {minHeight: 'clamp(20rem, 40vh, 28rem)', maxHeight: 'clamp(30rem, 62vh, 38rem)', display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingRight: 'clamp(0.75rem, 5vw, 1.5rem)'} : {height: 'clamp(28rem, 60vh, 40rem)', padding: 'clamp(0.75rem, 3vw, 1.5rem)'}), }}>
       {/* Header with title and optional date filter */}
       <div style={{
         display: 'flex',
@@ -341,7 +341,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, select
             style={{
               position: 'absolute',
               left: 'clamp(5px, 2vw, 10px)',
-              top: '50%',
+              top: '60%',
               zIndex: 10,
               background: 'rgba(59, 130, 246, 0.9)',
               backdropFilter: 'blur(20px)',
@@ -384,7 +384,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, select
             style={{
               position: 'absolute',
               right: 'clamp(-20px, -5vw, -30px)',
-              top: '50%',
+              top: '60%',
               zIndex: 10,
               background: 'rgba(59, 130, 246, 0.9)',
               backdropFilter: 'blur(20px)',
@@ -427,7 +427,7 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, select
               top: 20, 
               right: window.innerWidth < 768 ? 15 : 30, 
               left: window.innerWidth < 768 ? 15 : 20, 
-              bottom: window.innerWidth < 768 ? 95 : 115 
+              bottom: window.innerWidth < 768 ? 95 : 0 
             }}
             onClick={handleClick}
           >
