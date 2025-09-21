@@ -96,6 +96,7 @@ function LoginForm() {
               onChange={handleChange}
               required
               disabled={loading}
+              autoCapitalize="none"
               style={{
                 width: '100%',
                 padding: '0.75rem',
