@@ -587,9 +587,13 @@ function UserManagement({ onClose }) {
                 <td style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.9rem' }}>
                   {user.last_login ? (
                     <div>
-                      <div>{new Date(user.last_login).toLocaleDateString()}</div>
+                      <div>{new Date(user.last_login + 'Z').toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })}</div>
                       <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-                        {new Date(user.last_login).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(user.last_login + 'Z').toLocaleTimeString('fr-FR', {
+                          timeZone: 'Europe/Paris',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </div>
                     </div>
                   ) : (t('admin.never') || 'Never')}
