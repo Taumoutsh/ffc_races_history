@@ -16,6 +16,7 @@ APP_DIR="$HOME/$PROJECT_DIR/${APP_NAME}"
 DATA_DIR="$HOME/$PROJECT_DIR/${APP_NAME}/data"
 LOG_DIR="$HOME/$PROJECT_DIR/${APP_NAME}/logs"
 SSL_DIR="$HOME/$PROJECT_DIR/${APP_NAME}/ssl"
+CRON_LOG_DIR="$HOME/$PROJECT_DIR/${APP_NAME}/cron_logs"
 
 # Colors for output
 RED='\033[0;31m'
@@ -115,7 +116,7 @@ if [ -d "${APP_DIR}" ] && ! [ -w "${DATA_DIR}" ] 2>/dev/null; then
     sudo rm -rf "${APP_DIR}"
 fi
 
-mkdir -p "${APP_DIR}" "${DATA_DIR}" "${LOG_DIR}" "${SSL_DIR}"
+mkdir -p "${APP_DIR}" "${DATA_DIR}" "${LOG_DIR}" "${SSL_DIR}" "${CRON_LOG_DIR}"
 
 # Copy application files
 log_info "Copying application files..."
