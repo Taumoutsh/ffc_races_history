@@ -31,7 +31,7 @@ fi
 chmod +x "$SCRIPT_PATH"
 
 # Crontab entry: Every Thursday at 3:00 AM
-CRON_ENTRY="0 3 * * 4 $SCRIPT_PATH >> $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log 2>&1"
+CRON_ENTRY="0 3 * * 2,4 $SCRIPT_PATH >> $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log 2>&1"
 
 echo -e "${YELLOW}Setting up crontab entry...${NC}"
 echo "Schedule: Every Thursday at 3:00 AM"
