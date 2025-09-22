@@ -103,7 +103,7 @@ const styles = {
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: window.innerWidth < 768 ? 'repeat(3, 1fr)' : 'repeat(auto-fit, minmax(150px, 1fr))',
+    gridTemplateColumns: window.innerWidth < 768 ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
     gap: 'clamp(0.5rem, 2vw, 1.5rem)'
   },
   statCard: {
@@ -150,7 +150,7 @@ const styles = {
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
   const { isAdmin } = useAuth();
-  const { data, stats, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
+  const { data, stats, scrapingInfo, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 768);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -183,6 +183,28 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+
+  // Helper function to format datetime in French timezone
+  const formatDateTimeInFrenchTimezone = (isoString) => {
+    if (!isoString) return '';
+
+    try {
+      const date = new Date(isoString);
+      // Format to French timezone (Europe/Paris)
+      return date.toLocaleString('fr-FR', {
+        timeZone: 'Europe/Paris',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      return '';
+    }
+  };
 
   // Update available categories and filter results when research results change
   useEffect(() => {
@@ -1185,6 +1207,12 @@ function App() {
                 {defaultCyclistRaces.length}
               </div>
               <div style={{...styles.statLabel, color: '#7c3aed'}}>{getDefaultCyclistInfo().fullName} {t('ui.races')}</div>
+            </div>
+            <div style={{...styles.statCard, backgroundColor: '#fef2f2'}}>
+              <div style={{fontSize: 'clamp(0.8rem, 2.5vw, 1.2rem)', fontWeight: '700', color: '#dc2626', lineHeight: '1.2', textAlign: 'center'}}>
+                {scrapingInfo?.timestamp ? formatDateTimeInFrenchTimezone(scrapingInfo.timestamp) : t('ui.loading')}
+              </div>
+              <div style={{...styles.statLabel, color: '#991b1b'}}>{t('ui.lastDatabaseUpdate')}</div>
             </div>
           </div>
         </div>

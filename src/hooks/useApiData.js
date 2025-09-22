@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { appConfig } from '../config/appConfig.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 export const useApiData = (dynamicDefaultCyclist) => {
   const [data, setData] = useState(null);
   const [stats, setStats] = useState(null);
+  const [scrapingInfo, setScrapingInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { isAuthenticated, loading: authLoading, token } = useAuth();
@@ -15,17 +16,20 @@ export const useApiData = (dynamicDefaultCyclist) => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Load both race data and database stats
-        const [racesResponse, statsResponse] = await Promise.all([
+        // Load race data, database stats, and scraping info
+        const [racesResponse, statsResponse, scrapingResponse] = await Promise.all([
           axios.get('/races/data'),
-          axios.get('/stats')
+          axios.get('/stats'),
+          axios.get('/scraping-info')
         ]);
 
         const jsonData = racesResponse.data;
         const statsData = statsResponse.data;
+        const scrapingData = scrapingResponse.data;
 
         setData(jsonData);
         setStats(statsData);
+        setScrapingInfo(scrapingData);
       } catch (err) {
         let errorMessage = err.message;
 
@@ -359,8 +363,8 @@ export const useApiData = (dynamicDefaultCyclist) => {
     }
   };
 
-  // API-specific functions for direct database access
-  const api = {
+  // API-specific functions for direct database access (memoized to prevent recreation)
+  const api = useMemo(() => ({
     // Get cyclist details from API
     getCyclist: async (uciId) => {
       try {
@@ -413,13 +417,25 @@ export const useApiData = (dynamicDefaultCyclist) => {
       } catch (err) {
         return false;
       }
+    },
+
+    // Get scraping info
+    getScrapingInfo: async () => {
+      try {
+        const response = await axios.get('/scraping-info');
+        return response.data;
+      } catch (err) {
+        console.error('API getScrapingInfo error:', err);
+        return null;
+      }
     }
-  };
+  }), []); // Empty dependency array since these functions don't depend on any props or state
 
 
   return {
     data,
     stats,
+    scrapingInfo,
     loading,
     error,
     getDefaultCyclistRaces,
