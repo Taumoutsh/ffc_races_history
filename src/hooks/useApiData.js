@@ -413,6 +413,17 @@ export const useApiData = (dynamicDefaultCyclist) => {
       } catch (err) {
         return false;
       }
+    },
+
+    // Get scraping info
+    getScrapingInfo: async () => {
+      try {
+        const response = await axios.get('/scraping-info');
+        return response.data;
+      } catch (err) {
+        console.error('API getScrapingInfo error:', err);
+        return null;
+      }
     }
   };
 
