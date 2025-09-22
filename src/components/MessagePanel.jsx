@@ -158,16 +158,8 @@ function MessagePanel() {
               gap: 'clamp(0.5rem, 1.5vw, 0.75rem)'
             }}>
               <div style={{
-                fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
-                flexShrink: 0,
-                background: colors.iconBackground,
-                borderRadius: '50%',
-                width: 'clamp(2rem, 4vw, 2.5rem)',
-                height: 'clamp(2rem, 4vw, 2.5rem)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: `2px solid ${colors.leftBorder}`
+                fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                flexShrink: 0
               }}>
                 {getMessageIcon(message.message_type)}
               </div>
