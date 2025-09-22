@@ -150,7 +150,7 @@ const styles = {
 function App() {
   const { t, defaultCyclist, updateDefaultCyclist } = useTranslation();
   const { isAdmin } = useAuth();
-  const { data, stats, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
+  const { data, stats, scrapingInfo, loading, error, getDefaultCyclistRaces, getDefaultCyclistInfo, getRaceById, getCyclistHistory, searchCyclist, formatName, researchRacers, scrapeRaceData, isDefaultCyclist, isDefaultCyclistById, api } = useApiData(defaultCyclist);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 768);
   const [selectedRace, setSelectedRace] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -173,7 +173,6 @@ function App() {
   const [chartSelectedYears, setChartSelectedYears] = useState([]);
   const [historySelectedYears, setHistorySelectedYears] = useState([]);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [lastDatabaseUpdate, setLastDatabaseUpdate] = useState(null);
 
   // Handle window resize for responsive layout
   useEffect(() => {
@@ -185,19 +184,6 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch last database update time
-  useEffect(() => {
-    const fetchLastUpdate = async () => {
-      if (api && api.getScrapingInfo) {
-        const scrapingInfo = await api.getScrapingInfo();
-        if (scrapingInfo && scrapingInfo.timestamp) {
-          setLastDatabaseUpdate(scrapingInfo.timestamp);
-        }
-      }
-    };
-
-    fetchLastUpdate();
-  }, [api]);
 
   // Helper function to format datetime in French timezone
   const formatDateTimeInFrenchTimezone = (isoString) => {
@@ -1224,7 +1210,7 @@ function App() {
             </div>
             <div style={{...styles.statCard, backgroundColor: '#fef2f2'}}>
               <div style={{fontSize: 'clamp(0.8rem, 2.5vw, 1.2rem)', fontWeight: '700', color: '#dc2626', lineHeight: '1.2', textAlign: 'center'}}>
-                {lastDatabaseUpdate ? formatDateTimeInFrenchTimezone(lastDatabaseUpdate) : t('ui.loading')}
+                {scrapingInfo?.timestamp ? formatDateTimeInFrenchTimezone(scrapingInfo.timestamp) : t('ui.loading')}
               </div>
               <div style={{...styles.statLabel, color: '#991b1b'}}>{t('ui.lastDatabaseUpdate')}</div>
             </div>
