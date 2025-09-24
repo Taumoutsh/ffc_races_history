@@ -191,15 +191,12 @@ function App() {
 
     try {
       const date = new Date(isoString);
-      // Format to French timezone (Europe/Paris)
-      return date.toLocaleString('fr-FR', {
+      // Format to French timezone (Europe/Paris) - date only
+      return date.toLocaleDateString('fr-FR', {
         timeZone: 'Europe/Paris',
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        day: '2-digit'
       });
     } catch (error) {
       return '';
@@ -1209,10 +1206,10 @@ function App() {
               <div style={{...styles.statLabel, color: '#7c3aed'}}>{getDefaultCyclistInfo().fullName} {t('ui.races')}</div>
             </div>
             <div style={{...styles.statCard, backgroundColor: '#fef2f2'}}>
-              <div style={{fontSize: 'clamp(0.8rem, 2.5vw, 1.2rem)', fontWeight: '700', color: '#dc2626', lineHeight: '1.2', textAlign: 'center'}}>
+              <div style={{...styles.statNumber, color: '#dc2626', textAlign: 'left'}}>
                 {scrapingInfo?.timestamp ? formatDateTimeInFrenchTimezone(scrapingInfo.timestamp) : t('ui.loading')}
               </div>
-              <div style={{...styles.statLabel, color: '#991b1b'}}>{t('ui.lastDatabaseUpdate')}</div>
+              <div style={{...styles.statLabel, color: '#991b1b'}}>dernière mise à jour</div>
             </div>
           </div>
         </div>
