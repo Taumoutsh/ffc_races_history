@@ -31,7 +31,7 @@ fi
 chmod +x "$REGION_SCRIPT"
 
 # Crontab entry: Every Thursday at 3:00 AM
-CRON_ENTRY="0 3 * * 2,4 cd $HOME/$PROJECT_DIR/${APP_NAME} && ./scrape-region.sh bretagne & ./scrape-region.sh pays-de-la-loire & ./scrape-region.sh centre-val-de-loire & ./scrape-region.sh nouvelle-aquitaine & >> $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log 2>&1"
+CRON_ENTRY="0 3 * * 2,4 cd $HOME/$PROJECT_DIR/${APP_NAME} && nohup $HOME/$PROJECT_DIR/${APP_NAME}/scrape-region.sh bretagne & nohup $HOME/$PROJECT_DIR/${APP_NAME}/scrape-region.sh pays-de-la-loire & nohup $HOME/$PROJECT_DIR/${APP_NAME}/scrape-region.sh centre-val-de-loire & nohup $HOME/$PROJECT_DIR/${APP_NAME}/scrape-region.sh nouvelle-aquitaine & wait >> $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log 2>&1"
 
 echo -e "${YELLOW}Setting up crontab entry...${NC}"
 echo "Schedule: Every Thursday at 3:00 AM"
@@ -77,5 +77,6 @@ echo "• Edit crontab: crontab -e"
 echo "• Remove crontab entry: crontab -l | grep -v 'scrape-region.sh' | crontab -"
 echo "• View logs: tail -f $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log"
 echo "• Test script manually: cd $HOME/$PROJECT_DIR/${APP_NAME} && ./scrape-region.sh [region]"
+echo "• Test with absolute path: $HOME/$PROJECT_DIR/${APP_NAME}/scrape-region.sh [region]"
 echo ""
 echo -e "${GREEN}Setup complete! 🎉${NC}"
