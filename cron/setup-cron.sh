@@ -19,31 +19,31 @@ NC='\033[0m' # No Color
 echo "🕐 Cycling History App - Cron Setup"
 echo "=================================="
 
-# Check if weekly-scrape.sh exists
-if [ ! -f "$SCRIPT_PATH" ]; then
-    echo -e "${RED}Error: weekly-scrape.sh not found at $SCRIPT_PATH${NC}"
+# Check if scrape-region.sh exists
+REGION_SCRIPT="$HOME/$PROJECT_DIR/${APP_NAME}/scrape-region.sh"
+if [ ! -f "$REGION_SCRIPT" ]; then
+    echo -e "${RED}Error: scrape-region.sh not found at $REGION_SCRIPT${NC}"
     echo "Please make sure the script exists and is executable."
-    echo "Expected location: $SCRIPT_PATH"
     exit 1
 fi
 
 # Make sure the script is executable
-chmod +x "$SCRIPT_PATH"
+chmod +x "$REGION_SCRIPT"
 
 # Crontab entry: Every Thursday at 3:00 AM
-CRON_ENTRY="0 3 * * 2,4 $SCRIPT_PATH >> $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log 2>&1"
+CRON_ENTRY="0 3 * * 2,4 cd $HOME/$PROJECT_DIR/${APP_NAME} && ./scrape-region.sh bretagne & ./scrape-region.sh pays-de-la-loire & ./scrape-region.sh centre-val-de-loire & ./scrape-region.sh nouvelle-aquitaine & >> $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log 2>&1"
 
 echo -e "${YELLOW}Setting up crontab entry...${NC}"
 echo "Schedule: Every Thursday at 3:00 AM"
-echo "Script: $SCRIPT_PATH"
+echo "Commands: Direct scrape-region.sh calls for 4 regions"
 echo "Log file: $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log"
 echo ""
 
 # Check if crontab entry already exists
-if crontab -l 2>/dev/null | grep -q "$SCRIPT_PATH"; then
-    echo -e "${YELLOW}Found existing crontab entry for this script.${NC}"
+if crontab -l 2>/dev/null | grep -q "scrape-region.sh"; then
+    echo -e "${YELLOW}Found existing crontab entry for scrape-region.sh.${NC}"
     echo "Current crontab entries:"
-    crontab -l 2>/dev/null | grep "$SCRIPT_PATH" || true
+    crontab -l 2>/dev/null | grep "scrape-region.sh" || true
     echo ""
     read -p "Do you want to replace it? (y/N): " -n 1 -r
     echo ""
@@ -53,7 +53,7 @@ if crontab -l 2>/dev/null | grep -q "$SCRIPT_PATH"; then
     fi
 
     # Remove existing entries for this script
-    crontab -l 2>/dev/null | grep -v "$SCRIPT_PATH" | crontab -
+    crontab -l 2>/dev/null | grep -v "scrape-region.sh" | crontab -
     echo -e "${GREEN}Removed existing crontab entry.${NC}"
 fi
 
@@ -74,8 +74,8 @@ echo ""
 echo -e "${YELLOW}📌 Useful commands:${NC}"
 echo "• View crontab: crontab -l"
 echo "• Edit crontab: crontab -e"
-echo "• Remove crontab entry: crontab -l | grep -v '$SCRIPT_PATH' | crontab -"
-echo "• View logs: tail -f $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/weekly-scrape.log"
-echo "• Test script manually: $SCRIPT_PATH"
+echo "• Remove crontab entry: crontab -l | grep -v 'scrape-region.sh' | crontab -"
+echo "• View logs: tail -f $HOME/$PROJECT_DIR/${APP_NAME}/cron_logs/cron.log"
+echo "• Test script manually: cd $HOME/$PROJECT_DIR/${APP_NAME} && ./scrape-region.sh [region]"
 echo ""
 echo -e "${GREEN}Setup complete! 🎉${NC}"
