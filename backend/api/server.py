@@ -502,40 +502,72 @@ def get_races_data():
 @app.route('/api/research/scrape-race', methods=['POST'])
 @require_auth
 def scrape_race_data():
-    """Scrape race data from paysdelaloirecyclisme.fr URL"""
+    """Scrape race data from paysdelaloirecyclisme.fr URL with User-Agent fallback"""
     try:
         data = request.get_json()
         url = data.get('url', '')
-        
+
         if not url:
             return jsonify({'error': 'No URL provided'}), 400
-        
-        # Validate URL
-        if 'paysdelaloirecyclisme.fr' not in url and 'velo.ffc.fr' not in url:
-            return jsonify({'error': 'Only paysdelaloirecyclisme.fr and velo.ffc.fr URLs are supported'}), 400
-        
-        # Scrape the webpage
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.content, 'html.parser')
-        
+
+        # Validate URL domain - check actual domain, not just substring
+        from urllib.parse import urlparse
+        parsed_url = urlparse(url)
+        allowed_domains = ['paysdelaloirecyclisme.fr', 'velo.ffc.fr']
+
+        if not any(parsed_url.netloc.endswith(domain) for domain in allowed_domains):
+            return jsonify({'error': 'Only paysdelaloirecyclisme.fr and velo.ffc.fr domains are supported'}), 400
+
+        # List of User-Agent strings to try
+        user_agents = [
+            # Desktop Chrome (primary)
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            # Mobile Safari (iOS)
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1',
+            # Mobile Chrome (Android)
+            'Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36',
+            # Desktop Firefox (fallback)
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0'
+        ]
+
+        soup = None
+        successful_user_agent = None
+        last_error = None
+
+        # Try each User-Agent until we find one that works
+        for user_agent in user_agents:
+            try:
+                headers = {'User-Agent': user_agent}
+                response = requests.get(url, headers=headers, timeout=10)
+                response.raise_for_status()
+
+                soup = BeautifulSoup(response.content, 'html.parser')
+
+                # Check if we can find a table - if yes, this User-Agent works
+                table = soup.find('table')
+                if table and table.find_all('tr'):
+                    successful_user_agent = user_agent
+                    break
+
+            except requests.RequestException as e:
+                last_error = f'Failed to fetch with User-Agent "{user_agent}": {str(e)}'
+                continue
+
+        if not soup:
+            return jsonify({'error': 'Failed to fetch webpage'}), 500
+
         # Extract race name from <h1> tag
         race_name = ''
         h1_tag = soup.find('h1')
         if h1_tag:
             race_name = h1_tag.get_text(strip=True)
-        
+
         # Extract race date from <time> tag with class header-race__date
         race_date = ''
         time_tag = soup.find('time', class_='header-race__date')
         if time_tag:
             race_date = time_tag.get_text(strip=True)
-        
+
         # Extract organizer from <span>Organisateur</span> tag
         organizer_club = ''
         organizer_spans = soup.find_all('span', string='Organisateur')
@@ -551,7 +583,7 @@ def scrape_race_data():
                     organizer_club = text.replace('Organisateur', '').strip()
                     if organizer_club:
                         break
-        
+
         # Extract cyclist data from table
         entry_list = ''
         table = soup.find('table')
@@ -570,19 +602,18 @@ def scrape_race_data():
                     team = cells[6].get_text(strip=True) if len(cells) > 6 else ''
                     line = f"{uci_id}\t{last_name}\t{first_name}\t{category}\t{region}\t{club}\t{team}"
                     entry_list += line + '\n'
-        
+
         if not entry_list:
-            return jsonify({'error': 'No cyclist table found on the webpage'}), 400
-        
+            return jsonify({'error': 'No cyclist table found on the webpage with any User-Agent'}), 400
+
         return jsonify({
             'race_name': race_name,
             'race_date': race_date,
             'organizer_club': organizer_club,
-            'entry_list': entry_list.strip()
+            'entry_list': entry_list.strip(),
+            'user_agent_used': successful_user_agent
         })
-        
-    except requests.RequestException as e:
-        return jsonify({'error': f'Failed to fetch webpage: {str(e)}'}), 500
+
     except Exception as e:
         return jsonify({'error': f'Scraping failed: {str(e)}'}), 500
 

@@ -12,7 +12,6 @@ import CyclistRaceHistoryTable from './components/CyclistRaceHistoryTable';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
-import { downloadResearchPDF } from './utils/pdfGenerator.js';
 import axios from 'axios';
 
 const styles = {
@@ -173,6 +172,7 @@ function App() {
   const [chartSelectedYears, setChartSelectedYears] = useState([]);
   const [historySelectedYears, setHistorySelectedYears] = useState([]);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [analysisErrorMessage, setAnalysisErrorMessage] = useState(null);
 
   // Handle window resize for responsive layout
   useEffect(() => {
@@ -248,8 +248,12 @@ function App() {
       setSelectedRace(race);
       setShowLeaderboard(true);
     } else {
-      // Show a message for missing race data
-      alert(`Race data not available for ${raceData.name}`);
+      // Show inline error message for missing race data
+      setAnalysisErrorMessage({
+        type: 'error',
+        message: `Race data not available for ${raceData.name}`,
+        timestamp: Date.now()
+      });
     }
   };
 
@@ -330,6 +334,8 @@ function App() {
     e.preventDefault();
     if (!raceUrl.trim()) return;
 
+    // Clear any existing error messages when starting new research
+    setAnalysisErrorMessage(null);
     setIsScrapingInProgress(true);
     try {
       const scraped = await scrapeRaceData(raceUrl.trim());
@@ -342,13 +348,16 @@ function App() {
       // Automatically process the research results
       const results = await researchRacers(scraped.entryList, scraped.organizerClub);
       setResearchResults(results);
-      
-      // Show success message
+
       console.log('Scraped race data:', scraped);
       console.log('Research results:', results);
     } catch (error) {
       console.error('Scraping failed:', error);
-      alert(`Scraping failed: ${error.message}`);
+      setAnalysisErrorMessage({
+        type: 'error',
+        message: `${t('ui.scrapingFailed') || 'Scraping failed'}: ${error.response?.data?.error || error.message}`,
+        timestamp: Date.now()
+      });
     } finally {
       setIsScrapingInProgress(false);
     }
@@ -361,19 +370,6 @@ function App() {
     setShowCyclistProfile(true);
   };
 
-  const handleExportPDF = async () => {
-    if (researchResults.length === 0) return;
-    
-    const result = await downloadResearchPDF(researchResults, getCyclistHistory, organizerClub, t, scrapedRaceData);
-    if (result.success) {
-      // Show success message (optional)
-      console.log(`PDF exported successfully: ${result.fileName}`);
-    } else {
-      // Handle error with user-friendly message
-      console.error('PDF export failed:', result.error);
-      alert(t('pdf.exportError') || `PDF export failed: ${result.error}`);
-    }
-  };
 
   if (loading) {
     return (
@@ -489,6 +485,17 @@ function App() {
               }
               40% {
                 transform: scale(1);
+              }
+            }
+
+            @keyframes slideDown {
+              from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
               }
             }
 
@@ -779,6 +786,66 @@ function App() {
           
           {showResearchSection && (
             <>
+              {/* Error Message in Analysis Tool */}
+              {analysisErrorMessage && (
+                <div style={{
+                  marginBottom: '1rem',
+                  padding: '1rem',
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  animation: 'slideDown 0.3s ease-out'
+                }}>
+                  <div style={{
+                    fontSize: '1.5rem',
+                    flexShrink: 0,
+                    color: '#dc2626'
+                  }}>
+                    ⚠️
+                  </div>
+                  <div style={{
+                    flex: 1,
+                    color: '#dc2626',
+                    fontWeight: '600',
+                    fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem',
+                    wordBreak: 'break-word',
+                    lineHeight: '1.5'
+                  }}>
+                    {analysisErrorMessage.message}
+                  </div>
+                  <button
+                    onClick={() => setAnalysisErrorMessage(null)}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '0.5rem',
+                      color: '#dc2626',
+                      cursor: 'pointer',
+                      fontSize: '1.25rem',
+                      fontWeight: '700',
+                      width: '2rem',
+                      height: '2rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(239, 68, 68, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+
               {/* URL Scraping Section */}
               <div style={{
                 marginBottom: '0.25rem',
@@ -920,46 +987,13 @@ function App() {
               {researchResults.length > 0 && (
                 <div style={{border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '1rem', backgroundColor: 'rgba(240, 253, 244, 0.8)', backdropFilter: 'blur(10px)', overflowX: 'hidden'}}>
                   <div style={{
-                    padding: '1rem', 
-                    margin: 0, 
-                    fontWeight: '700', 
-                    borderBottom: '1px solid rgba(34, 197, 94, 0.2)', 
-                    color: '#059669',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
+                    padding: '1rem',
+                    margin: 0,
+                    fontWeight: '700',
+                    borderBottom: '1px solid rgba(34, 197, 94, 0.2)',
+                    color: '#059669'
                   }}>
-                    <span>✅ {t('ui.foundRacers')} ({filteredResearchResults.length}/{researchResults.length})</span>
-                    <button
-                      onClick={handleExportPDF}
-                      style={{
-                        padding: window.innerWidth < 768 ? '0.5rem' : '0.5rem 1rem',
-                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '0.875rem',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: window.innerWidth < 768 ? '0' : '0.5rem',
-                        minWidth: window.innerWidth < 768 ? '44px' : 'auto'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = 'translateY(-1px)';
-                        e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'translateY(0)';
-                        e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                      }}
-                    >
-                      {window.innerWidth < 768 ? '📄' : `📄 ${t('pdf.exportPDF') || 'Export PDF'}`}
-                    </button>
+                    ✅ {t('ui.foundRacers')} ({filteredResearchResults.length}/{researchResults.length})
                   </div>
 
                   {/* Category Filter */}

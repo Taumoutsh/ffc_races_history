@@ -70,19 +70,8 @@ export const translations = {
       dateFound: 'Date',
       organizerFound: 'Organizer',
       cyclistsFound: 'Cyclists',
-      found: 'found'
-    },
-    pdf: {
-      exportPDF: 'Export PDF',
-      title: 'Research Results',
-      organizerClub: 'Organizer Club',
-      generatedOn: 'Generated on',
-      raceHistoryFor: 'Race History for',
-      backToTop: 'Back to Top',
-      page: 'Page',
-      of: 'of',
-      exportError: 'PDF export failed. Please try again.',
-      tableOfContents: 'Table of Contents - Race Histories'
+      found: 'found',
+      scrapingFailed: 'Scraping failed'
     },
     comparison: {
       title: 'Performance comparison',
@@ -277,19 +266,8 @@ export const translations = {
       dateFound: 'Date',
       organizerFound: 'Organisateur',
       cyclistsFound: 'Cyclistes',
-      found: 'trouvés'
-    },
-    pdf: {
-      exportPDF: 'Exporter PDF',
-      title: 'Résultats de recherche',
-      organizerClub: 'Club organisateur',
-      generatedOn: 'Généré le',
-      raceHistoryFor: 'Historique des courses pour',
-      backToTop: 'Retour au début',
-      page: 'Page',
-      of: 'sur',
-      exportError: 'Échec de l\'exportation PDF. Veuillez réessayer.',
-      tableOfContents: 'Table des matières - Historiques des courses'
+      found: 'trouvés',
+      scrapingFailed: 'Échec de l\'extraction'
     },
     comparison: {
       title: 'Comparaison des performances',
