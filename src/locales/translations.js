@@ -70,7 +70,8 @@ export const translations = {
       dateFound: 'Date',
       organizerFound: 'Organizer',
       cyclistsFound: 'Cyclists',
-      found: 'found'
+      found: 'found',
+      scrapingFailed: 'Scraping failed'
     },
     pdf: {
       exportPDF: 'Export PDF',
@@ -277,7 +278,8 @@ export const translations = {
       dateFound: 'Date',
       organizerFound: 'Organisateur',
       cyclistsFound: 'Cyclistes',
-      found: 'trouvés'
+      found: 'trouvés',
+      scrapingFailed: 'Échec de l\'extraction'
     },
     pdf: {
       exportPDF: 'Exporter PDF',

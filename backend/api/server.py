@@ -554,7 +554,7 @@ def scrape_race_data():
                 continue
 
         if not soup:
-            return jsonify({'error': f'Failed to fetch webpage with all User-Agents. Last error: {last_error}'}), 500
+            return jsonify({'error': 'Failed to fetch webpage'}), 500
 
         # Extract race name from <h1> tag
         race_name = ''

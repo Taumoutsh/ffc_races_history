@@ -173,6 +173,7 @@ function App() {
   const [chartSelectedYears, setChartSelectedYears] = useState([]);
   const [historySelectedYears, setHistorySelectedYears] = useState([]);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [analysisErrorMessage, setAnalysisErrorMessage] = useState(null);
 
   // Handle window resize for responsive layout
   useEffect(() => {
@@ -248,8 +249,14 @@ function App() {
       setSelectedRace(race);
       setShowLeaderboard(true);
     } else {
-      // Show a message for missing race data
-      alert(`Race data not available for ${raceData.name}`);
+      // Show inline error message for missing race data
+      setAnalysisErrorMessage({
+        type: 'error',
+        message: `Race data not available for ${raceData.name}`,
+        timestamp: Date.now()
+      });
+      // Auto-hide after 5 seconds
+      setTimeout(() => setAnalysisErrorMessage(null), 5000);
     }
   };
 
@@ -330,6 +337,8 @@ function App() {
     e.preventDefault();
     if (!raceUrl.trim()) return;
 
+    // Clear any existing error messages when starting new research
+    setAnalysisErrorMessage(null);
     setIsScrapingInProgress(true);
     try {
       const scraped = await scrapeRaceData(raceUrl.trim());
@@ -342,13 +351,18 @@ function App() {
       // Automatically process the research results
       const results = await researchRacers(scraped.entryList, scraped.organizerClub);
       setResearchResults(results);
-      
-      // Show success message
+
       console.log('Scraped race data:', scraped);
       console.log('Research results:', results);
     } catch (error) {
       console.error('Scraping failed:', error);
-      alert(`Scraping failed: ${error.message}`);
+      setAnalysisErrorMessage({
+        type: 'error',
+        message: `${t('ui.scrapingFailed') || 'Scraping failed'}: ${error.response?.data?.error || error.message}`,
+        timestamp: Date.now()
+      });
+      // Auto-hide after 8 seconds for longer error messages
+      setTimeout(() => setAnalysisErrorMessage(null), 8000);
     } finally {
       setIsScrapingInProgress(false);
     }
@@ -366,12 +380,17 @@ function App() {
     
     const result = await downloadResearchPDF(researchResults, getCyclistHistory, organizerClub, t, scrapedRaceData);
     if (result.success) {
-      // Show success message (optional)
       console.log(`PDF exported successfully: ${result.fileName}`);
     } else {
       // Handle error with user-friendly message
       console.error('PDF export failed:', result.error);
-      alert(t('pdf.exportError') || `PDF export failed: ${result.error}`);
+      setAnalysisErrorMessage({
+        type: 'error',
+        message: t('pdf.exportError') || `PDF export failed: ${result.error}`,
+        timestamp: Date.now()
+      });
+      // Auto-hide after 6 seconds
+      setTimeout(() => setAnalysisErrorMessage(null), 6000);
     }
   };
 
@@ -489,6 +508,17 @@ function App() {
               }
               40% {
                 transform: scale(1);
+              }
+            }
+
+            @keyframes slideDown {
+              from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
               }
             }
 
@@ -779,6 +809,66 @@ function App() {
           
           {showResearchSection && (
             <>
+              {/* Error Message in Analysis Tool */}
+              {analysisErrorMessage && (
+                <div style={{
+                  marginBottom: '1rem',
+                  padding: '1rem',
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  animation: 'slideDown 0.3s ease-out'
+                }}>
+                  <div style={{
+                    fontSize: '1.5rem',
+                    flexShrink: 0,
+                    color: '#dc2626'
+                  }}>
+                    ⚠️
+                  </div>
+                  <div style={{
+                    flex: 1,
+                    color: '#dc2626',
+                    fontWeight: '600',
+                    fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem',
+                    wordBreak: 'break-word',
+                    lineHeight: '1.5'
+                  }}>
+                    {analysisErrorMessage.message}
+                  </div>
+                  <button
+                    onClick={() => setAnalysisErrorMessage(null)}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '0.5rem',
+                      color: '#dc2626',
+                      cursor: 'pointer',
+                      fontSize: '1.25rem',
+                      fontWeight: '700',
+                      width: '2rem',
+                      height: '2rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(239, 68, 68, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+
               {/* URL Scraping Section */}
               <div style={{
                 marginBottom: '0.25rem',
