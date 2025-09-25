@@ -255,8 +255,6 @@ function App() {
         message: `Race data not available for ${raceData.name}`,
         timestamp: Date.now()
       });
-      // Auto-hide after 5 seconds
-      setTimeout(() => setAnalysisErrorMessage(null), 5000);
     }
   };
 
@@ -361,8 +359,6 @@ function App() {
         message: `${t('ui.scrapingFailed') || 'Scraping failed'}: ${error.response?.data?.error || error.message}`,
         timestamp: Date.now()
       });
-      // Auto-hide after 8 seconds for longer error messages
-      setTimeout(() => setAnalysisErrorMessage(null), 8000);
     } finally {
       setIsScrapingInProgress(false);
     }
@@ -389,8 +385,6 @@ function App() {
         message: t('pdf.exportError') || `PDF export failed: ${result.error}`,
         timestamp: Date.now()
       });
-      // Auto-hide after 6 seconds
-      setTimeout(() => setAnalysisErrorMessage(null), 6000);
     }
   };
 
