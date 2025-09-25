@@ -73,18 +73,6 @@ export const translations = {
       found: 'found',
       scrapingFailed: 'Scraping failed'
     },
-    pdf: {
-      exportPDF: 'Export PDF',
-      title: 'Research Results',
-      organizerClub: 'Organizer Club',
-      generatedOn: 'Generated on',
-      raceHistoryFor: 'Race History for',
-      backToTop: 'Back to Top',
-      page: 'Page',
-      of: 'of',
-      exportError: 'PDF export failed. Please try again.',
-      tableOfContents: 'Table of Contents - Race Histories'
-    },
     comparison: {
       title: 'Performance comparison',
       subtitle: 'Comparing performances in common races',
@@ -280,18 +268,6 @@ export const translations = {
       cyclistsFound: 'Cyclistes',
       found: 'trouvés',
       scrapingFailed: 'Échec de l\'extraction'
-    },
-    pdf: {
-      exportPDF: 'Exporter PDF',
-      title: 'Résultats de recherche',
-      organizerClub: 'Club organisateur',
-      generatedOn: 'Généré le',
-      raceHistoryFor: 'Historique des courses pour',
-      backToTop: 'Retour au début',
-      page: 'Page',
-      of: 'sur',
-      exportError: 'Échec de l\'exportation PDF. Veuillez réessayer.',
-      tableOfContents: 'Table des matières - Historiques des courses'
     },
     comparison: {
       title: 'Comparaison des performances',

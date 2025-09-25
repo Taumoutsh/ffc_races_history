@@ -12,7 +12,6 @@ import CyclistRaceHistoryTable from './components/CyclistRaceHistoryTable';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
-import { downloadResearchPDF } from './utils/pdfGenerator.js';
 import axios from 'axios';
 
 const styles = {
@@ -371,22 +370,6 @@ function App() {
     setShowCyclistProfile(true);
   };
 
-  const handleExportPDF = async () => {
-    if (researchResults.length === 0) return;
-    
-    const result = await downloadResearchPDF(researchResults, getCyclistHistory, organizerClub, t, scrapedRaceData);
-    if (result.success) {
-      console.log(`PDF exported successfully: ${result.fileName}`);
-    } else {
-      // Handle error with user-friendly message
-      console.error('PDF export failed:', result.error);
-      setAnalysisErrorMessage({
-        type: 'error',
-        message: t('pdf.exportError') || `PDF export failed: ${result.error}`,
-        timestamp: Date.now()
-      });
-    }
-  };
 
   if (loading) {
     return (
@@ -1004,46 +987,13 @@ function App() {
               {researchResults.length > 0 && (
                 <div style={{border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '1rem', backgroundColor: 'rgba(240, 253, 244, 0.8)', backdropFilter: 'blur(10px)', overflowX: 'hidden'}}>
                   <div style={{
-                    padding: '1rem', 
-                    margin: 0, 
-                    fontWeight: '700', 
-                    borderBottom: '1px solid rgba(34, 197, 94, 0.2)', 
-                    color: '#059669',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
+                    padding: '1rem',
+                    margin: 0,
+                    fontWeight: '700',
+                    borderBottom: '1px solid rgba(34, 197, 94, 0.2)',
+                    color: '#059669'
                   }}>
-                    <span>✅ {t('ui.foundRacers')} ({filteredResearchResults.length}/{researchResults.length})</span>
-                    <button
-                      onClick={handleExportPDF}
-                      style={{
-                        padding: window.innerWidth < 768 ? '0.5rem' : '0.5rem 1rem',
-                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '0.875rem',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: window.innerWidth < 768 ? '0' : '0.5rem',
-                        minWidth: window.innerWidth < 768 ? '44px' : 'auto'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = 'translateY(-1px)';
-                        e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'translateY(0)';
-                        e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                      }}
-                    >
-                      {window.innerWidth < 768 ? '📄' : `📄 ${t('pdf.exportPDF') || 'Export PDF'}`}
-                    </button>
+                    ✅ {t('ui.foundRacers')} ({filteredResearchResults.length}/{researchResults.length})
                   </div>
 
                   {/* Category Filter */}
