@@ -172,6 +172,28 @@ function App() {
   const [chartSelectedYears, setChartSelectedYears] = useState([]);
   const [historySelectedYears, setHistorySelectedYears] = useState([]);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+
+  // Prevent background scrolling when admin panel is open
+  useEffect(() => {
+    if (showAdminPanel) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow || '';
+      };
+    }
+  }, [showAdminPanel]);
+
+  // Prevent background scrolling when races panel is open
+  useEffect(() => {
+    if (showRacesPanel) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow || '';
+      };
+    }
+  }, [showRacesPanel]);
   const [analysisErrorMessage, setAnalysisErrorMessage] = useState(null);
 
   // Handle window resize for responsive layout

@@ -523,7 +523,7 @@ function UserManagement({ onClose }) {
                   background: 'linear-gradient(45deg, #dc3545, #c82333)',
                   border: 'none',
                   borderRadius: '0.5rem',
-                  padding: '0.5rem 1rem',
+                  padding: window.innerWidth < 768 ? '0.75rem' : '0.5rem 1rem',
                   color: 'white',
                   fontWeight: 'bold',
                   cursor: 'pointer',
@@ -532,7 +532,9 @@ function UserManagement({ onClose }) {
                   boxShadow: '0 4px 15px rgba(220, 53, 69, 0.3)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  justifyContent: 'center',
+                  gap: window.innerWidth < 768 ? '0' : '0.5rem',
+                  minWidth: window.innerWidth < 768 ? '44px' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
@@ -544,7 +546,7 @@ function UserManagement({ onClose }) {
                 }}
               >
                 <span>✕</span>
-                <span>{t('admin.cancel') || 'Cancel'}</span>
+                {window.innerWidth >= 768 && <span>{t('admin.cancel') || 'Cancel'}</span>}
               </button>
 
               <button
@@ -556,7 +558,7 @@ function UserManagement({ onClose }) {
                     'linear-gradient(45deg, #007bff, #0056b3)',
                   border: 'none',
                   borderRadius: '0.5rem',
-                  padding: '0.5rem 1rem',
+                  padding: window.innerWidth < 768 ? '0.75rem' : '0.5rem 1rem',
                   color: 'white',
                   fontWeight: 'bold',
                   cursor: createLoading ? 'not-allowed' : 'pointer',
@@ -564,7 +566,9 @@ function UserManagement({ onClose }) {
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem',
+                  justifyContent: 'center',
+                  gap: window.innerWidth < 768 ? '0' : '0.5rem',
+                  minWidth: window.innerWidth < 768 ? '44px' : 'auto',
                   opacity: createLoading ? 0.7 : 1
                 }}
                 onMouseEnter={(e) => {
@@ -578,8 +582,10 @@ function UserManagement({ onClose }) {
                   e.target.style.boxShadow = 'none';
                 }}
               >
-                <span>{createLoading ? '⏳' : '✅'}</span>
-                <span>{createLoading ? (t('admin.creating') || 'Creating...') : (t('admin.createUser') || 'Create User')}</span>
+                <span>{createLoading ? '⏳' : '+'}</span>
+                {window.innerWidth >= 768 && (
+                  <span>{createLoading ? (t('admin.creating') || 'Creating...') : (t('admin.createUser') || 'Create User')}</span>
+                )}
               </button>
             </div>
           </form>
@@ -854,7 +860,7 @@ function UserManagement({ onClose }) {
                       background: 'linear-gradient(45deg, #dc3545, #c82333)',
                       border: 'none',
                       borderRadius: '0.5rem',
-                      padding: '0.5rem 1rem',
+                      padding: window.innerWidth < 768 ? '0.75rem' : '0.5rem 1rem',
                       color: 'white',
                       fontWeight: 'bold',
                       cursor: 'pointer',
@@ -863,7 +869,9 @@ function UserManagement({ onClose }) {
                       boxShadow: '0 4px 15px rgba(220, 53, 69, 0.3)',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem'
+                      justifyContent: 'center',
+                      gap: window.innerWidth < 768 ? '0' : '0.5rem',
+                      minWidth: window.innerWidth < 768 ? '44px' : 'auto'
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.transform = 'translateY(-2px)';
@@ -875,7 +883,7 @@ function UserManagement({ onClose }) {
                     }}
                   >
                     <span>✕</span>
-                    <span>{t('admin.cancel') || 'Cancel'}</span>
+                    {window.innerWidth >= 768 && <span>{t('admin.cancel') || 'Cancel'}</span>}
                   </button>
 
                   <button
@@ -887,7 +895,7 @@ function UserManagement({ onClose }) {
                         'linear-gradient(45deg, #007bff, #0056b3)',
                       border: 'none',
                       borderRadius: '0.5rem',
-                      padding: '0.5rem 1rem',
+                      padding: window.innerWidth < 768 ? '0.75rem' : '0.5rem 1rem',
                       color: 'white',
                       fontWeight: 'bold',
                       cursor: messageLoading ? 'not-allowed' : 'pointer',
@@ -895,7 +903,9 @@ function UserManagement({ onClose }) {
                       transition: 'all 0.2s ease',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem',
+                      justifyContent: 'center',
+                      gap: window.innerWidth < 768 ? '0' : '0.5rem',
+                      minWidth: window.innerWidth < 768 ? '44px' : 'auto',
                       opacity: messageLoading ? 0.7 : 1
                     }}
                     onMouseEnter={(e) => {
@@ -909,13 +919,15 @@ function UserManagement({ onClose }) {
                       e.target.style.boxShadow = 'none';
                     }}
                   >
-                    <span>{messageLoading ? '⏳' : (editingMessage ? '💾' : '✅')}</span>
-                    <span>
-                      {messageLoading ?
-                        (editingMessage ? (t('admin.updating') || 'Updating...') : (t('admin.creating') || 'Creating...')) :
-                        (editingMessage ? (t('admin.updateMessage') || 'Update Message') : (t('admin.createMessage') || 'Create Message'))
-                      }
-                    </span>
+                    <span>{messageLoading ? '⏳' : '+'}</span>
+                    {window.innerWidth >= 768 && (
+                      <span>
+                        {messageLoading ?
+                          (editingMessage ? (t('admin.updating') || 'Updating...') : (t('admin.creating') || 'Creating...')) :
+                          (editingMessage ? (t('admin.updateMessage') || 'Update Message') : (t('admin.createMessage') || 'Create Message'))
+                        }
+                      </span>
+                    )}
                   </button>
                 </div>
               </form>
