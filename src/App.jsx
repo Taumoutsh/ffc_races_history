@@ -175,27 +175,26 @@ function App() {
   const [researchSortField, setResearchSortField] = useState('bestPosition');
   const [researchSortDirection, setResearchSortDirection] = useState('asc');
 
-  // Prevent background scrolling when admin panel is open
+  // Prevent background scrolling when any modal is open (centralized solution)
   useEffect(() => {
-    if (showAdminPanel) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow || '';
-      };
-    }
-  }, [showAdminPanel]);
+    const openModals = [showAdminPanel, showRacesPanel, showCyclistProfile, showLeaderboard];
+    const anyModalOpen = openModals.some(modal => modal);
 
-  // Prevent background scrolling when races panel is open
-  useEffect(() => {
-    if (showRacesPanel) {
-      const originalOverflow = document.body.style.overflow;
+    if (anyModalOpen) {
+      // Store original overflow if not already stored
+      if (!document.body.dataset.originalOverflow) {
+        document.body.dataset.originalOverflow = document.body.style.overflow || 'auto';
+      }
       document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow || '';
-      };
+    } else {
+      // Restore original overflow only when no modals are open
+      if (document.body.dataset.originalOverflow) {
+        document.body.style.overflow = document.body.dataset.originalOverflow;
+        delete document.body.dataset.originalOverflow;
+      }
     }
-  }, [showRacesPanel]);
+  }, [showAdminPanel, showRacesPanel, showCyclistProfile, showLeaderboard]);
+
   const [analysisErrorMessage, setAnalysisErrorMessage] = useState(null);
 
   // Handle window resize for responsive layout
@@ -1476,15 +1475,19 @@ function App() {
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
+          alignItems: 'center',
+          justifyContent: 'center',
           zIndex: 50,
-          padding: 'clamp(0.5rem, 2vw, 1rem)'
+          padding: 'clamp(0.5rem, 2vw, 1rem)',
+          touchAction: 'none'
         }} onClick={(e) => {
           if (e.target === e.currentTarget) {
             setShowRacesPanel(false);
           }
-        }}>
+        }}
+        onTouchMove={(e) => e.preventDefault()}
+        onWheel={(e) => e.preventDefault()}
+        onScroll={(e) => e.preventDefault()}>
           <div style={{
             background: 'rgba(255, 255, 255, 0.95)', 
             backdropFilter: 'blur(20px)',
@@ -1498,7 +1501,8 @@ function App() {
             fontFamily: "'Inter', sans-serif",
             overflow: 'hidden',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            touchAction: 'auto'
           }}>
             <div style={{
               padding: 'clamp(1rem, 3vw, 2rem)',
@@ -1581,7 +1585,7 @@ function App() {
         onDefaultChange={handleDefaultCyclistChange}
         getDefaultCyclistRaces={getDefaultCyclistRaces}
         getDefaultCyclistInfo={getDefaultCyclistInfo}
-        api={api}
+        isLeaderboardOpen={showLeaderboard}
       />
 
       {/* Admin Panel Modal */}
@@ -1598,21 +1602,27 @@ function App() {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1000,
-          padding: '1rem'
+          padding: window.innerWidth < 768 ? '0' : '1rem',
+          touchAction: 'none'
         }} onClick={(e) => {
           if (e.target === e.currentTarget) {
             setShowAdminPanel(false);
           }
-        }}>
+        }}
+        onTouchMove={(e) => e.preventDefault()}
+        onWheel={(e) => e.preventDefault()}
+        onScroll={(e) => e.preventDefault()}>
           <div style={{
-            maxWidth: '90vw',
-            maxHeight: '90vh',
+            maxWidth: window.innerWidth < 768 ? '100vw' : '90vw',
+            maxHeight: window.innerWidth < 768 ? '100vh' : '90vh',
+            height: window.innerWidth < 768 ? '100vh' : 'auto',
             width: '100%',
             overflow: 'hidden',
-            borderRadius: '16px',
-            position: 'relative'
+            borderRadius: window.innerWidth < 768 ? '0' : '16px',
+            position: 'relative',
+            touchAction: 'auto'
           }}>
-            <div style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ maxHeight: window.innerWidth < 768 ? '100vh' : '90vh', overflowY: 'auto' }}>
               <UserManagement onClose={() => setShowAdminPanel(false)} />
             </div>
           </div>

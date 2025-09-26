@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PerformanceChart from './PerformanceChart';
 import SelectAsDefaultButton from './SelectAsDefaultButton';
 import ComparisonView from './ComparisonView';
@@ -7,21 +7,26 @@ import CyclistRaceHistoryTable from './CyclistRaceHistoryTable';
 import { useTranslation } from '../contexts/LanguageContext';
 import { filterDataByYears, calculatePercentagePosition, getPercentageColor } from '../utils/dateUtils';
 
-const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, api }) => {
+const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, isLeaderboardOpen }) => {
   const { t } = useTranslation();
   const [showChart, setShowChart] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [selectedYears, setSelectedYears] = useState([]);
+  const modalContentRef = useRef(null);
 
+  // Set scroll position to top when cyclist changes (new cyclist selected)
   useEffect(() => {
-    if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow || '';
-      };
+    if (isOpen && modalContentRef.current) {
+      // Use setTimeout to ensure DOM is fully rendered
+      setTimeout(() => {
+        console.log('Cyclist changed, scrolling to top. Cyclist ID:', cyclistId);
+        console.log('modalContentRef.current:', modalContentRef.current);
+        console.log('Before scroll - modalContentRef scrollTop:', modalContentRef.current.scrollTop);
+        modalContentRef.current.scrollTop = 0;
+        console.log('After scroll - modalContentRef scrollTop:', modalContentRef.current.scrollTop);
+      }, 50);
     }
-  }, [isOpen]);
+  }, [cyclistId, isOpen]);
 
   const safeHistory = history || [];
   const isDefaultProfile = isDefaultCyclistById ? isDefaultCyclistById(cyclistId, cyclistName) : false;
@@ -123,34 +128,59 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
         display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+        alignItems: 'center',
+        justifyContent: 'center',
         zIndex: 50,
-        padding: 'clamp(0.5rem, 2vw, 1rem)'
+        padding: window.innerWidth < 768 ? '0' : 'clamp(0.5rem, 2vw, 1rem)',
+        touchAction: 'manipulation'
       }}
       onClick={handleBackdropClick}
+      onTouchMove={(e) => {
+        // Only prevent touch move if it's on the backdrop itself, not on modal content
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
+      onWheel={(e) => {
+        // Only prevent wheel events on the backdrop itself
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
+      onScroll={(e) => e.preventDefault()}
     >
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)', 
+        background: 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: 'clamp(0.75rem, 3vw, 1.5rem)', 
-        maxWidth: '80rem', 
-        width: '100%', 
-        maxHeight: '95vh', 
+        borderRadius: window.innerWidth < 768 ? '0' : 'clamp(0.75rem, 3vw, 1.5rem)',
+        maxWidth: window.innerWidth < 768 ? '100vw' : '80rem',
+        width: '100%',
+        height: window.innerWidth < 768 ? '100vh' : 'auto',
+        maxHeight: window.innerWidth < 768 ? '100vh' : '95vh', 
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         fontFamily: "'Inter', sans-serif",
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        touchAction: 'auto'
       }}>
-        <div style={{
-          padding: 'clamp(1rem, 3vw, 2rem)',
-          overflowY: 'auto',
-          scrollbarWidth: 'thin',
-          scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
-        }}>
+        <div
+          ref={modalContentRef}
+          style={{
+            padding: 'clamp(1rem, 3vw, 2rem)',
+            overflowY: isLeaderboardOpen ? 'hidden' : 'auto',
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent',
+            flex: 1,
+            minHeight: 0,
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-y'
+          }}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}>
           {/* Header */}
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
             <h2 style={{
