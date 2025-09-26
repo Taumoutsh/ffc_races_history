@@ -172,6 +172,8 @@ function App() {
   const [chartSelectedYears, setChartSelectedYears] = useState([]);
   const [historySelectedYears, setHistorySelectedYears] = useState([]);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [researchSortField, setResearchSortField] = useState('bestPosition');
+  const [researchSortDirection, setResearchSortDirection] = useState('asc');
 
   // Prevent background scrolling when admin panel is open
   useEffect(() => {
@@ -393,6 +395,21 @@ function App() {
     const history = getCyclistHistory(racer.id);
     setSelectedCyclist({ id: racer.id, name: racer.formattedName, history });
     setShowCyclistProfile(true);
+  };
+
+  // Research table sorting functions
+  const handleResearchSort = (field) => {
+    if (researchSortField === field) {
+      setResearchSortDirection(researchSortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setResearchSortField(field);
+      setResearchSortDirection('asc');
+    }
+  };
+
+  const ResearchSortIcon = ({ field }) => {
+    if (researchSortField !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
+    return researchSortDirection === 'asc' ? <span style={{color: '#059669'}}>↑</span> : <span style={{color: '#059669'}}>↓</span>;
   };
 
 
@@ -1116,15 +1133,144 @@ function App() {
                     fontSize: 'clamp(0.6rem, 1.8vw, 0.7rem)',
                     color: '#059669'
                   }}>
-                    <div>🥇 Pos</div>
-                    {isLargeScreen && <div>🆔 ID</div>}
-                    <div>👤 {t('table.name')}</div>
-                    {isLargeScreen && <div>📍 {t('table.region')}</div>}
-                    <div>🏃‍♂️ {t('table.team')}</div>
+                    <div
+                      onClick={() => handleResearchSort('bestPosition')}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'background-color 0.2s ease',
+                        padding: '0.25rem',
+                        borderRadius: '0.25rem'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      🥇 Pos
+                      <ResearchSortIcon field="bestPosition" />
+                    </div>
+                    {isLargeScreen && (
+                      <div
+                        onClick={() => handleResearchSort('id')}
+                        style={{
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          transition: 'background-color 0.2s ease',
+                          padding: '0.25rem',
+                          borderRadius: '0.25rem'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        🆔 ID
+                        <ResearchSortIcon field="id" />
+                      </div>
+                    )}
+                    <div
+                      onClick={() => handleResearchSort('name')}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'background-color 0.2s ease',
+                        padding: '0.25rem',
+                        borderRadius: '0.25rem'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      👤 {t('table.name')}
+                      <ResearchSortIcon field="name" />
+                    </div>
+                    {isLargeScreen && (
+                      <div
+                        onClick={() => handleResearchSort('region')}
+                        style={{
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          transition: 'background-color 0.2s ease',
+                          padding: '0.25rem',
+                          borderRadius: '0.25rem'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        📍 {t('table.region')}
+                        <ResearchSortIcon field="region" />
+                      </div>
+                    )}
+                    <div
+                      onClick={() => handleResearchSort('team')}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'background-color 0.2s ease',
+                        padding: '0.25rem',
+                        borderRadius: '0.25rem'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      🏃‍♂️ {t('table.team')}
+                      <ResearchSortIcon field="team" />
+                    </div>
                   </div>
                   
                   <div style={{maxHeight: '400px', overflowY: 'auto'}}>
-                    {filteredResearchResults.map((racer, index) => {
+                    {(() => {
+                      // Apply sorting to filtered results
+                      const sortedResults = [...filteredResearchResults].sort((a, b) => {
+                        let aVal, bVal;
+
+                        switch (researchSortField) {
+                          case 'position':
+                          case 'bestPosition':
+                            // For not found cyclists, put them at the end
+                            if (!a.foundInDb && b.foundInDb) return 1;
+                            if (a.foundInDb && !b.foundInDb) return -1;
+                            if (!a.foundInDb && !b.foundInDb) return (a.estimatedNumber || 999) - (b.estimatedNumber || 999);
+                            aVal = a.bestPosition || 999;
+                            bVal = b.bestPosition || 999;
+                            break;
+                          case 'id':
+                            aVal = (a.id || '').toLowerCase();
+                            bVal = (b.id || '').toLowerCase();
+                            break;
+                          case 'name':
+                            aVal = (a.formattedName || '').toLowerCase();
+                            bVal = (b.formattedName || '').toLowerCase();
+                            break;
+                          case 'region':
+                            aVal = (a.region || '').toLowerCase();
+                            bVal = (b.region || '').toLowerCase();
+                            break;
+                          case 'team':
+                            aVal = (a.team || '').toLowerCase();
+                            bVal = (b.team || '').toLowerCase();
+                            break;
+                          default:
+                            return 0;
+                        }
+
+                        if (aVal < bVal) return researchSortDirection === 'asc' ? -1 : 1;
+                        if (aVal > bVal) return researchSortDirection === 'asc' ? 1 : -1;
+                        return 0;
+                      });
+
+                      return sortedResults.map((racer, index) => {
                       const isDefault = racer.foundInDb && isDefaultCyclistById(racer.id, racer.formattedName);
                       const isOrganizer = racer.foundInDb && organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
                       const isNotFound = !racer.foundInDb;
@@ -1228,7 +1374,8 @@ function App() {
                         </div>
                       </div>
                       );
-                    })}
+                      });
+                    })()}
                   </div>
                 </div>
               )}
