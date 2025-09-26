@@ -43,19 +43,6 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
     // Remove leading numbers and spaces (e.g., "5244197 VC ST SEBASTIEN" becomes "VC ST SEBASTIEN")
     return clubName.replace(/^\d+\s+/, '');
   };
-  useEffect(() => {
-    if (isOpen) {
-      // Store original overflow value
-      const originalOverflow = document.body.style.overflow;
-      // Disable body scroll
-      document.body.style.overflow = 'hidden';
-      
-      // Cleanup function to restore original overflow
-      return () => {
-        document.body.style.overflow = originalOverflow || '';
-      };
-    }
-  }, [isOpen]);
 
   if (!isOpen || !race) return null;
 
@@ -83,27 +70,33 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
         display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+        alignItems: 'center',
+        justifyContent: 'center',
         zIndex: 60,
-        padding: 'clamp(0.5rem, 2vw, 1rem)'
+        padding: window.innerWidth < 768 ? '0' : 'clamp(0.5rem, 2vw, 1rem)',
+        touchAction: 'none'
       }}
       onClick={handleBackdropClick}
+      onTouchMove={(e) => e.preventDefault()}
+      onWheel={(e) => e.preventDefault()}
+      onScroll={(e) => e.preventDefault()}
     >
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)', 
+        background: 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: 'clamp(0.75rem, 3vw, 1.5rem)', 
-        maxWidth: '80rem', 
-        width: '100%', 
-        maxHeight: '95vh', 
+        borderRadius: window.innerWidth < 768 ? '0' : 'clamp(0.75rem, 3vw, 1.5rem)',
+        maxWidth: window.innerWidth < 768 ? '100vw' : '80rem',
+        width: '100%',
+        height: window.innerWidth < 768 ? '100vh' : 'auto',
+        maxHeight: window.innerWidth < 768 ? '100vh' : '95vh', 
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         fontFamily: "'Inter', sans-serif",
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        touchAction: 'auto'
       }}>
         <div style={{
           padding: 'clamp(1rem, 3vw, 2rem)',

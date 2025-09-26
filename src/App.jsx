@@ -172,28 +172,29 @@ function App() {
   const [chartSelectedYears, setChartSelectedYears] = useState([]);
   const [historySelectedYears, setHistorySelectedYears] = useState([]);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [researchSortField, setResearchSortField] = useState('bestPosition');
+  const [researchSortDirection, setResearchSortDirection] = useState('asc');
 
-  // Prevent background scrolling when admin panel is open
+  // Prevent background scrolling when any modal is open (centralized solution)
   useEffect(() => {
-    if (showAdminPanel) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow || '';
-      };
-    }
-  }, [showAdminPanel]);
+    const openModals = [showAdminPanel, showRacesPanel, showCyclistProfile, showLeaderboard];
+    const anyModalOpen = openModals.some(modal => modal);
 
-  // Prevent background scrolling when races panel is open
-  useEffect(() => {
-    if (showRacesPanel) {
-      const originalOverflow = document.body.style.overflow;
+    if (anyModalOpen) {
+      // Store original overflow if not already stored
+      if (!document.body.dataset.originalOverflow) {
+        document.body.dataset.originalOverflow = document.body.style.overflow || 'auto';
+      }
       document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow || '';
-      };
+    } else {
+      // Restore original overflow only when no modals are open
+      if (document.body.dataset.originalOverflow) {
+        document.body.style.overflow = document.body.dataset.originalOverflow;
+        delete document.body.dataset.originalOverflow;
+      }
     }
-  }, [showRacesPanel]);
+  }, [showAdminPanel, showRacesPanel, showCyclistProfile, showLeaderboard]);
+
   const [analysisErrorMessage, setAnalysisErrorMessage] = useState(null);
 
   // Handle window resize for responsive layout
@@ -387,9 +388,27 @@ function App() {
 
 
   const handleResearchRacerClick = (racer) => {
+    // Only allow clicking on cyclists found in database
+    if (!racer.foundInDb) return;
+
     const history = getCyclistHistory(racer.id);
     setSelectedCyclist({ id: racer.id, name: racer.formattedName, history });
     setShowCyclistProfile(true);
+  };
+
+  // Research table sorting functions
+  const handleResearchSort = (field) => {
+    if (researchSortField === field) {
+      setResearchSortDirection(researchSortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setResearchSortField(field);
+      setResearchSortDirection('asc');
+    }
+  };
+
+  const ResearchSortIcon = ({ field }) => {
+    if (researchSortField !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
+    return researchSortDirection === 'asc' ? <span style={{color: '#059669'}}>↑</span> : <span style={{color: '#059669'}}>↓</span>;
   };
 
 
@@ -1015,7 +1034,7 @@ function App() {
                     borderBottom: '1px solid rgba(34, 197, 94, 0.2)',
                     color: '#059669'
                   }}>
-                    ✅ {t('ui.foundRacers')} ({filteredResearchResults.length}/{researchResults.length})
+                    ✅ {t('ui.foundRacers')} ({filteredResearchResults.filter(r => r.foundInDb).length}/{filteredResearchResults.length} {t('ui.found')})
                   </div>
 
                   {/* Category Filter */}
@@ -1113,18 +1132,148 @@ function App() {
                     fontSize: 'clamp(0.6rem, 1.8vw, 0.7rem)',
                     color: '#059669'
                   }}>
-                    <div>🥇 Pos</div>
-                    {isLargeScreen && <div>🆔 ID</div>}
-                    <div>👤 {t('table.name')}</div>
-                    {isLargeScreen && <div>📍 {t('table.region')}</div>}
-                    <div>🏃‍♂️ {t('table.team')}</div>
+                    <div
+                      onClick={() => handleResearchSort('bestPosition')}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'background-color 0.2s ease',
+                        padding: '0.25rem',
+                        borderRadius: '0.25rem'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      🥇 Pos
+                      <ResearchSortIcon field="bestPosition" />
+                    </div>
+                    {isLargeScreen && (
+                      <div
+                        onClick={() => handleResearchSort('id')}
+                        style={{
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          transition: 'background-color 0.2s ease',
+                          padding: '0.25rem',
+                          borderRadius: '0.25rem'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        🆔 ID
+                        <ResearchSortIcon field="id" />
+                      </div>
+                    )}
+                    <div
+                      onClick={() => handleResearchSort('name')}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'background-color 0.2s ease',
+                        padding: '0.25rem',
+                        borderRadius: '0.25rem'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      👤 {t('table.name')}
+                      <ResearchSortIcon field="name" />
+                    </div>
+                    {isLargeScreen && (
+                      <div
+                        onClick={() => handleResearchSort('region')}
+                        style={{
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          transition: 'background-color 0.2s ease',
+                          padding: '0.25rem',
+                          borderRadius: '0.25rem'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        📍 {t('table.region')}
+                        <ResearchSortIcon field="region" />
+                      </div>
+                    )}
+                    <div
+                      onClick={() => handleResearchSort('team')}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'background-color 0.2s ease',
+                        padding: '0.25rem',
+                        borderRadius: '0.25rem'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      🏃‍♂️ {t('table.team')}
+                      <ResearchSortIcon field="team" />
+                    </div>
                   </div>
                   
                   <div style={{maxHeight: '400px', overflowY: 'auto'}}>
-                    {filteredResearchResults.map((racer, index) => {
-                      const isDefault = isDefaultCyclistById(racer.id, racer.formattedName);
-                      const isOrganizer = organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
-                      
+                    {(() => {
+                      // Apply sorting to filtered results
+                      const sortedResults = [...filteredResearchResults].sort((a, b) => {
+                        let aVal, bVal;
+
+                        switch (researchSortField) {
+                          case 'position':
+                          case 'bestPosition':
+                            // For not found cyclists, put them at the end
+                            if (!a.foundInDb && b.foundInDb) return 1;
+                            if (a.foundInDb && !b.foundInDb) return -1;
+                            if (!a.foundInDb && !b.foundInDb) return (a.estimatedNumber || 999) - (b.estimatedNumber || 999);
+                            aVal = a.bestPosition || 999;
+                            bVal = b.bestPosition || 999;
+                            break;
+                          case 'id':
+                            aVal = (a.id || '').toLowerCase();
+                            bVal = (b.id || '').toLowerCase();
+                            break;
+                          case 'name':
+                            aVal = (a.formattedName || '').toLowerCase();
+                            bVal = (b.formattedName || '').toLowerCase();
+                            break;
+                          case 'region':
+                            aVal = (a.region || '').toLowerCase();
+                            bVal = (b.region || '').toLowerCase();
+                            break;
+                          case 'team':
+                            aVal = (a.team || '').toLowerCase();
+                            bVal = (b.team || '').toLowerCase();
+                            break;
+                          default:
+                            return 0;
+                        }
+
+                        if (aVal < bVal) return researchSortDirection === 'asc' ? -1 : 1;
+                        if (aVal > bVal) return researchSortDirection === 'asc' ? 1 : -1;
+                        return 0;
+                      });
+
+                      return sortedResults.map((racer, index) => {
+                      const isDefault = racer.foundInDb && isDefaultCyclistById(racer.id, racer.formattedName);
+                      const isOrganizer = racer.foundInDb && organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
+                      const isNotFound = !racer.foundInDb;
+
                       return (
                       <div
                         key={index}
@@ -1132,57 +1281,100 @@ function App() {
                         style={{
                           padding: 'clamp(0.25rem, 1vw, 0.5rem)',
                           borderBottom: index < filteredResearchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
-                          cursor: 'pointer',
-                          backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' : 
-                                          isOrganizer ? 'rgba(255, 193, 7, 0.1)' : 
+                          cursor: isNotFound ? 'not-allowed' : 'pointer',
+                          backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' :
+                                          isOrganizer ? 'rgba(255, 193, 7, 0.1)' :
                                           'rgba(255, 255, 255, 0.7)',
                           transition: 'all 0.2s ease',
                           display: 'grid',
                           gridTemplateColumns: getResearchGridColumns(),
                           gap: 'clamp(0.1rem, 0.5vw, 0.25rem)',
                           alignItems: 'center',
-                          borderLeft: isDefault ? '4px solid #10b981' : 
-                                     isOrganizer ? '4px solid #fbbf24' : 
+                          borderLeft: isNotFound ? '4px solid #9ca3af' :
+                                     isDefault ? '4px solid #10b981' :
+                                     isOrganizer ? '4px solid #fbbf24' :
                                      'none',
-                          boxShadow: isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' : 
-                                    isOrganizer ? '0 2px 8px rgba(255, 193, 7, 0.2)' : 
-                                    'none'
+                          boxShadow: isNotFound ? '0 2px 8px rgba(156, 163, 175, 0.1)' :
+                                    isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' :
+                                    isOrganizer ? '0 2px 8px rgba(255, 193, 7, 0.2)' :
+                                    'none',
+                          opacity: isNotFound ? 0.7 : 1
                         }}
                         onMouseEnter={(e) => {
-                          const item = e.currentTarget;
-                          item.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
-                          item.style.transform = 'translateX(4px)';
+                          if (!isNotFound) {
+                            const item = e.currentTarget;
+                            item.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+                            item.style.transform = 'translateX(4px)';
+                          }
                         }}
                         onMouseLeave={(e) => {
-                          const item = e.currentTarget;
-                          item.style.backgroundColor = isDefault ? 'rgba(34, 197, 94, 0.15)' : 
-                                                      isOrganizer ? 'rgba(255, 193, 7, 0.1)' : 
-                                                      'rgba(255, 255, 255, 0.7)';
-                          item.style.transform = 'translateX(0)';
+                          if (!isNotFound) {
+                            const item = e.currentTarget;
+                            item.style.backgroundColor = isDefault ? 'rgba(34, 197, 94, 0.15)' :
+                                                        isOrganizer ? 'rgba(255, 193, 7, 0.1)' :
+                                                        'rgba(255, 255, 255, 0.7)';
+                            item.style.transform = 'translateX(0)';
+                          }
                         }}
                       >
-                        <div style={{fontWeight: '800', color: '#059669', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
-                          #{racer.bestPosition}
+                        <div style={{
+                          fontWeight: '800',
+                          color: isNotFound ? '#9ca3af' : '#059669',
+                          fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                          textAlign: 'center'
+                        }}>
+                          {isNotFound ? '❌' : `#${racer.bestPosition}`}
                         </div>
                         {isLargeScreen && (
-                          <div style={{fontWeight: '600', color: '#64748b', fontFamily: 'monospace', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-all'}}>
-                            {racer.id}
+                          <div style={{
+                            fontWeight: '600',
+                            color: isNotFound ? '#9ca3af' : '#64748b',
+                            fontFamily: 'monospace',
+                            fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
+                            wordBreak: 'break-all'
+                          }}>
+                            {!racer.id || racer.id === '' || !/^\d{11}$/.test(racer.id) ? t('ui.unknown') : racer.id}
                           </div>
                         )}
-                        <div style={{fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                        <div style={{
+                          fontWeight: '700',
+                          color: isNotFound ? '#9ca3af' : '#1f2937',
+                          fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
+                          wordBreak: 'break-word',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
                           {racer.formattedName}
                         </div>
                         {isLargeScreen && (
-                          <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                          <div style={{
+                            fontWeight: '500',
+                            color: isNotFound ? '#9ca3af' : '#64748b',
+                            fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
+                            wordBreak: 'break-word',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
                             {racer.region}
                           </div>
                         )}
-                        <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                        <div style={{
+                          fontWeight: '500',
+                          color: isNotFound ? '#9ca3af' : '#64748b',
+                          fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
+                          wordBreak: 'break-word',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
                           {racer.team}
                         </div>
                       </div>
                       );
-                    })}
+                      });
+                    })()}
                   </div>
                 </div>
               )}
@@ -1283,15 +1475,19 @@ function App() {
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
+          alignItems: 'center',
+          justifyContent: 'center',
           zIndex: 50,
-          padding: 'clamp(0.5rem, 2vw, 1rem)'
+          padding: 'clamp(0.5rem, 2vw, 1rem)',
+          touchAction: 'none'
         }} onClick={(e) => {
           if (e.target === e.currentTarget) {
             setShowRacesPanel(false);
           }
-        }}>
+        }}
+        onTouchMove={(e) => e.preventDefault()}
+        onWheel={(e) => e.preventDefault()}
+        onScroll={(e) => e.preventDefault()}>
           <div style={{
             background: 'rgba(255, 255, 255, 0.95)', 
             backdropFilter: 'blur(20px)',
@@ -1305,7 +1501,8 @@ function App() {
             fontFamily: "'Inter', sans-serif",
             overflow: 'hidden',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            touchAction: 'auto'
           }}>
             <div style={{
               padding: 'clamp(1rem, 3vw, 2rem)',
@@ -1388,7 +1585,7 @@ function App() {
         onDefaultChange={handleDefaultCyclistChange}
         getDefaultCyclistRaces={getDefaultCyclistRaces}
         getDefaultCyclistInfo={getDefaultCyclistInfo}
-        api={api}
+        isLeaderboardOpen={showLeaderboard}
       />
 
       {/* Admin Panel Modal */}
@@ -1405,19 +1602,25 @@ function App() {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1000,
-          padding: '1rem'
+          padding: window.innerWidth < 768 ? '0' : '1rem',
+          touchAction: 'none'
         }} onClick={(e) => {
           if (e.target === e.currentTarget) {
             setShowAdminPanel(false);
           }
-        }}>
+        }}
+        onTouchMove={(e) => e.preventDefault()}
+        onWheel={(e) => e.preventDefault()}
+        onScroll={(e) => e.preventDefault()}>
           <div style={{
-            maxWidth: '90vw',
+            maxWidth: window.innerWidth < 768 ? '95vw' : '90vw',
             maxHeight: '90vh',
+            height: 'auto',
             width: '100%',
             overflow: 'hidden',
-            borderRadius: '16px',
-            position: 'relative'
+            borderRadius: window.innerWidth < 768 ? '0' : '16px',
+            position: 'relative',
+            touchAction: 'auto'
           }}>
             <div style={{ maxHeight: '90vh', overflowY: 'auto' }}>
               <UserManagement onClose={() => setShowAdminPanel(false)} />
