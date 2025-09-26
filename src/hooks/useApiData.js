@@ -344,7 +344,6 @@ export const useApiData = (dynamicDefaultCyclist) => {
       
       // Transform API response to match expected format
       return result.results
-        .filter(racer => racer.found_in_db)
         .map(racer => ({
           id: racer.db_uci_id || racer.uci_id,
           firstName: racer.first_name,
@@ -354,9 +353,17 @@ export const useApiData = (dynamicDefaultCyclist) => {
           team: racer.team || racer.club || 'N/A',
           bestPosition: racer.best_position,
           formattedName: formatName(racer.first_name, racer.last_name),
-          estimatedNumber: estimatedNumberMap[racer.db_uci_id || racer.uci_id] || '-'
+          estimatedNumber: estimatedNumberMap[racer.db_uci_id || racer.uci_id] || '-',
+          foundInDb: racer.found_in_db
         }))
-        .sort((a, b) => a.bestPosition - b.bestPosition);
+        .sort((a, b) => {
+          // Sort found cyclists by best position, then not found cyclists at the end
+          if (a.foundInDb && !b.foundInDb) return -1;
+          if (!a.foundInDb && b.foundInDb) return 1;
+          if (a.foundInDb && b.foundInDb) return a.bestPosition - b.bestPosition;
+          // For not found cyclists, sort by estimated number
+          return (a.estimatedNumber || 0) - (b.estimatedNumber || 0);
+        });
         
     } catch (err) {
       return [];

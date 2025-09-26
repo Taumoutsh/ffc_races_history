@@ -387,6 +387,9 @@ function App() {
 
 
   const handleResearchRacerClick = (racer) => {
+    // Only allow clicking on cyclists found in database
+    if (!racer.foundInDb) return;
+
     const history = getCyclistHistory(racer.id);
     setSelectedCyclist({ id: racer.id, name: racer.formattedName, history });
     setShowCyclistProfile(true);
@@ -1015,7 +1018,7 @@ function App() {
                     borderBottom: '1px solid rgba(34, 197, 94, 0.2)',
                     color: '#059669'
                   }}>
-                    ✅ {t('ui.foundRacers')} ({filteredResearchResults.length}/{researchResults.length})
+                    ✅ {t('ui.foundRacers')} ({filteredResearchResults.filter(r => r.foundInDb).length}/{filteredResearchResults.length} {t('ui.found')})
                   </div>
 
                   {/* Category Filter */}
@@ -1122,9 +1125,10 @@ function App() {
                   
                   <div style={{maxHeight: '400px', overflowY: 'auto'}}>
                     {filteredResearchResults.map((racer, index) => {
-                      const isDefault = isDefaultCyclistById(racer.id, racer.formattedName);
-                      const isOrganizer = organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
-                      
+                      const isDefault = racer.foundInDb && isDefaultCyclistById(racer.id, racer.formattedName);
+                      const isOrganizer = racer.foundInDb && organizerClub.trim() && racer.team.toLowerCase().includes(organizerClub.toLowerCase().trim());
+                      const isNotFound = !racer.foundInDb;
+
                       return (
                       <div
                         key={index}
@@ -1132,52 +1136,94 @@ function App() {
                         style={{
                           padding: 'clamp(0.25rem, 1vw, 0.5rem)',
                           borderBottom: index < filteredResearchResults.length - 1 ? '1px solid rgba(229, 231, 235, 0.5)' : 'none',
-                          cursor: 'pointer',
-                          backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' : 
-                                          isOrganizer ? 'rgba(255, 193, 7, 0.1)' : 
+                          cursor: isNotFound ? 'not-allowed' : 'pointer',
+                          backgroundColor: isDefault ? 'rgba(34, 197, 94, 0.15)' :
+                                          isOrganizer ? 'rgba(255, 193, 7, 0.1)' :
                                           'rgba(255, 255, 255, 0.7)',
                           transition: 'all 0.2s ease',
                           display: 'grid',
                           gridTemplateColumns: getResearchGridColumns(),
                           gap: 'clamp(0.1rem, 0.5vw, 0.25rem)',
                           alignItems: 'center',
-                          borderLeft: isDefault ? '4px solid #10b981' : 
-                                     isOrganizer ? '4px solid #fbbf24' : 
+                          borderLeft: isNotFound ? '4px solid #9ca3af' :
+                                     isDefault ? '4px solid #10b981' :
+                                     isOrganizer ? '4px solid #fbbf24' :
                                      'none',
-                          boxShadow: isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' : 
-                                    isOrganizer ? '0 2px 8px rgba(255, 193, 7, 0.2)' : 
-                                    'none'
+                          boxShadow: isNotFound ? '0 2px 8px rgba(156, 163, 175, 0.1)' :
+                                    isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' :
+                                    isOrganizer ? '0 2px 8px rgba(255, 193, 7, 0.2)' :
+                                    'none',
+                          opacity: isNotFound ? 0.7 : 1
                         }}
                         onMouseEnter={(e) => {
-                          const item = e.currentTarget;
-                          item.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
-                          item.style.transform = 'translateX(4px)';
+                          if (!isNotFound) {
+                            const item = e.currentTarget;
+                            item.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+                            item.style.transform = 'translateX(4px)';
+                          }
                         }}
                         onMouseLeave={(e) => {
-                          const item = e.currentTarget;
-                          item.style.backgroundColor = isDefault ? 'rgba(34, 197, 94, 0.15)' : 
-                                                      isOrganizer ? 'rgba(255, 193, 7, 0.1)' : 
-                                                      'rgba(255, 255, 255, 0.7)';
-                          item.style.transform = 'translateX(0)';
+                          if (!isNotFound) {
+                            const item = e.currentTarget;
+                            item.style.backgroundColor = isDefault ? 'rgba(34, 197, 94, 0.15)' :
+                                                        isOrganizer ? 'rgba(255, 193, 7, 0.1)' :
+                                                        'rgba(255, 255, 255, 0.7)';
+                            item.style.transform = 'translateX(0)';
+                          }
                         }}
                       >
-                        <div style={{fontWeight: '800', color: '#059669', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
-                          #{racer.bestPosition}
+                        <div style={{
+                          fontWeight: '800',
+                          color: isNotFound ? '#9ca3af' : '#059669',
+                          fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                          textAlign: 'center'
+                        }}>
+                          {isNotFound ? '❌' : `#${racer.bestPosition}`}
                         </div>
                         {isLargeScreen && (
-                          <div style={{fontWeight: '600', color: '#64748b', fontFamily: 'monospace', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-all'}}>
-                            {racer.id}
+                          <div style={{
+                            fontWeight: '600',
+                            color: isNotFound ? '#9ca3af' : '#64748b',
+                            fontFamily: 'monospace',
+                            fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
+                            wordBreak: 'break-all'
+                          }}>
+                            {!racer.id || racer.id === '' || !/^\d{11}$/.test(racer.id) ? t('ui.unknown') : racer.id}
                           </div>
                         )}
-                        <div style={{fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                        <div style={{
+                          fontWeight: '700',
+                          color: isNotFound ? '#9ca3af' : '#1f2937',
+                          fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
+                          wordBreak: 'break-word',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
                           {racer.formattedName}
                         </div>
                         {isLargeScreen && (
-                          <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                          <div style={{
+                            fontWeight: '500',
+                            color: isNotFound ? '#9ca3af' : '#64748b',
+                            fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
+                            wordBreak: 'break-word',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
                             {racer.region}
                           </div>
                         )}
-                        <div style={{fontWeight: '500', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.7rem)', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                        <div style={{
+                          fontWeight: '500',
+                          color: isNotFound ? '#9ca3af' : '#64748b',
+                          fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
+                          wordBreak: 'break-word',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
                           {racer.team}
                         </div>
                       </div>

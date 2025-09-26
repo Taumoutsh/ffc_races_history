@@ -592,14 +592,32 @@ def scrape_race_data():
             for row in rows[1:]:  # Skip header row
                 cells = row.find_all('td')
                 if len(cells) >= 7:  # Ensure we have enough columns
-                    # Extract data from each cell
-                    uci_id = cells[0].get_text(strip=True)
-                    last_name = cells[1].get_text(strip=True)
-                    first_name = cells[2].get_text(strip=True)
-                    category = cells[3].get_text(strip=True)
-                    region = cells[4].get_text(strip=True)
-                    club = cells[5].get_text(strip=True)
-                    team = cells[6].get_text(strip=True) if len(cells) > 6 else ''
+                    # Check if first cell is a position number (empty or numeric) vs UCI ID
+                    first_cell_raw = cells[0].get_text()
+                    first_cell = first_cell_raw.strip()
+
+                    # If first cell is empty, whitespace-only, or looks like a position number, assume position column exists
+                    if not first_cell or first_cell_raw.isspace() or (first_cell.isdigit() and len(first_cell) <= 3):
+                        # Table format: [position, uci_id, last_name, first_name, category, region, club, team]
+                        if len(cells) >= 7:  # Need 8 columns for this format
+                            last_name = cells[1].get_text(strip=True)
+                            first_name = cells[2].get_text(strip=True)
+                            category = cells[3].get_text(strip=True)
+                            region = cells[4].get_text(strip=True)
+                            club = cells[5].get_text(strip=True)
+                            team = cells[6].get_text(strip=True) if len(cells) > 6 else ''
+                        else:
+                            continue  # Skip rows that don't have enough columns
+                    else:
+                        # Table format: [uci_id, last_name, first_name, category, region, club, team]
+                        uci_id = cells[0].get_text(strip=True)
+                        last_name = cells[1].get_text(strip=True)
+                        first_name = cells[2].get_text(strip=True)
+                        category = cells[3].get_text(strip=True)
+                        region = cells[4].get_text(strip=True)
+                        club = cells[5].get_text(strip=True)
+                        team = cells[6].get_text(strip=True) if len(cells) > 6 else ''
+
                     line = f"{uci_id}\t{last_name}\t{first_name}\t{category}\t{region}\t{club}\t{team}"
                     entry_list += line + '\n'
 
@@ -640,7 +658,7 @@ def research_entry_list():
                 
             # Split by tab or multiple spaces
             parts = re.split(r'\t+|\s{2,}', line)
-            if len(parts) < 3:
+            if len(parts) < 2:  # Need at least last name and first name
                 continue
                 
             uci_id = parts[0].strip()
@@ -652,10 +670,12 @@ def research_entry_list():
             team = parts[6].strip() if len(parts) > 6 else ''
             
             # Search for cyclist in database
-            cyclist = db.get_cyclist_by_id(uci_id)
-            
-            if not cyclist:
-                # Try searching by name
+            cyclist = None
+            if uci_id:  # Only search by ID if UCI ID exists
+                cyclist = db.get_cyclist_by_id(uci_id)
+
+            if not cyclist and first_name and last_name:
+                # Try searching by name if no cyclist found or no UCI ID provided
                 search_results = db.search_cyclists(f"{first_name} {last_name}")
                 cyclist = search_results[0] if search_results else None
             
