@@ -194,9 +194,9 @@ function UserManagement({ onClose }) {
       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
       backdropFilter: 'blur(10px)',
       border: '1px solid rgba(255, 255, 255, 0.2)',
-      borderRadius: '16px',
-      padding: '1.5rem',
-      margin: '1rem',
+      borderRadius: window.innerWidth < 768 ? '8px' : '16px',
+      padding: window.innerWidth < 768 ? '1rem' : '1.5rem',
+      margin: window.innerWidth < 768 ? '0.5rem' : '1rem',
       color: 'white'
     }}>
       <div style={{

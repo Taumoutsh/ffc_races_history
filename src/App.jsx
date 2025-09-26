@@ -1613,16 +1613,16 @@ function App() {
         onWheel={(e) => e.preventDefault()}
         onScroll={(e) => e.preventDefault()}>
           <div style={{
-            maxWidth: window.innerWidth < 768 ? '100vw' : '90vw',
-            maxHeight: window.innerWidth < 768 ? '100vh' : '90vh',
-            height: window.innerWidth < 768 ? '100vh' : 'auto',
+            maxWidth: window.innerWidth < 768 ? '95vw' : '90vw',
+            maxHeight: '90vh',
+            height: 'auto',
             width: '100%',
             overflow: 'hidden',
             borderRadius: window.innerWidth < 768 ? '0' : '16px',
             position: 'relative',
             touchAction: 'auto'
           }}>
-            <div style={{ maxHeight: window.innerWidth < 768 ? '100vh' : '90vh', overflowY: 'auto' }}>
+            <div style={{ maxHeight: '90vh', overflowY: 'auto' }}>
               <UserManagement onClose={() => setShowAdminPanel(false)} />
             </div>
           </div>
