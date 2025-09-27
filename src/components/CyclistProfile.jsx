@@ -19,11 +19,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
     if (isOpen && modalContentRef.current) {
       // Use setTimeout to ensure DOM is fully rendered
       setTimeout(() => {
-        console.log('Cyclist changed, scrolling to top. Cyclist ID:', cyclistId);
-        console.log('modalContentRef.current:', modalContentRef.current);
-        console.log('Before scroll - modalContentRef scrollTop:', modalContentRef.current.scrollTop);
         modalContentRef.current.scrollTop = 0;
-        console.log('After scroll - modalContentRef scrollTop:', modalContentRef.current.scrollTop);
       }, 50);
     }
   }, [cyclistId, isOpen]);
@@ -132,7 +128,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
         justifyContent: 'center',
         zIndex: 50,
         padding: window.innerWidth < 768 ? '0' : 'clamp(0.5rem, 2vw, 1rem)',
-        touchAction: 'manipulation'
+        touchAction: 'pan-x pan-y'
       }}
       onClick={handleBackdropClick}
       onTouchMove={(e) => {
@@ -147,7 +143,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
           e.preventDefault();
         }
       }}
-      onScroll={(e) => e.preventDefault()}
     >
       <div style={{
         background: 'rgba(255, 255, 255, 0.95)',
@@ -176,11 +171,14 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
             flex: 1,
             minHeight: 0,
             WebkitOverflowScrolling: 'touch',
-            touchAction: 'pan-y'
+            touchAction: 'pan-y',
+            overscrollBehavior: 'contain'
           }}
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
-          onTouchEnd={(e) => e.stopPropagation()}>
+          onTouchStart={(e) => {
+            // Prevent any potential focus issues on touch start
+            e.stopPropagation();
+          }}
+>
           {/* Header */}
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
             <h2 style={{

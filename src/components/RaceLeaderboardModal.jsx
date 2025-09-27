@@ -74,11 +74,21 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
         justifyContent: 'center',
         zIndex: 60,
         padding: window.innerWidth < 768 ? '0' : 'clamp(0.5rem, 2vw, 1rem)',
-        touchAction: 'none'
+        touchAction: 'pan-x pan-y'
       }}
       onClick={handleBackdropClick}
-      onTouchMove={(e) => e.preventDefault()}
-      onWheel={(e) => e.preventDefault()}
+      onTouchMove={(e) => {
+        // Only prevent touch move if it's on the backdrop itself, not on modal content
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
+      onWheel={(e) => {
+        // Only prevent wheel events on the backdrop itself
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
       onScroll={(e) => e.preventDefault()}
     >
       <div style={{
@@ -98,12 +108,21 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
         flexDirection: 'column',
         touchAction: 'auto'
       }}>
-        <div style={{
-          padding: 'clamp(1rem, 3vw, 2rem)',
-          overflowY: 'auto',
-          scrollbarWidth: 'thin',
-          scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
-        }}>
+        <div
+          style={{
+            padding: 'clamp(1rem, 3vw, 2rem)',
+            overflowY: 'auto',
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent',
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-y',
+            overscrollBehavior: 'contain'
+          }}
+          onTouchStart={(e) => {
+            // Prevent any potential focus issues on touch start
+            e.stopPropagation();
+          }}
+        >
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
           <h2 style={{
             fontSize: 'clamp(1.125rem, 3.5vw, 2rem)', 

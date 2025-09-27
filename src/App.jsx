@@ -1478,24 +1478,35 @@ function App() {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 50,
-          padding: 'clamp(0.5rem, 2vw, 1rem)',
-          touchAction: 'none'
+          padding: window.innerWidth < 768 ? '0' : 'clamp(0.5rem, 2vw, 1rem)',
+          touchAction: 'pan-x pan-y'
         }} onClick={(e) => {
           if (e.target === e.currentTarget) {
             setShowRacesPanel(false);
           }
         }}
-        onTouchMove={(e) => e.preventDefault()}
-        onWheel={(e) => e.preventDefault()}
+        onTouchMove={(e) => {
+          // Only prevent touch move if it's on the backdrop itself, not on modal content
+          if (e.target === e.currentTarget) {
+            e.preventDefault();
+          }
+        }}
+        onWheel={(e) => {
+          // Only prevent wheel events on the backdrop itself
+          if (e.target === e.currentTarget) {
+            e.preventDefault();
+          }
+        }}
         onScroll={(e) => e.preventDefault()}>
           <div style={{
             background: 'rgba(255, 255, 255, 0.95)', 
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: 'clamp(0.75rem, 3vw, 1.5rem)', 
-            maxWidth: '80rem', 
-            width: '100%', 
-            maxHeight: '95vh', 
+            borderRadius: window.innerWidth < 768 ? '0' : 'clamp(0.75rem, 3vw, 1.5rem)',
+            maxWidth: window.innerWidth < 768 ? '100vw' : '80rem',
+            width: '100%',
+            height: window.innerWidth < 768 ? '100vh' : 'auto',
+            maxHeight: window.innerWidth < 768 ? '100vh' : '95vh', 
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             fontFamily: "'Inter', sans-serif",
@@ -1504,12 +1515,21 @@ function App() {
             flexDirection: 'column',
             touchAction: 'auto'
           }}>
-            <div style={{
-              padding: 'clamp(1rem, 3vw, 2rem)',
-              overflowY: 'auto',
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent'
-            }}>
+            <div
+              style={{
+                padding: 'clamp(1rem, 3vw, 2rem)',
+                overflowY: 'auto',
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent',
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+                overscrollBehavior: 'contain'
+              }}
+              onTouchStart={(e) => {
+                // Prevent any potential focus issues on touch start
+                e.stopPropagation();
+              }}
+            >
               {/* Header */}
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
                 <h2 style={{
