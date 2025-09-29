@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import PerformanceChart from './PerformanceChart';
 import SelectAsDefaultButton from './SelectAsDefaultButton';
+import FollowButton from './FollowButton';
 import ComparisonView from './ComparisonView';
 import DateFilter from './DateFilter';
 import CyclistRaceHistoryTable from './CyclistRaceHistoryTable';
 import { useTranslation } from '../contexts/LanguageContext';
 import { filterDataByYears, calculatePercentagePosition, getPercentageColor } from '../utils/dateUtils';
 
-const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, isLeaderboardOpen }) => {
+const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, isLeaderboardOpen, onFollowChange }) => {
   const { t } = useTranslation();
   const [showChart, setShowChart] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
@@ -270,19 +271,24 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                     })()}
                   </div>
                   {onDefaultChange && cyclistName && (
-                    <div style={{flexShrink: 0}}>
-                      <SelectAsDefaultButton 
-                        cyclist={{ 
-                          firstName: cyclistName.split(' ')[0] || '', 
-                          lastName: cyclistName.split(' ').slice(1).join(' ') || '', 
-                          id: cyclistId 
+                    <div style={{flexShrink: 0, display: 'flex', gap: '0.75rem', flexWrap: 'wrap'}}>
+                      <SelectAsDefaultButton
+                        cyclist={{
+                          firstName: cyclistName.split(' ')[0] || '',
+                          lastName: cyclistName.split(' ').slice(1).join(' ') || '',
+                          id: cyclistId
                         }}
                         onDefaultChange={onDefaultChange}
                         isAlreadyDefault={isDefaultProfile}
-                        translations={{ 
+                        translations={{
                           selectAsDefault: t('ui.selectAsDefault'),
                           alreadySelectedCyclist: t('ui.alreadySelectedCyclist')
                         }}
+                      />
+                      <FollowButton
+                        cyclistUciId={cyclistId}
+                        cyclistName={cyclistName}
+                        onFollowChange={onFollowChange}
                       />
                     </div>
                   )}

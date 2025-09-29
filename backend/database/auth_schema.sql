@@ -65,6 +65,20 @@ BEGIN
     UPDATE admin_messages SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 END;
 
+-- Followed cyclists table for user's personal cyclist tracking
+CREATE TABLE IF NOT EXISTS followed_cyclists (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    cyclist_uci_id TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, cyclist_uci_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Indexes for followed cyclists performance
+CREATE INDEX IF NOT EXISTS idx_followed_cyclists_user ON followed_cyclists(user_id);
+CREATE INDEX IF NOT EXISTS idx_followed_cyclists_cyclist ON followed_cyclists(cyclist_uci_id);
+
 -- View for active sessions with user information
 CREATE VIEW IF NOT EXISTS active_sessions AS
 SELECT

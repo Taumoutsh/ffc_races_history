@@ -710,6 +710,140 @@ def research_entry_list():
         return jsonify({'error': str(e)}), 500
 
 
+# Followed Cyclists API endpoints
+@app.route('/api/cyclists/<uci_id>/follow', methods=['POST'])
+@require_auth
+def follow_cyclist(uci_id):
+    """Add a cyclist to user's follow list"""
+    try:
+        user_id = request.current_user['id']
+
+        # Check if cyclist exists in the database
+        cyclist = db.get_cyclist_by_id(uci_id)
+        if not cyclist:
+            return jsonify({'error': 'Cyclist not found'}), 404
+
+        success = auth_db.follow_cyclist(user_id, uci_id)
+        if success:
+            return jsonify({'message': 'Cyclist followed successfully'}), 201
+        else:
+            return jsonify({'message': 'Cyclist already followed'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/cyclists/<uci_id>/unfollow', methods=['DELETE'])
+@require_auth
+def unfollow_cyclist(uci_id):
+    """Remove a cyclist from user's follow list"""
+    try:
+        user_id = request.current_user['id']
+
+        success = auth_db.unfollow_cyclist(user_id, uci_id)
+        if success:
+            return jsonify({'message': 'Cyclist unfollowed successfully'})
+        else:
+            return jsonify({'error': 'Cyclist was not being followed'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/cyclists/<uci_id>/follow-status', methods=['GET'])
+@require_auth
+def get_follow_status(uci_id):
+    """Check if user follows a specific cyclist"""
+    try:
+        user_id = request.current_user['id']
+        is_followed = auth_db.is_cyclist_followed(user_id, uci_id)
+
+        return jsonify({'is_followed': is_followed})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/followed-cyclists', methods=['GET'])
+@require_auth
+def get_followed_cyclists():
+    """Get user's followed cyclists with their details and last race info"""
+    try:
+        user_id = request.current_user['id']
+        followed_uci_ids = auth_db.get_followed_cyclists(user_id)
+
+        cyclists_data = []
+        for uci_id in followed_uci_ids:
+            # Get cyclist basic info
+            cyclist = db.get_cyclist_by_id(uci_id)
+            if cyclist:
+                # Get cyclist's race history to find last race
+                history = db.get_cyclist_history(uci_id)
+
+                # Find the most recent race
+                last_race = None
+                if history:
+                    # Import datetime for date parsing
+                    from datetime import datetime, timedelta
+
+                    # Helper function to parse French date format (DD month_name YYYY)
+                    def parse_french_date(date_str):
+                        try:
+                            # French month names mapping
+                            french_months = {
+                                'janvier': 'January', 'février': 'February', 'mars': 'March', 'avril': 'April',
+                                'mai': 'May', 'juin': 'June', 'juillet': 'July', 'août': 'August',
+                                'septembre': 'September', 'octobre': 'October', 'novembre': 'November', 'décembre': 'December'
+                            }
+
+                            # Replace French month with English month
+                            english_date = date_str
+                            for french_month, english_month in french_months.items():
+                                if french_month in date_str.lower():
+                                    english_date = date_str.replace(french_month, english_month)
+                                    break
+
+                            # Parse the date (e.g., "05 July 2024")
+                            return datetime.strptime(english_date, '%d %B %Y')
+                        except:
+                            try:
+                                # Fallback: try DD/MM/YYYY format
+                                return datetime.strptime(date_str, '%d/%m/%Y')
+                            except:
+                                # Final fallback: return a very old date for invalid dates
+                                return datetime(1900, 1, 1)
+
+                    # Sort by properly parsed date (descending) and get the first one
+                    sorted_history = sorted(history, key=lambda x: parse_french_date(x['date']), reverse=True)
+                    if sorted_history:
+                        last_race = sorted_history[0]
+
+                        # Check if last race was within two weeks
+                        try:
+                            # Use the same French date parsing logic
+                            race_date = parse_french_date(last_race['date'])
+                            two_weeks_ago = datetime.now() - timedelta(days=14)
+                            last_race['is_recent'] = race_date >= two_weeks_ago
+                        except:
+                            last_race['is_recent'] = False
+
+                cyclists_data.append({
+                    'uci_id': cyclist['uci_id'],
+                    'name': f"{cyclist['first_name']} {cyclist['last_name']}",
+                    'first_name': cyclist['first_name'],
+                    'last_name': cyclist['last_name'],
+                    'team': cyclist.get('club', ''),
+                    'region': cyclist.get('region', ''),
+                    'last_race': last_race,
+                    'total_races': len(history) if history else 0
+                })
+
+        return jsonify(cyclists_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Endpoint not found'}), 404

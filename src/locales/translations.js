@@ -72,7 +72,14 @@ export const translations = {
       organizerFound: 'Organizer',
       cyclistsFound: 'Cyclists',
       found: 'found',
-      scrapingFailed: 'Scraping failed'
+      scrapingFailed: 'Scraping failed',
+      cyclistsToFollow: 'Followed Cyclists',
+      lastRace: 'Last Race',
+      noFollowedCyclists: 'No followed cyclists yet.',
+      recentRaceIndicator: 'Raced within the last two weeks',
+      noRacesInSelectedYears: 'No races found for the selected years.',
+      follow: 'Follow',
+      unfollow: 'Unfollow'
     },
     comparison: {
       title: 'Performance comparison',
@@ -269,7 +276,14 @@ export const translations = {
       organizerFound: 'Organisateur',
       cyclistsFound: 'Cyclistes',
       found: 'trouvés',
-      scrapingFailed: 'Échec de l\'extraction'
+      scrapingFailed: 'Échec de l\'extraction',
+      cyclistsToFollow: 'Cyclistes suivis',
+      lastRace: 'Dernière course',
+      noFollowedCyclists: 'Aucun cycliste suivi pour le moment.',
+      recentRaceIndicator: 'A couru dans les deux dernières semaines',
+      noRacesInSelectedYears: 'Aucune course trouvée pour les années sélectionnées.',
+      follow: 'Suivre',
+      unfollow: 'Ne plus suivre'
     },
     comparison: {
       title: 'Comparaison des performances',
