@@ -54,7 +54,21 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
     return sortDirection === 'asc' ? <span style={{color: '#2563eb'}}>↑</span> : <span style={{color: '#2563eb'}}>↓</span>;
   };
 
-  const handleCyclistRowClick = (cyclist) => {
+  const handleCyclistRowClick = async (cyclist) => {
+    // Update last_check_date in the backend
+    try {
+      await axios.post(`/cyclists/${cyclist.uci_id}/mark-checked`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Refresh the followed cyclists list to update red dot visibility
+      await fetchFollowedCyclists();
+    } catch (err) {
+      console.error('Error updating last check date:', err);
+      // Don't block the profile opening if this fails
+    }
+
+    // Open the cyclist profile
     if (onCyclistClick) {
       onCyclistClick(cyclist.uci_id, cyclist.name);
     }
@@ -252,7 +266,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
               </thead>
               <tbody>
                 {sortedCyclists.map((cyclist, index) => {
-                  const hasRecentRace = cyclist.last_race?.is_recent;
+                  const hasNewRace = cyclist.has_new_race;
 
                   return (
                     <tr
@@ -286,7 +300,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                         wordBreak: 'break-word'
                       }}>
                         <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                          {hasRecentRace && (
+                          {hasNewRace && (
                             <span style={{
                               width: '8px',
                               height: '8px',
@@ -294,7 +308,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                               borderRadius: '50%',
                               display: 'inline-block',
                               flexShrink: 0,
-                              title: t('ui.recentRaceIndicator') || 'Raced within the last two weeks'
+                              title: t('ui.newRaceIndicator') || 'New race since last check'
                             }}></span>
                           )}
                           {cyclist.first_name.toLowerCase().replace(/(?:^|\s)\w/g, match => match.toUpperCase())} {cyclist.last_name}

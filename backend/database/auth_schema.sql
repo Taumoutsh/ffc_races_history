@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS followed_cyclists (
     user_id INTEGER NOT NULL,
     cyclist_uci_id TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_check_date DATETIME,
     UNIQUE(user_id, cyclist_uci_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

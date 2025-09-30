@@ -770,10 +770,13 @@ def get_followed_cyclists():
     """Get user's followed cyclists with their details and last race info"""
     try:
         user_id = request.current_user['id']
-        followed_uci_ids = auth_db.get_followed_cyclists(user_id)
+        followed_data = auth_db.get_followed_cyclists_with_check_date(user_id)
 
         cyclists_data = []
-        for uci_id in followed_uci_ids:
+        for follow_info in followed_data:
+            uci_id = follow_info['cyclist_uci_id']
+            last_check_date = follow_info['last_check_date']
+
             # Get cyclist basic info
             cyclist = db.get_cyclist_by_id(uci_id)
             if cyclist:
@@ -782,6 +785,8 @@ def get_followed_cyclists():
 
                 # Find the most recent race
                 last_race = None
+                has_new_race = False
+
                 if history:
                     # Import datetime for date parsing
                     from datetime import datetime, timedelta
@@ -824,6 +829,18 @@ def get_followed_cyclists():
                             race_date = parse_french_date(last_race['date'])
                             two_weeks_ago = datetime.now() - timedelta(days=14)
                             last_race['is_recent'] = race_date >= two_weeks_ago
+
+                            # Check if there's a new race since last check
+                            if last_check_date:
+                                # Parse last_check_date from SQLite format (YYYY-MM-DD HH:MM:SS)
+                                try:
+                                    check_date = datetime.strptime(last_check_date, '%Y-%m-%d %H:%M:%S')
+                                    has_new_race = race_date > check_date
+                                except:
+                                    has_new_race = True  # If parsing fails, show notification
+                            else:
+                                # If never checked, always show notification
+                                has_new_race = True
                         except:
                             last_race['is_recent'] = False
 
@@ -835,10 +852,30 @@ def get_followed_cyclists():
                     'team': cyclist.get('club', ''),
                     'region': cyclist.get('region', ''),
                     'last_race': last_race,
-                    'total_races': len(history) if history else 0
+                    'total_races': len(history) if history else 0,
+                    'has_new_race': has_new_race
                 })
 
         return jsonify(cyclists_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/cyclists/<uci_id>/mark-checked', methods=['POST'])
+@require_auth
+def mark_cyclist_checked(uci_id):
+    """Update last_check_date when user views a followed cyclist's profile"""
+    try:
+        user_id = request.current_user['id']
+
+        # Update last_check_date for this cyclist
+        success = auth_db.update_last_check_date(user_id, uci_id)
+
+        if success:
+            return jsonify({'success': True, 'message': 'Last check date updated'})
+        else:
+            return jsonify({'error': 'Cyclist not found in follow list'}), 404
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
