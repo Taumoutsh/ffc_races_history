@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useApiData } from './hooks/useApiData';
 import PerformanceChart from './components/PerformanceChart';
 import RaceLeaderboardModal from './components/RaceLeaderboardModal';
@@ -9,6 +9,7 @@ import UserManagement from './components/admin/UserManagement';
 import MessagePanel from './components/MessagePanel';
 import DateFilter from './components/DateFilter';
 import CyclistRaceHistoryTable from './components/CyclistRaceHistoryTable';
+import CyclistsToFollow from './components/CyclistsToFollow';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
@@ -174,6 +175,7 @@ function App() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [researchSortField, setResearchSortField] = useState('bestPosition');
   const [researchSortDirection, setResearchSortDirection] = useState('asc');
+  const cyclistsToFollowRef = useRef();
 
   // Prevent background scrolling when any modal is open (centralized solution)
   useEffect(() => {
@@ -330,6 +332,13 @@ function App() {
 
   const handleDefaultCyclistChange = (newDefaultCyclist) => {
     updateDefaultCyclist(newDefaultCyclist);
+  };
+
+  const handleFollowChange = () => {
+    // Refresh the followed cyclists list when a cyclist is followed/unfollowed
+    if (cyclistsToFollowRef.current && cyclistsToFollowRef.current.fetchFollowedCyclists) {
+      cyclistsToFollowRef.current.fetchFollowedCyclists();
+    }
   };
 
   // Handle category filter toggle
@@ -1395,6 +1404,11 @@ function App() {
           )}
         </div>
 
+        {/* Cyclists to Follow Section */}
+        <div style={styles.searchCard}>
+          <CyclistsToFollow ref={cyclistsToFollowRef} onCyclistClick={handleCyclistClick} />
+        </div>
+
         {defaultCyclistRaces.length > 0 ? (
           <div key={`chart-container-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${defaultCyclistRaces.length}`} style={styles.chartCard}>
             <div>
@@ -1606,6 +1620,7 @@ function App() {
         getDefaultCyclistRaces={getDefaultCyclistRaces}
         getDefaultCyclistInfo={getDefaultCyclistInfo}
         isLeaderboardOpen={showLeaderboard}
+        onFollowChange={handleFollowChange}
       />
 
       {/* Admin Panel Modal */}

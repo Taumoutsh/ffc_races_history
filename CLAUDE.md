@@ -7,7 +7,7 @@
 **Purpose:** Interactive cycling race performance tracking and analysis  
 **Data Source:** SQLite database with REST API  
 **Default Cyclist:** John Doe (configurable dynamically via UI)  
-**Version:** 2.9.4 - Admin Message System & Modern Forms
+**Version:** 2.9.5 - Cyclists to Follow System
 
 ## 🚀 Core Features
 
@@ -76,7 +76,19 @@
 - **Responsive Design:** Mobile-optimized with proper touch targets and spacing
 - **Component:** `MessagePanel.jsx` with `UserManagement.jsx` admin interface
 
-### 9. Multi-language Support
+### 9. ⭐ **Cyclists to Follow System** (v2.9.5)
+- **Personal Follow List:** Users can follow specific cyclists to track their performance
+- **Follow Button:** Located next to "Select as Default" button in cyclist profiles
+- **Smart Table Display:** Shows cyclist name, team, and most recent race information
+- **Recent Race Indicator:** 🔥 symbol for cyclists who raced within the last week
+- **Sortable Columns:** Click headers to sort by name, team, or last race date
+- **Quick Access:** Click cyclist rows to open their full profiles
+- **Easy Management:** Remove cyclists from follow list with dedicated unfollow button
+- **User-Specific Data:** Each user maintains their own follow list using authentication system
+- **Database Integration:** Stored in `auth.db` with proper foreign key relationships
+- **API Endpoints:** Complete REST API for follow/unfollow operations and status checking
+
+### 10. Multi-language Support
 - English/French with React Context
 - Complete UI element coverage
 - Header toggle switcher
@@ -101,6 +113,10 @@ GET /api/admin/messages            # Get all admin messages (admin only)
 POST /api/admin/messages           # Create admin message (admin only)
 PUT /api/admin/messages/{id}       # Update admin message (admin only)
 DELETE /api/admin/messages/{id}    # Delete admin message (admin only)
+POST /api/cyclists/{uci_id}/follow         # Follow a cyclist (auth required)
+DELETE /api/cyclists/{uci_id}/unfollow     # Unfollow a cyclist (auth required)
+GET /api/cyclists/{uci_id}/follow-status   # Check follow status (auth required)
+GET /api/followed-cyclists                 # Get user's followed cyclists (auth required)
 ```
 
 ### Performance
@@ -128,7 +144,9 @@ DELETE /api/admin/messages/{id}    # Delete admin message (admin only)
 ```
 src/
 ├── components/
-│   ├── CyclistProfile.jsx
+│   ├── CyclistProfile.jsx        # Enhanced with FollowButton integration (v2.9.5)
+│   ├── CyclistsToFollow.jsx      # v2.9.5 - Followed cyclists table component
+│   ├── FollowButton.jsx          # v2.9.5 - Follow/unfollow button component
 │   ├── PerformanceChart.jsx      # v2.9.3 - Enhanced with DateFilter integration
 │   ├── ComparisonView.jsx        # v2.7.0 - Upgraded v2.9.2 with table mode
 │   ├── DateFilter.jsx            # v2.9.3 - Universal year filtering component
@@ -245,7 +263,22 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 
 ## 📈 Version History
 
-### v2.9.4 (Current) - Admin Message System & Modern Forms
+### v2.9.5 (Current) - Cyclists to Follow System
+- ⭐ **Personal Follow Lists:** Users can create and manage personalized lists of cyclists to track
+- 🔄 **Follow Button Integration:** Added follow/unfollow button next to "Select as Default" in cyclist profiles
+- 📊 **Smart Follow Table:** New component displaying followed cyclists with name, team, and last race information
+- 🔥 **Recent Race Indicator:** Visual symbol for cyclists who participated in races within the last week
+- 🗂️ **Sortable Interface:** Click column headers to sort by cyclist name, team, or last race date
+- 👆 **Quick Profile Access:** Click any cyclist row to open their detailed profile
+- 🗑️ **Easy Management:** Remove cyclists from follow list with dedicated unfollow buttons
+- 🔐 **User-Specific Data:** Each authenticated user maintains their own independent follow list
+- 🗄️ **Database Integration:** New `followed_cyclists` table in `auth.db` with proper foreign key relationships
+- 🌐 **Complete API Suite:** Four new REST endpoints for follow management and status checking
+- 📱 **Mobile Optimized:** Responsive design with emoji-only buttons on mobile devices
+- 🎨 **Consistent Styling:** Matches existing CyclistRaceHistoryTable design language
+- 🔗 **Component Architecture:** New FollowButton and CyclistsToFollow components with proper separation
+
+### v2.9.4 - Admin Message System & Modern Forms
 - 📢 **Admin Message System:** Complete announcement system for broadcasting messages to all users
 - 🎨 **Banner Display:** Messages appear as prominent top-page banners with color-coded message types (Info, Success, Warning, Error)
 - 🔧 **Admin Management:** Full CRUD operations for messages through enhanced admin panel
@@ -343,7 +376,7 @@ DEPLOYMENT_MODE=production ./deploy.sh  # Production mode
 
 ---
 
-**Last Updated:** January 2025  
-**Current Version:** 2.9.4  
-**License:** MIT  
+**Last Updated:** January 2025
+**Current Version:** 2.9.5
+**License:** MIT
 **Repository:** https://github.com/Taumoutsh/ffc_races_history

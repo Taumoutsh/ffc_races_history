@@ -518,3 +518,87 @@ class AuthDatabase:
         except Exception as e:
             print(f"Error getting auth stats: {e}")
             return {}
+
+    # Followed Cyclists Management Methods
+
+    def follow_cyclist(self, user_id: int, cyclist_uci_id: str) -> bool:
+        """Add a cyclist to user's follow list"""
+        try:
+            with self.get_connection() as conn:
+                conn.execute(
+                    "INSERT OR IGNORE INTO followed_cyclists (user_id, cyclist_uci_id) VALUES (?, ?)",
+                    (user_id, cyclist_uci_id)
+                )
+                conn.commit()
+                return conn.total_changes > 0
+        except Exception as e:
+            print(f"Error following cyclist: {e}")
+            return False
+
+    def unfollow_cyclist(self, user_id: int, cyclist_uci_id: str) -> bool:
+        """Remove a cyclist from user's follow list"""
+        try:
+            with self.get_connection() as conn:
+                conn.execute(
+                    "DELETE FROM followed_cyclists WHERE user_id = ? AND cyclist_uci_id = ?",
+                    (user_id, cyclist_uci_id)
+                )
+                conn.commit()
+                return conn.total_changes > 0
+        except Exception as e:
+            print(f"Error unfollowing cyclist: {e}")
+            return False
+
+    def get_followed_cyclists(self, user_id: int) -> List[str]:
+        """Get list of cyclist UCI IDs that the user follows"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.execute(
+                    "SELECT cyclist_uci_id FROM followed_cyclists WHERE user_id = ? ORDER BY created_at DESC",
+                    (user_id,)
+                )
+                return [row['cyclist_uci_id'] for row in cursor.fetchall()]
+        except Exception as e:
+            print(f"Error getting followed cyclists: {e}")
+            return []
+
+    def get_followed_cyclists_with_check_date(self, user_id: int) -> List[dict]:
+        """Get list of followed cyclists with their last check dates"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.execute(
+                    "SELECT cyclist_uci_id, last_check_date FROM followed_cyclists WHERE user_id = ? ORDER BY created_at DESC",
+                    (user_id,)
+                )
+                return [{'cyclist_uci_id': row['cyclist_uci_id'], 'last_check_date': row['last_check_date']}
+                        for row in cursor.fetchall()]
+        except Exception as e:
+            print(f"Error getting followed cyclists with check dates: {e}")
+            return []
+
+    def is_cyclist_followed(self, user_id: int, cyclist_uci_id: str) -> bool:
+        """Check if a user follows a specific cyclist"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.execute(
+                    "SELECT 1 FROM followed_cyclists WHERE user_id = ? AND cyclist_uci_id = ?",
+                    (user_id, cyclist_uci_id)
+                )
+                return cursor.fetchone() is not None
+        except Exception as e:
+            print(f"Error checking if cyclist is followed: {e}")
+            return False
+
+    def update_last_check_date(self, user_id: int, cyclist_uci_id: str) -> bool:
+        """Update last_check_date when user views a followed cyclist's profile"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.execute(
+                    "UPDATE followed_cyclists SET last_check_date = CURRENT_TIMESTAMP WHERE user_id = ? AND cyclist_uci_id = ?",
+                    (user_id, cyclist_uci_id)
+                )
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error updating last check date: {e}")
+            return False

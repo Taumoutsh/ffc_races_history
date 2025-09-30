@@ -347,25 +347,59 @@ class OptimizedCyclingScraperDB:
 
     def _find_etape_stages(self, soup) -> List[Dict[str, str]]:
         """
-        Find etape stages in multi-stage races
+        Find etape stages and category-based leaderboards in multi-stage races
 
         Args:
             soup: BeautifulSoup object of the race page
 
         Returns:
-            List of dictionaries with etape information
+            List of dictionaries with etape/category information
         """
+        import re
+
         etape_stages = []
+
+        # Pattern to match category leaderboards anywhere in text: A1, A2, A3, A4, A1-A2, A1A2, A3-A4, A3A4,
+        # Access 1, Access 2, Access 3, Access 4, Acces 1, ACCESS 1 2, ACCESS 3 4, ACCESS 1-2, ACCESS 3-4, Access 1.2, Access 3.4, ACCESS 1 & 2, ACCESS 3 & 4, etc.
+        category_pattern = r'\b(A[1-4](-?A[1-4])?|A[1-4]-[1-4]|A(cces|cces)s?\s*[1-4](\s*[2-4]|-[2-4]|\.?[2-4]|\s*&\s*[2-4])?)\b'
+
+        def is_category_or_etape(text: str) -> bool:
+            """Check if text contains etape or matches category pattern"""
+            # Check for etape
+            if any(etape_word in text for etape_word in ['Etape', 'etape', 'Étape']):
+                return True
+            # Check for category pattern anywhere in text (using search instead of match)
+            if re.search(category_pattern, text, re.IGNORECASE):
+                return True
+            return False
+
+        def extract_category_name(text: str) -> str:
+            """Extract the category name from text (e.g., 'A1-A2' from 'Classement: A1-A2')"""
+            # First check for etape
+            for etape_word in ['Etape', 'etape', 'Étape']:
+                if etape_word in text:
+                    # Extract the etape part
+                    match = re.search(r'(Étape|Etape|etape)\s*\d+', text, re.IGNORECASE)
+                    if match:
+                        return match.group(0)
+                    return text  # Return full text if no match
+
+            # Extract category pattern
+            match = re.search(category_pattern, text, re.IGNORECASE)
+            if match:
+                return match.group(0)
+
+            return text  # Fallback to full text
 
         # First try: Look for <li> elements with select2-results__option class (original approach)
         li_elements = soup.find_all('li', class_='select2-results__option')
 
         for li in li_elements:
-            # Get the text content to check for etape
+            # Get the text content to check for etape or category
             li_text = li.get_text().strip()
 
-            # Check if this li contains "Etape", "etape", or "Étape"
-            if any(etape_word in li_text for etape_word in ['Etape', 'etape', 'Étape']):
+            # Check if this li contains "Etape" or matches category pattern
+            if is_category_or_etape(li_text):
                 # Extract payload from id attribute
                 li_id = li.get('id', '')
 
@@ -374,11 +408,12 @@ class OptimizedCyclingScraperDB:
                     payload = li_id.split('-')[-1]  # Get last part after final dash
 
                     if payload:
+                        category_name = extract_category_name(li_text)
                         etape_stages.append({
-                            'etape_name': li_text,
+                            'etape_name': category_name,
                             'payload': payload
                         })
-                        self.logger.debug(f"Found etape (li method): {li_text} with payload: {payload}")
+                        self.logger.debug(f"Found etape/category (li method): {category_name} with payload: {payload}")
 
         # Second try: Look for <select> elements with <option> children (new approach)
         if not etape_stages:
@@ -391,14 +426,15 @@ class OptimizedCyclingScraperDB:
                     option_text = option.get_text().strip()
                     option_value = option.get('value', '')
 
-                    # Check if this option contains "Etape", "etape", or "Étape"
-                    if any(etape_word in option_text for etape_word in ['Etape', 'etape', 'Étape']):
+                    # Check if this option contains "Etape" or matches category pattern
+                    if is_category_or_etape(option_text):
                         if option_value:
+                            category_name = extract_category_name(option_text)
                             etape_stages.append({
-                                'etape_name': option_text,
+                                'etape_name': category_name,
                                 'payload': option_value
                             })
-                            self.logger.debug(f"Found etape (select method): {option_text} with payload: {option_value}")
+                            self.logger.debug(f"Found etape/category (select method): {category_name} with payload: {option_value}")
 
         return etape_stages
 
