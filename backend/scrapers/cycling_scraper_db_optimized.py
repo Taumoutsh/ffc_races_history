@@ -359,9 +359,10 @@ class OptimizedCyclingScraperDB:
 
         etape_stages = []
 
-        # Pattern to match category leaderboards anywhere in text: A1, A2, A3, A4, A1-A2, A1A2, A3-A4, A3A4,
-        # Access 1, Access 2, Access 3, Access 4, Acces 1, ACCESS 1 2, ACCESS 3 4, ACCESS 1-2, ACCESS 3-4, Access 1.2, Access 3.4, ACCESS 1 & 2, ACCESS 3 & 4, etc.
-        category_pattern = r'\b(A[1-4](-?A[1-4])?|A[1-4]-[1-4]|A(cces|cces)s?\s*[1-4](\s*[2-4]|-[2-4]|\.?[2-4]|\s*&\s*[2-4])?)\b'
+        # Pattern to match category leaderboards anywhere in text:
+        # - Access categories: A1, A2, A3, A4, A1-A2, A1A2, A3-A4, A3A4, ACCESS 1 2, ACCESS 3 4, ACCESS 1-2, ACCESS 3-4, Access 1.2, Access 3.4, ACCESS 1 & 2, ACCESS 3 & 4
+        # - Youth categories: U7, U9, U11, U13, U15, U17, U-7, U-9, U-11, U-13, U-15, U-17, U 7, U 9, U 11, U 13, U 15, U 17
+        category_pattern = r'\b(A[1-4](-?A[1-4])?|A[1-4]-[1-4]|A(cces|cces)s?\s*[1-4](\s*[2-4]|-[2-4]|\.?[2-4]|\s*&\s*[2-4])?|U-?\s*[7-9]|U-?\s*1[1357])\b'
 
         def is_category_or_etape(text: str) -> bool:
             """Check if text contains etape or matches category pattern"""
