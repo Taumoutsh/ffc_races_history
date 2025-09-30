@@ -25,7 +25,10 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
 
   const fetchFollowedCyclists = async () => {
     try {
-      setLoading(true);
+      // Only show loading state if there's no data yet
+      if (followedCyclists.length === 0) {
+        setLoading(true);
+      }
       setError(null);
 
       const response = await axios.get('/followed-cyclists', {
