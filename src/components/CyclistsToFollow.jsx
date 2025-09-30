@@ -2,6 +2,7 @@ import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useTranslation } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { parseFrenchDate } from '../utils/dateUtils';
 
 const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
   const { t } = useTranslation();
@@ -95,8 +96,8 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
         if (!b.last_race) return sortDirection === 'asc' ? -1 : 1;
 
         try {
-          const aDate = new Date(a.last_race.date.split('/').reverse().join('-'));
-          const bDate = new Date(b.last_race.date.split('/').reverse().join('-'));
+          const aDate = parseFrenchDate(a.last_race.date);
+          const bDate = parseFrenchDate(b.last_race.date);
           aVal = aDate.getTime();
           bVal = bDate.getTime();
         } catch {
