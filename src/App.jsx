@@ -34,12 +34,12 @@ const styles = {
   headerContent: {
     maxWidth: '80rem',
     margin: '0 auto',
-    padding: '1rem',
+    padding: window.innerWidth < 768 ? '0.5rem' : '1rem',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: '1rem'
+    gap: window.innerWidth < 768 ? '0.5rem' : '1rem'
   },
   headerText: {
     flex: 1
@@ -63,7 +63,7 @@ const styles = {
   main: {
     maxWidth: '80rem',
     margin: '0 auto',
-    padding: '1rem'
+    padding: window.innerWidth < 768 ? '0.5rem' : '1rem'
   },
   chartCard: {
     background: 'rgba(255, 255, 255, 0.95)',
@@ -72,7 +72,7 @@ const styles = {
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: 'clamp(1rem, 3vw, 2rem)',
+    padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 0.75rem)' : 'clamp(1rem, 3vw, 2rem)',
     overflow: 'visible'
   },
   searchCard: {
@@ -82,18 +82,18 @@ const styles = {
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: 'clamp(0.75rem, 2.5vw, 1.5rem)',
-    marginBottom: '1rem'
+    padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 0.75rem)' : 'clamp(0.75rem, 2.5vw, 1.5rem)',
+    marginBottom: window.innerWidth < 768 ? '0.5rem' : '1rem'
   },
   overviewCard: {
-    marginTop: 'clamp(0.5rem, 2vw, 1rem)',
+    marginTop: window.innerWidth < 768 ? 'clamp(0.5rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem)',
     background: 'rgba(255, 255, 255, 0.95)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
     borderRadius: '1rem',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: 'clamp(0.75rem, 3vw, 2rem)'
+    padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 0.75rem)' : 'clamp(0.75rem, 3vw, 2rem)'
   },
   overviewTitle: {
     fontSize: 'clamp(1rem, 2.5vw, 1.5rem)',
@@ -659,7 +659,7 @@ function App() {
       <div style={{
         maxWidth: '80rem',
         margin: '0 auto',
-        padding: '0 1rem'
+        padding: window.innerWidth < 768 ? '0 0.5rem' : '0 1rem'
       }}>
         <MessagePanel />
       </div>

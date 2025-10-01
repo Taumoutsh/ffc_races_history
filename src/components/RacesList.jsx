@@ -142,7 +142,7 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
 
   // Sort icon component
   const SortIcon = ({ field }) => {
-    if (sortBy !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
+    if (sortBy !== field) return <span style={{color: '#d1d5db'}}>↑↓</span>;
     return sortOrder === 'asc' ? <span style={{color: '#2563eb'}}>↑</span> : <span style={{color: '#2563eb'}}>↓</span>;
   };
 
@@ -259,14 +259,15 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
               <table key={`races-table-${selectedYears.join('-')}`} style={{width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed'}}>
                 <thead>
                   <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
-                    <th 
+                    <th
                       style={{
-                        border: 'none', 
-                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)', 
-                        textAlign: 'left', 
-                        cursor: 'pointer', 
-                        fontWeight: '700', 
+                        border: 'none',
+                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                        borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontWeight: '700',
                         color: '#1f2937',
                         transition: 'background-color 0.2s ease',
                         userSelect: 'none',
@@ -276,18 +277,19 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
                       onClick={() => handleSortChange('date')}
                     >
                       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                        📅 {t('table.date')}
+                        {window.innerWidth < 768 ? '📅' : `📅 ${t('table.date')}`}
                         <SortIcon field="date" />
                       </div>
                     </th>
-                    <th 
+                    <th
                       style={{
-                        border: 'none', 
-                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)', 
-                        textAlign: 'left', 
-                        cursor: 'pointer', 
-                        fontWeight: '700', 
+                        border: 'none',
+                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                        borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontWeight: '700',
                         color: '#1f2937',
                         transition: 'background-color 0.2s ease',
                         userSelect: 'none',
@@ -297,18 +299,18 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
                       onClick={() => handleSortChange('name')}
                     >
                       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                        🏁 {t('ui.raceName')}
+                        {window.innerWidth < 768 ? '🏁' : `🏁 ${t('ui.raceName')}`}
                         <SortIcon field="name" />
                       </div>
                     </th>
-                    <th 
+                    <th
                       style={{
-                        border: 'none', 
-                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)', 
-                        textAlign: 'center', 
-                        cursor: 'pointer', 
-                        fontWeight: '700', 
+                        border: 'none',
+                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1.5rem)',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        fontWeight: '700',
                         color: '#1f2937',
                         transition: 'background-color 0.2s ease',
                         userSelect: 'none',
@@ -318,7 +320,7 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
                       onClick={() => handleSortChange('participants')}
                     >
                       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                        👥 {t('ui.participants')}
+                        {window.innerWidth < 768 ? '👥' : `👥 ${t('ui.participants')}`}
                         <SortIcon field="participants" />
                       </div>
                     </th>
@@ -347,13 +349,13 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
                         row.style.boxShadow = 'none';
                       }}
                     >
-                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '600', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
+                      <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '600', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
                         {race.date}
                       </td>
-                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#374151', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                      <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#374151', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                         {race.name}
                       </td>
-                      <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '800', color: '#3b82f6', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
+                      <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '800', color: '#3b82f6', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>
                         {race.participant_count}
                       </td>
                     </tr>

@@ -54,7 +54,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
   };
 
   const SortIcon = ({ field }) => {
-    if (sortField !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
+    if (sortField !== field) return <span style={{color: '#d1d5db'}}>↑↓</span>;
     return sortDirection === 'asc' ? <span style={{color: '#2563eb'}}>↑</span> : <span style={{color: '#2563eb'}}>↓</span>;
   };
 
@@ -161,7 +161,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
 
   return (
     <div>
-      <div style={{marginBottom: '1.5rem'}}>
+      <div style={{marginBottom: window.innerWidth < 768 ? '0.75rem' : '1.5rem'}}>
         <h4 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', color: '#1f2937', margin: 0}}>
           📋 {t('ui.cyclistsToFollow') || 'Cyclists to Follow'} ({followedCyclists.length})
         </h4>
@@ -184,7 +184,8 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                     style={{
                       border: 'none',
                       borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                      padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                      borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                      padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontWeight: '700',
@@ -192,12 +193,12 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '35%' : '15%'
+                      width: window.innerWidth < 768 ? '30%' : '15%'
                     }}
                     onClick={() => handleSort('name')}
                   >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                      👤 {t('table.name') || 'Name'}
+                      {window.innerWidth < 768 ? '👤' : `👤 ${t('table.name') || 'Name'}`}
                       <SortIcon field="name" />
                     </div>
                   </th>
@@ -205,7 +206,8 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                     style={{
                       border: 'none',
                       borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                      padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                      borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                      padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontWeight: '700',
@@ -213,12 +215,12 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '25%' : '20%'
+                      width: window.innerWidth < 768 ? '30%' : '20%'
                     }}
                     onClick={() => handleSort('team')}
                   >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                      🏃‍♂️ {t('table.team') || 'Team'}
+                      {window.innerWidth < 768 ? '🏃‍♂️' : `🏃‍♂️ ${t('table.team') || 'Team'}`}
                       <SortIcon field="team" />
                     </div>
                   </th>
@@ -226,7 +228,8 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                     style={{
                       border: 'none',
                       borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                      padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                      borderRight: window.innerWidth >= 768 ? '1px solid rgba(59, 130, 246, 0.1)' : 'none',
+                      padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                       textAlign: 'left',
                       cursor: window.innerWidth >= 768 ? 'default' : 'pointer',
                       fontWeight: '700',
@@ -239,7 +242,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                     onClick={window.innerWidth < 768 ? () => handleSort('lastRace') : undefined}
                   >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                      🏁 {t('ui.lastRace') || 'Last Race'}
+                      {window.innerWidth < 768 ? '🏁' : `🏁 ${t('ui.lastRace') || 'Last Race'}`}
                       {window.innerWidth < 768 && <SortIcon field="lastRace" />}
                     </div>
                   </th>
@@ -248,7 +251,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       style={{
                         border: 'none',
                         borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                         textAlign: 'left',
                         cursor: 'pointer',
                         fontWeight: '700',
@@ -297,7 +300,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                     >
                       <td style={{
                         border: 'none',
-                        padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '600',
                         color: '#1f2937',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
@@ -321,7 +324,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
 
                       <td style={{
                         border: 'none',
-                        padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '500',
                         color: '#374151',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
@@ -333,7 +336,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
 
                       <td style={{
                         border: 'none',
-                        padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '500',
                         color: '#64748b',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',

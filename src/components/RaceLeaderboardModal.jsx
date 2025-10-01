@@ -188,25 +188,25 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
           <table style={{width: '100%', borderCollapse: 'collapse'}}>
             <thead>
               <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%)'}}>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().position}}>
-                  🥇 Pos
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', borderRight: '1px solid rgba(59, 130, 246, 0.1)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().position}}>
+                  {window.innerWidth < 768 ? '🥇' : '🥇 Pos'}
                 </th>
                 {isLargeScreen && (
-                  <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().id}}>
+                  <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', borderRight: '1px solid rgba(59, 130, 246, 0.1)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().id}}>
                     🆔 ID
                   </th>
                 )}
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().firstName}}>
-                  👤 {t('table.firstName')}
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', borderRight: '1px solid rgba(59, 130, 246, 0.1)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().firstName}}>
+                  {window.innerWidth < 768 ? '👤' : `👤 ${t('table.firstName')}`}
                 </th>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().lastName}}>
-                  👤 {t('table.lastName')}
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', borderRight: '1px solid rgba(59, 130, 246, 0.1)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().lastName}}>
+                  {window.innerWidth < 768 ? '👤' : `👤 ${t('table.lastName')}`}
                 </th>
-                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().region}}>
-                  📍 Region
+                <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', borderRight: '1px solid rgba(59, 130, 246, 0.1)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().region}}>
+                  {window.innerWidth < 768 ? '📍' : '📍 Region'}
                 </th>
                 <th style={{border: 'none', borderBottom: '2px solid rgba(59, 130, 246, 0.2)', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', textAlign: 'left', fontWeight: '700', color: '#1f2937', fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', width: getColumnWidths().team}}>
-                  🏃‍♂️ {t('table.team')}
+                  {window.innerWidth < 768 ? '🏃‍♂️' : `🏃‍♂️ ${t('table.team')}`}
                 </th>
               </tr>
             </thead>

@@ -33,7 +33,7 @@ const CyclistRaceHistoryTable = ({
   };
 
   const SortIcon = ({ field }) => {
-    if (sortField !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
+    if (sortField !== field) return <span style={{color: '#d1d5db'}}>↑↓</span>;
     return sortDirection === 'asc' ? <span style={{color: '#2563eb'}}>↑</span> : <span style={{color: '#2563eb'}}>↓</span>;
   };
 
@@ -102,14 +102,14 @@ const CyclistRaceHistoryTable = ({
 
   return (
     <div>
-      <div style={{marginBottom: '1.5rem'}}>
+      <div style={{marginBottom: window.innerWidth < 768 ? '0.75rem' : '1.5rem'}}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          marginBottom: '0.75rem',
+          marginBottom: window.innerWidth < 768 ? '0.5rem' : '0.75rem',
           flexWrap: 'wrap',
-          gap: '1rem'
+          gap: window.innerWidth < 768 ? '0.5rem' : '1rem'
         }}>
           <h4 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', color: '#1f2937', margin: 0}}>
             {title || `📊 ${t('ui.raceHistory')}${cyclistName ? ` - ${cyclistName}` : ''}`}
@@ -141,7 +141,8 @@ const CyclistRaceHistoryTable = ({
                     style={{
                       border: 'none',
                       borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                      padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                      borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                      padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontWeight: '700',
@@ -154,7 +155,7 @@ const CyclistRaceHistoryTable = ({
                     onClick={() => handleSort('date')}
                   >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                      📅 {t('table.date')}
+                      {window.innerWidth < 768 ? '📅' : `📅 ${t('table.date')}`}
                       <SortIcon field="date" />
                     </div>
                   </th>
@@ -162,7 +163,8 @@ const CyclistRaceHistoryTable = ({
                     style={{
                       border: 'none',
                       borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                      padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                      borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                      padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontWeight: '700',
@@ -175,7 +177,7 @@ const CyclistRaceHistoryTable = ({
                     onClick={() => handleSort(getRaceById ? 'race' : 'location')}
                   >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                      📍 {t('table.race')}
+                      {window.innerWidth < 768 ? '📍' : `📍 ${t('table.race')}`}
                       <SortIcon field={getRaceById ? 'race' : 'location'} />
                     </div>
                   </th>
@@ -183,7 +185,8 @@ const CyclistRaceHistoryTable = ({
                     style={{
                       border: 'none',
                       borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                      padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                      borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                      padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontWeight: '700',
@@ -196,7 +199,7 @@ const CyclistRaceHistoryTable = ({
                     onClick={() => handleSort('position')}
                   >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                      🏆 {t('table.position')}
+                      {window.innerWidth < 768 ? '🏆' : `🏆 ${t('table.position')}`}
                       <SortIcon field="position" />
                     </div>
                   </th>
@@ -204,7 +207,7 @@ const CyclistRaceHistoryTable = ({
                     style={{
                       border: 'none',
                       borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                      padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                      padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontWeight: '700',
@@ -217,7 +220,7 @@ const CyclistRaceHistoryTable = ({
                     onClick={() => handleSort('percentage')}
                   >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                      📊 {t('table.topPercentage')}
+                      {window.innerWidth < 768 ? '📊' : `📊 ${t('table.topPercentage')}`}
                       <SortIcon field="percentage" />
                     </div>
                   </th>
@@ -264,7 +267,7 @@ const CyclistRaceHistoryTable = ({
                     >
                       <td style={{
                         border: 'none',
-                        padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '600',
                         color: '#64748b',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
@@ -275,7 +278,7 @@ const CyclistRaceHistoryTable = ({
 
                       <td style={{
                         border: 'none',
-                        padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '500',
                         color: '#374151',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
@@ -287,7 +290,7 @@ const CyclistRaceHistoryTable = ({
 
                       <td style={{
                         border: 'none',
-                        padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '800',
                         color: '#3b82f6',
                         fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
@@ -298,7 +301,7 @@ const CyclistRaceHistoryTable = ({
 
                       <td style={{
                         border: 'none',
-                        padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '700',
                         color: '#059669',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
