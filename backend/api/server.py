@@ -383,11 +383,12 @@ def get_active_messages():
 def health_check():
     """Health check endpoint"""
     try:
-        stats = db.get_database_stats()
+        # Simple database connectivity check without returning data
+        with db.get_connection() as conn:
+            conn.execute("SELECT 1").fetchone()
         return jsonify({
             'status': 'healthy',
-            'database': 'connected',
-            'stats': stats
+            'database': 'connected'
         })
     except Exception as e:
         return jsonify({

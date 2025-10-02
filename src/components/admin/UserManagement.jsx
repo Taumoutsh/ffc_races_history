@@ -16,8 +16,7 @@ function UserManagement({ onClose }) {
   const [createForm, setCreateForm] = useState({
     username: '',
     password: '',
-    confirmPassword: '',
-    is_admin: false
+    confirmPassword: ''
   });
   const [messageForm, setMessageForm] = useState({
     title: '',
@@ -59,7 +58,7 @@ function UserManagement({ onClose }) {
 
     try {
       await axios.post('/auth/users', createForm);
-      setCreateForm({ username: '', password: '', confirmPassword: '', is_admin: false });
+      setCreateForm({ username: '', password: '', confirmPassword: '' });
       setShowCreateForm(false);
       loadUsers();
     } catch (error) {
@@ -90,6 +89,30 @@ function UserManagement({ onClose }) {
       loadUsers();
     } catch (error) {
       setError(error.response?.data?.error || (t('admin.failedToUpdateUserStatus') || 'Failed to update user status'));
+    }
+  };
+
+  const toggleAdminPrivileges = async (userId, currentAdminStatus, username) => {
+    if (!currentUser.is_admin) {
+      setError(t('admin.adminPrivilegesRequired') || 'Admin privileges required');
+      return;
+    }
+
+    const message = currentAdminStatus
+      ? t('admin.confirmRevokeAdmin', { username }) || `Are you sure you want to revoke admin privileges from "${username}"?`
+      : t('admin.confirmGrantAdmin', { username }) || `Are you sure you want to grant admin privileges to "${username}"?`;
+
+    if (!confirm(message)) {
+      return;
+    }
+
+    try {
+      await axios.put(`/auth/users/${userId}`, {
+        is_admin: !currentAdminStatus
+      });
+      loadUsers();
+    } catch (error) {
+      setError(error.response?.data?.error || (t('admin.failedToUpdateAdminStatus') || 'Failed to update admin status'));
     }
   };
 
@@ -487,29 +510,6 @@ function UserManagement({ onClose }) {
                 }}
               />
             </div>
-            <div style={{ marginBottom: 'clamp(1.5rem, 3vw, 2rem)' }}>
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                color: 'white',
-                fontSize: '0.875rem',
-                fontWeight: '600'
-              }}>
-                <input
-                  type="checkbox"
-                  checked={createForm.is_admin}
-                  onChange={(e) => setCreateForm(prev => ({ ...prev, is_admin: e.target.checked }))}
-                  style={{
-                    marginRight: '0.75rem',
-                    width: '1.25rem',
-                    height: '1.25rem',
-                    cursor: 'pointer'
-                  }}
-                />
-                {t('admin.adminPrivileges') || 'Admin privileges'}
-              </label>
-            </div>
             <div style={{
               display: 'flex',
               gap: 'clamp(0.75rem, 2vw, 1rem)',
@@ -650,6 +650,29 @@ function UserManagement({ onClose }) {
                 </td>
                 <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                    <button
+                      onClick={() => toggleAdminPrivileges(user.id, user.is_admin, user.username)}
+                      disabled={user.id === currentUser.id || !currentUser.is_admin}
+                      style={{
+                        background: user.is_admin ? 'rgba(138, 43, 226, 0.3)' : 'rgba(100, 149, 237, 0.3)',
+                        border: 'none',
+                        borderRadius: '4px',
+                        padding: '0.3rem 0.6rem',
+                        color: 'white',
+                        fontSize: '0.8rem',
+                        cursor: (user.id === currentUser.id || !currentUser.is_admin) ? 'not-allowed' : 'pointer',
+                        opacity: (user.id === currentUser.id || !currentUser.is_admin) ? 0.5 : 1
+                      }}
+                      title={
+                        user.id === currentUser.id
+                          ? (t('admin.cannotModifyOwnPrivileges') || 'Cannot modify your own privileges')
+                          : !currentUser.is_admin
+                            ? (t('admin.adminPrivilegesRequired') || 'Admin privileges required')
+                            : (user.is_admin ? (t('admin.revokeAdmin') || 'Revoke admin') : (t('admin.grantAdmin') || 'Grant admin'))
+                      }
+                    >
+                      👑
+                    </button>
                     <button
                       onClick={() => toggleUserStatus(user.id, user.is_active)}
                       disabled={user.id === currentUser.id}
