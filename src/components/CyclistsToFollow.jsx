@@ -193,7 +193,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '30%' : '15%'
+                      width: window.innerWidth < 768 ? '25%' : '15%'
                     }}
                     onClick={() => handleSort('name')}
                   >
@@ -215,7 +215,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '30%' : '20%'
+                      width: window.innerWidth < 768 ? '40%' : '20%'
                     }}
                     onClick={() => handleSort('team')}
                   >
@@ -237,7 +237,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '40%' : '35%'
+                      width: window.innerWidth < 768 ? '35%' : '35%'
                     }}
                     onClick={window.innerWidth < 768 ? () => handleSort('lastRace') : undefined}
                   >
@@ -251,7 +251,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       style={{
                         border: 'none',
                         borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                        padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
                         textAlign: 'left',
                         cursor: 'pointer',
                         fontWeight: '700',

@@ -352,7 +352,7 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
                       <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '600', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
                         {race.date}
                       </td>
-                      <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#374151', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word', maxWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                      <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#374151', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
                         {race.name}
                       </td>
                       <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '800', color: '#3b82f6', fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)', textAlign: 'center'}}>

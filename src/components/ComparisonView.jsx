@@ -80,7 +80,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
 
 
   const SortIcon = ({ field }) => {
-    if (sortField !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
+    if (sortField !== field) return <span style={{color: '#d1d5db'}}>↑↓</span>;
     return sortDirection === 'asc' ? <span style={{color: '#2563eb'}}>↑</span> : <span style={{color: '#2563eb'}}>↓</span>;
   };
 
