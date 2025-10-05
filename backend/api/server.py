@@ -18,6 +18,20 @@ import time
 import hashlib
 import json
 
+
+def format_name(first_name, last_name):
+    """Format cyclist name: CamelCase for first name, UPPERCASE for last name"""
+    if not first_name and not last_name:
+        return ''
+
+    # Format first name to CamelCase
+    formatted_first = first_name.lower().title() if first_name else ''
+
+    # Keep last name in UPPERCASE (as is standard in cycling)
+    formatted_last = last_name.upper() if last_name else ''
+
+    return f"{formatted_first} {formatted_last}".strip()
+
 # Add project root to path for backend imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from backend.database.models import CyclingDatabase
@@ -109,6 +123,10 @@ class DatabaseMonitor:
 # Initialize database monitor
 db_monitor = DatabaseMonitor(DB_PATH, db)
 
+# In-memory storage for last activity tracking
+user_activity = {}
+activity_lock = threading.Lock()
+
 
 # Authentication middleware
 def require_auth(f):
@@ -118,14 +136,19 @@ def require_auth(f):
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             return jsonify({'error': 'No token provided'}), 401
-        
+
         token = auth_header.split(' ')[1]
         user = auth_db.validate_session(token)
-        
+
         if not user:
             return jsonify({'error': 'Invalid or expired token'}), 401
-        
+
         request.current_user = user
+
+        # Track user activity
+        with activity_lock:
+            user_activity[user['id']] = datetime.now()
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -194,6 +217,24 @@ def get_users():
     """Get all users (admin only)"""
     users = auth_db.get_all_users()
     return jsonify(users)
+
+
+@app.route('/api/auth/users/activity', methods=['GET'])
+@require_auth
+@require_admin
+def get_users_activity():
+    """Get last activity data for all users (admin only)"""
+    try:
+        with activity_lock:
+            # Convert datetime objects to ISO format strings
+            activity_data = {}
+            for user_id, last_active in user_activity.items():
+                activity_data[str(user_id)] = last_active.isoformat()
+
+        return jsonify(activity_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/auth/users', methods=['POST'])
@@ -847,7 +888,7 @@ def get_followed_cyclists():
 
                 cyclists_data.append({
                     'uci_id': cyclist['uci_id'],
-                    'name': f"{cyclist['first_name']} {cyclist['last_name']}",
+                    'name': format_name(cyclist['first_name'], cyclist['last_name']),
                     'first_name': cyclist['first_name'],
                     'last_name': cyclist['last_name'],
                     'team': cyclist.get('club', ''),

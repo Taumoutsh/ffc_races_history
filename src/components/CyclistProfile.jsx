@@ -8,7 +8,7 @@ import CyclistRaceHistoryTable from './CyclistRaceHistoryTable';
 import { useTranslation } from '../contexts/LanguageContext';
 import { filterDataByYears, calculatePercentagePosition, getPercentageColor } from '../utils/dateUtils';
 
-const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, isLeaderboardOpen, onFollowChange }) => {
+const CyclistProfile = ({ cyclistId, cyclistName, history, team = null, region = null, isOpen, onClose, onPointClick, onRaceClick, isDefaultCyclistById, onDefaultChange, getDefaultCyclistRaces, getDefaultCyclistInfo, isLeaderboardOpen, onFollowChange }) => {
   const { t } = useTranslation();
   const [showChart, setShowChart] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
@@ -27,6 +27,51 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
 
   const safeHistory = history || [];
   const isDefaultProfile = isDefaultCyclistById ? isDefaultCyclistById(cyclistId, cyclistName) : false;
+
+  // Extract team name from history if not provided as prop
+  const getTeamName = () => {
+    // Use team prop if available
+    if (team) {
+      return team.replace(/^\d+\s+/, ''); // Clean club name (remove leading numbers)
+    }
+
+    // Fallback: extract from history
+    if (!safeHistory || safeHistory.length === 0) return null;
+
+    // Find the most recent race with team/club data
+    for (let i = safeHistory.length - 1; i >= 0; i--) {
+      const race = safeHistory[i];
+      if (race.club || race.team) {
+        // Clean club name (remove leading numbers)
+        const clubName = race.club || race.team;
+        return clubName.replace(/^\d+\s+/, '');
+      }
+    }
+    return null;
+  };
+
+  // Extract region from history if not provided as prop
+  const getRegion = () => {
+    // Use region prop if available
+    if (region) {
+      return region;
+    }
+
+    // Fallback: extract from history
+    if (!safeHistory || safeHistory.length === 0) return null;
+
+    // Find the most recent race with region data
+    for (let i = safeHistory.length - 1; i >= 0; i--) {
+      const race = safeHistory[i];
+      if (race.region) {
+        return race.region;
+      }
+    }
+    return null;
+  };
+
+  const teamName = getTeamName();
+  const regionName = getRegion();
 
   // Filter history by selected years
   const filteredHistory = filterDataByYears(safeHistory, selectedYears);
@@ -233,22 +278,32 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
               boxShadow: isDefaultProfile ? '0 4px 6px -1px rgba(34, 197, 94, 0.1)' : 'none'
             }}>
               <div>
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem'}}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.9rem'}}>
                   <div style={{flex: '1', minWidth: '200px'}}>
                     <h3 style={{fontSize: 'clamp(1rem, 3vw, 1.5rem)', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem'}}>
                       🚴‍♂️ {cyclistName || 'Unknown Cyclist'}
                     </h3>
-                    <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem', fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem'}}>
+                    <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem', fontSize: window.innerWidth < 768 ? '0.725rem' : '0.9rem'}}>
                       📋 ID: {cyclistId || 'No ID'}
                     </p>
-                    <p style={{fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem', color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
+                    {regionName && (
+                      <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem', fontSize: window.innerWidth < 768 ? '0.725rem' : '0.9rem'}}>
+                        📍 {t('table.region') || 'Region'}: {regionName}
+                      </p>
+                    )}
+                    {teamName && (
+                      <p style={{color: '#64748b', fontWeight: '600', marginBottom: '0.5rem', fontSize: window.innerWidth < 768 ? '0.725rem' : '0.9rem'}}>
+                        🧑‍🤝‍🧑 {t('table.team') || 'Team'}: {teamName}
+                      </p>
+                    )}
+                    <p style={{fontSize: window.innerWidth < 768 ? '0.725rem' : '0.9rem', color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
                       🏆 {t('table.totalRaces')}: {filteredHistory.length}{selectedYears.length > 0 && safeHistory.length !== filteredHistory.length ? ` (${safeHistory.length} total)` : ''}
                     </p>
                     {(() => {
                       const averagePercentage = calculateAverageTopPercentage();
                       if (averagePercentage !== null) {
                         return (
-                          <p style={{fontSize: window.innerWidth < 768 ? '0.875rem' : '1rem', color: '#64748b', fontWeight: '600'}}>
+                          <p style={{fontSize: window.innerWidth < 768 ? '0.725rem' : '0.9rem', color: '#64748b', fontWeight: '600'}}>
                             📊 {t('table.averageTopPercentage')}: 
                             <span style={{
                               marginLeft: '0.5rem',
@@ -282,7 +337,8 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                         isAlreadyDefault={isDefaultProfile}
                         translations={{
                           selectAsDefault: t('ui.selectAsDefault'),
-                          alreadySelectedCyclist: t('ui.alreadySelectedCyclist')
+                          alreadySelectedCyclist: t('ui.alreadySelectedCyclist'),
+                          unselectDefault: t('ui.unselectDefault')
                         }}
                       />
                       <FollowButton

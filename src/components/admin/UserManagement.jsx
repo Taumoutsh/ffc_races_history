@@ -6,6 +6,7 @@ import axios from 'axios';
 function UserManagement({ onClose }) {
   const [users, setUsers] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [userActivity, setUserActivity] = useState({});
   const [loading, setLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,12 +26,18 @@ function UserManagement({ onClose }) {
   });
   const [createLoading, setCreateLoading] = useState(false);
   const [messageLoading, setMessageLoading] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const { user: currentUser } = useAuth();
   const { t } = useTranslation();
 
   useEffect(() => {
     loadUsers();
     loadMessages();
+    loadUserActivity();
+
+    // Refresh activity data every 10 seconds
+    const activityInterval = setInterval(loadUserActivity, 10000);
+    return () => clearInterval(activityInterval);
   }, []);
 
   const loadUsers = async () => {
@@ -43,6 +50,70 @@ function UserManagement({ onClose }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadUserActivity = async () => {
+    try {
+      const response = await axios.get('/auth/users/activity');
+      setUserActivity(response.data);
+    } catch (err) {
+      // Silently fail - activity data is not critical
+      console.error('Failed to load user activity:', err);
+    }
+  };
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedUsers = () => {
+    if (!sortConfig.key) return users;
+
+    const sortedUsers = [...users].sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortConfig.key) {
+        case 'username':
+          aValue = a.username.toLowerCase();
+          bValue = b.username.toLowerCase();
+          break;
+        case 'admin':
+          aValue = a.is_admin ? 1 : 0;
+          bValue = b.is_admin ? 1 : 0;
+          break;
+        case 'status':
+          aValue = a.is_active ? 1 : 0;
+          bValue = b.is_active ? 1 : 0;
+          break;
+        case 'lastLogin':
+          aValue = a.last_login ? new Date(a.last_login).getTime() : 0;
+          bValue = b.last_login ? new Date(b.last_login).getTime() : 0;
+          break;
+        case 'lastActive':
+          aValue = userActivity[a.id] ? new Date(userActivity[a.id]).getTime() : 0;
+          bValue = userActivity[b.id] ? new Date(userActivity[b.id]).getTime() : 0;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return sortedUsers;
+  };
+
+  const getSortIcon = (columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return '⇅';
+    }
+    return sortConfig.direction === 'asc' ? '↑' : '↓';
   };
 
   const handleCreateUser = async (e) => {
@@ -600,15 +671,86 @@ function UserManagement({ onClose }) {
         }}>
           <thead>
             <tr style={{ borderBottom: '2px solid rgba(255, 255, 255, 0.2)' }}>
-              <th style={{ padding: '0.75rem', textAlign: 'left' }}>{t('admin.username') || 'Username'}</th>
-              <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.admin') || 'Admin'}</th>
-              <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.status') || 'Status'}</th>
-              <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.lastLogin') || 'Last Login'}</th>
+              <th
+                onClick={() => handleSort('username')}
+                title="Click to sort"
+                style={{
+                  padding: '0.75rem',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                {t('admin.username') || 'Username'} {getSortIcon('username')}
+              </th>
+              <th
+                onClick={() => handleSort('admin')}
+                title="Click to sort"
+                style={{
+                  padding: '0.75rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                {t('admin.admin') || 'Admin'} {getSortIcon('admin')}
+              </th>
+              <th
+                onClick={() => handleSort('status')}
+                title="Click to sort"
+                style={{
+                  padding: '0.75rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                {t('admin.status') || 'Status'} {getSortIcon('status')}
+              </th>
+              <th
+                onClick={() => handleSort('lastLogin')}
+                title="Click to sort"
+                style={{
+                  padding: '0.75rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                {t('admin.lastLogin') || 'Last Login'} {getSortIcon('lastLogin')}
+              </th>
+              <th
+                onClick={() => handleSort('lastActive')}
+                title="Click to sort"
+                style={{
+                  padding: '0.75rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                {t('admin.lastActive') || 'Last Active'} {getSortIcon('lastActive')}
+              </th>
               <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.actions') || 'Actions'}</th>
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {getSortedUsers().map(user => (
               <tr key={user.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                 <td style={{ padding: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -647,6 +789,23 @@ function UserManagement({ onClose }) {
                       </div>
                     </div>
                   ) : (t('admin.never') || 'Never')}
+                </td>
+                <td style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.9rem' }}>
+                  {userActivity[user.id] ? (
+                    <div>
+                      <div>{new Date(userActivity[user.id]).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })}</div>
+                      <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                        {new Date(userActivity[user.id]).toLocaleTimeString('fr-FR', {
+                          timeZone: 'Europe/Paris',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <span style={{ opacity: 0.5 }}>{t('admin.noActivity') || 'No activity'}</span>
+                  )}
                 </td>
                 <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>

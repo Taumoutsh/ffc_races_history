@@ -104,7 +104,8 @@ const styles = {
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: window.innerWidth < 768 ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-    gap: 'clamp(0.5rem, 2vw, 1.5rem)'
+    gap: 'clamp(0.5rem, 2vw, 1.5rem)',
+    justifyContent: 'center'
   },
   statCard: {
     padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 0.75rem)' : 'clamp(0.75rem, 3vw, 1.5rem)',
@@ -286,9 +287,9 @@ function App() {
     handleChartPointClick(raceData);
   };
 
-  const handleCyclistClick = (cyclistId, cyclistName) => {
+  const handleCyclistClick = (cyclistId, cyclistName, team = null, region = null) => {
     const history = getCyclistHistory(cyclistId);
-    setSelectedCyclist({ id: cyclistId, name: cyclistName, history });
+    setSelectedCyclist({ id: cyclistId, name: cyclistName, history, team, region });
     setShowLeaderboard(false);
     setShowCyclistProfile(true);
   };
@@ -324,7 +325,7 @@ function App() {
 
   const handleSearchResultClick = (cyclist) => {
     const history = getCyclistHistory(cyclist.id);
-    setSelectedCyclist({ id: cyclist.id, name: cyclist.name, history });
+    setSelectedCyclist({ id: cyclist.id, name: cyclist.name, history, team: cyclist.team, region: cyclist.region });
     setShowCyclistProfile(true);
     setSearchResults([]);
     setSearchQuery('');
@@ -401,7 +402,7 @@ function App() {
     if (!racer.foundInDb) return;
 
     const history = getCyclistHistory(racer.id);
-    setSelectedCyclist({ id: racer.id, name: racer.formattedName, history });
+    setSelectedCyclist({ id: racer.id, name: racer.formattedName, history, team: racer.team, region: racer.region });
     setShowCyclistProfile(true);
   };
 
@@ -895,22 +896,6 @@ function App() {
                   </button>
                 </div>
               )}
-
-              {/* URL Scraping Section */}
-              <div style={{
-                marginBottom: '0.25rem',
-                padding: '1rem',
-                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
-                borderRadius: '1rem',
-                border: '1px solid rgba(59, 130, 246, 0.2)'
-              }}>
-                <p style={{
-                  color: '#64748b',
-                  marginBottom: '1.5rem',
-                  fontSize: '0.875rem'
-                }}>
-                  {t('ui.urlScrapingHint')}
-                </p>
                 <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: window.innerWidth < 768 ? '0.4rem' : '0.75rem', alignItems: 'stretch', flexWrap: 'nowrap', overflowX: 'auto'}}>
                   <input
                     type="url"
@@ -1030,7 +1015,6 @@ function App() {
                     </div>
                   </div>
                 )}
-              </div>
 
 
               {/* Research Results */}
@@ -1409,7 +1393,7 @@ function App() {
           <CyclistsToFollow ref={cyclistsToFollowRef} onCyclistClick={handleCyclistClick} />
         </div>
 
-        {defaultCyclistRaces.length > 0 ? (
+        {getDefaultCyclistInfo() && defaultCyclistRaces.length > 0 && (
           <div key={`chart-container-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${defaultCyclistRaces.length}`} style={styles.chartCard}>
             <div>
               <PerformanceChart
@@ -1438,17 +1422,18 @@ function App() {
               />
             </div>
           </div>
-        ) : (
-          <div style={styles.chartCard}>
-            <h2 style={{fontSize: '1.25rem', fontWeight: '600', color: '#374151', textAlign: 'center'}}>
-              {getDefaultCyclistInfo().fullName}: {t('ui.noRaceData')}
-            </h2>
-          </div>
         )}
 
         <div style={styles.overviewCard}>
           <h2 style={styles.overviewTitle}>{t('ui.datasetOverview')}</h2>
-          <div style={styles.statsGrid}>
+          <div style={{
+            ...styles.statsGrid,
+            gridTemplateColumns: window.innerWidth < 768
+              ? 'repeat(2, 1fr)'
+              : (getDefaultCyclistInfo() && defaultCyclistRaces.length > 0
+                  ? 'repeat(4, 1fr)'
+                  : 'repeat(3, 1fr)')
+          }}>
             <div style={{...styles.statCard, backgroundColor: '#eff6ff'}}>
               <div style={{...styles.statNumber, color: '#2563eb'}}>
                 {stats?.total_races || 0}
@@ -1461,12 +1446,14 @@ function App() {
               </div>
               <div style={{...styles.statLabel, color: '#15803d'}}>{t('ui.totalRacers')}</div>
             </div>
-            <div style={{...styles.statCard, backgroundColor: '#faf5ff'}}>
-              <div style={{...styles.statNumber, color: '#9333ea'}}>
-                {defaultCyclistRaces.length}
+            {getDefaultCyclistInfo() && defaultCyclistRaces.length > 0 && (
+              <div style={{...styles.statCard, backgroundColor: '#faf5ff'}}>
+                <div style={{...styles.statNumber, color: '#9333ea'}}>
+                  {defaultCyclistRaces.length}
+                </div>
+                <div style={{...styles.statLabel, color: '#7c3aed'}}>{getDefaultCyclistInfo().fullName} {t('ui.races')}</div>
               </div>
-              <div style={{...styles.statLabel, color: '#7c3aed'}}>{getDefaultCyclistInfo().fullName} {t('ui.races')}</div>
-            </div>
+            )}
             <div style={{...styles.statCard, backgroundColor: '#fef2f2'}}>
               <div style={{...styles.statNumber, color: '#dc2626', textAlign: 'left'}}>
                 {scrapingInfo?.timestamp ? formatDateTimeInFrenchTimezone(scrapingInfo.timestamp) : t('ui.loading')}
@@ -1611,6 +1598,8 @@ function App() {
         cyclistId={selectedCyclist?.id}
         cyclistName={selectedCyclist?.name}
         history={selectedCyclist?.history}
+        team={selectedCyclist?.team}
+        region={selectedCyclist?.region}
         isOpen={showCyclistProfile}
         onClose={() => setShowCyclistProfile(false)}
         onPointClick={handleChartPointClick}
