@@ -109,6 +109,10 @@ class DatabaseMonitor:
 # Initialize database monitor
 db_monitor = DatabaseMonitor(DB_PATH, db)
 
+# In-memory storage for last activity tracking
+user_activity = {}
+activity_lock = threading.Lock()
+
 
 # Authentication middleware
 def require_auth(f):
@@ -118,14 +122,19 @@ def require_auth(f):
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             return jsonify({'error': 'No token provided'}), 401
-        
+
         token = auth_header.split(' ')[1]
         user = auth_db.validate_session(token)
-        
+
         if not user:
             return jsonify({'error': 'Invalid or expired token'}), 401
-        
+
         request.current_user = user
+
+        # Track user activity
+        with activity_lock:
+            user_activity[user['id']] = datetime.now()
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -194,6 +203,24 @@ def get_users():
     """Get all users (admin only)"""
     users = auth_db.get_all_users()
     return jsonify(users)
+
+
+@app.route('/api/auth/users/activity', methods=['GET'])
+@require_auth
+@require_admin
+def get_users_activity():
+    """Get last activity data for all users (admin only)"""
+    try:
+        with activity_lock:
+            # Convert datetime objects to ISO format strings
+            activity_data = {}
+            for user_id, last_active in user_activity.items():
+                activity_data[str(user_id)] = last_active.isoformat()
+
+        return jsonify(activity_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/auth/users', methods=['POST'])
