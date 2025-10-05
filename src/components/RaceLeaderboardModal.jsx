@@ -49,7 +49,9 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
   const handleCyclistClick = (participant) => {
     const cyclistId = participant.raw_data[1];
     const cyclistName = formatName(participant.raw_data[3], participant.raw_data[2]);
-    onCyclistClick(cyclistId, cyclistName);
+    const team = participant.raw_data[5] || null;
+    const region = participant.raw_data[4] || null;
+    onCyclistClick(cyclistId, cyclistName, team, region);
   };
 
   const handleBackdropClick = (e) => {

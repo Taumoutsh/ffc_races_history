@@ -172,7 +172,7 @@ export const useApiData = (dynamicDefaultCyclist) => {
       return results.map(cyclist => ({
         id: cyclist.uci_id,
         name: formatName(cyclist.first_name, cyclist.last_name),
-        totalRaces: cyclist.total_races || 0
+        totalRaces: cyclist.total_races || 0,
       }));
     } catch (err) {
       return [];
@@ -206,7 +206,9 @@ export const useApiData = (dynamicDefaultCyclist) => {
             cyclists.set(cyclistId, {
               id: cyclistId,
               name: formatName(participant.raw_data[3], participant.raw_data[2]),
-              totalRaces: history.length
+              totalRaces: history.length,
+              team: participant.raw_data[5],
+              region: participant.raw_data[4]
             });
           }
         }

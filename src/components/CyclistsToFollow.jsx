@@ -74,7 +74,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
 
     // Open the cyclist profile
     if (onCyclistClick) {
-      onCyclistClick(cyclist.uci_id, cyclist.name);
+      onCyclistClick(cyclist.uci_id, cyclist.name, cyclist.team, cyclist.region);
     }
   };
 

@@ -287,9 +287,9 @@ function App() {
     handleChartPointClick(raceData);
   };
 
-  const handleCyclistClick = (cyclistId, cyclistName) => {
+  const handleCyclistClick = (cyclistId, cyclistName, team = null, region = null) => {
     const history = getCyclistHistory(cyclistId);
-    setSelectedCyclist({ id: cyclistId, name: cyclistName, history });
+    setSelectedCyclist({ id: cyclistId, name: cyclistName, history, team, region });
     setShowLeaderboard(false);
     setShowCyclistProfile(true);
   };
@@ -325,7 +325,7 @@ function App() {
 
   const handleSearchResultClick = (cyclist) => {
     const history = getCyclistHistory(cyclist.id);
-    setSelectedCyclist({ id: cyclist.id, name: cyclist.name, history });
+    setSelectedCyclist({ id: cyclist.id, name: cyclist.name, history, team: cyclist.team, region: cyclist.region });
     setShowCyclistProfile(true);
     setSearchResults([]);
     setSearchQuery('');
@@ -402,7 +402,7 @@ function App() {
     if (!racer.foundInDb) return;
 
     const history = getCyclistHistory(racer.id);
-    setSelectedCyclist({ id: racer.id, name: racer.formattedName, history });
+    setSelectedCyclist({ id: racer.id, name: racer.formattedName, history, team: racer.team, region: racer.region });
     setShowCyclistProfile(true);
   };
 
@@ -896,22 +896,6 @@ function App() {
                   </button>
                 </div>
               )}
-
-              {/* URL Scraping Section */}
-              <div style={{
-                marginBottom: '0.25rem',
-                padding: '1rem',
-                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
-                borderRadius: '1rem',
-                border: '1px solid rgba(59, 130, 246, 0.2)'
-              }}>
-                <p style={{
-                  color: '#64748b',
-                  marginBottom: '1.5rem',
-                  fontSize: '0.875rem'
-                }}>
-                  {t('ui.urlScrapingHint')}
-                </p>
                 <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: window.innerWidth < 768 ? '0.4rem' : '0.75rem', alignItems: 'stretch', flexWrap: 'nowrap', overflowX: 'auto'}}>
                   <input
                     type="url"
@@ -1031,7 +1015,6 @@ function App() {
                     </div>
                   </div>
                 )}
-              </div>
 
 
               {/* Research Results */}
@@ -1615,6 +1598,8 @@ function App() {
         cyclistId={selectedCyclist?.id}
         cyclistName={selectedCyclist?.name}
         history={selectedCyclist?.history}
+        team={selectedCyclist?.team}
+        region={selectedCyclist?.region}
         isOpen={showCyclistProfile}
         onClose={() => setShowCyclistProfile(false)}
         onPointClick={handleChartPointClick}

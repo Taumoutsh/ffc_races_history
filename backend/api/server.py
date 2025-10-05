@@ -18,6 +18,20 @@ import time
 import hashlib
 import json
 
+
+def format_name(first_name, last_name):
+    """Format cyclist name: CamelCase for first name, UPPERCASE for last name"""
+    if not first_name and not last_name:
+        return ''
+
+    # Format first name to CamelCase
+    formatted_first = first_name.lower().title() if first_name else ''
+
+    # Keep last name in UPPERCASE (as is standard in cycling)
+    formatted_last = last_name.upper() if last_name else ''
+
+    return f"{formatted_first} {formatted_last}".strip()
+
 # Add project root to path for backend imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from backend.database.models import CyclingDatabase
@@ -874,7 +888,7 @@ def get_followed_cyclists():
 
                 cyclists_data.append({
                     'uci_id': cyclist['uci_id'],
-                    'name': f"{cyclist['first_name']} {cyclist['last_name']}",
+                    'name': format_name(cyclist['first_name'], cyclist['last_name']),
                     'first_name': cyclist['first_name'],
                     'last_name': cyclist['last_name'],
                     'team': cyclist.get('club', ''),
