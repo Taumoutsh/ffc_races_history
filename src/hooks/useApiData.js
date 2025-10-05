@@ -103,17 +103,25 @@ export const useApiData = (dynamicDefaultCyclist) => {
       setDefaultCyclistRaces([]);
       return;
     }
-    
-    const { firstName, lastName } = dynamicDefaultCyclist || appConfig.defaultCyclist;
-    
+
+    const defaultCyclist = dynamicDefaultCyclist || appConfig.defaultCyclist;
+
+    // If no default cyclist is set, return empty array
+    if (!defaultCyclist) {
+      setDefaultCyclistRaces([]);
+      return;
+    }
+
+    const { firstName, lastName } = defaultCyclist;
+
     const races = [];
-    
+
     Object.entries(data.races).forEach(([raceId, race]) => {
-      const cyclistParticipant = race.participants.find(p => 
-        p.raw_data[2]?.toLowerCase() === lastName.toLowerCase() && 
+      const cyclistParticipant = race.participants.find(p =>
+        p.raw_data[2]?.toLowerCase() === lastName.toLowerCase() &&
         p.raw_data[3]?.toLowerCase() === firstName.toLowerCase()
       );
-      
+
       if (cyclistParticipant) {
         races.push({
           raceId,
@@ -125,10 +133,10 @@ export const useApiData = (dynamicDefaultCyclist) => {
         });
       }
     });
-    
+
     // Sort by date using proper French date parsing
     const sortedRaces = races.sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date));
-    
+
     setDefaultCyclistRaces(sortedRaces);
   }, [data, dynamicDefaultCyclist]);
 
@@ -211,7 +219,14 @@ export const useApiData = (dynamicDefaultCyclist) => {
 
   // Get default cyclist information
   const getDefaultCyclistInfo = () => {
-    const { firstName, lastName } = dynamicDefaultCyclist || appConfig.defaultCyclist;
+    const defaultCyclist = dynamicDefaultCyclist || appConfig.defaultCyclist;
+
+    // If no default cyclist is set, return null
+    if (!defaultCyclist) {
+      return null;
+    }
+
+    const { firstName, lastName } = defaultCyclist;
     const fullName = formatName(firstName, lastName);
     return {
       firstName,
@@ -223,25 +238,39 @@ export const useApiData = (dynamicDefaultCyclist) => {
   // Check if a cyclist is the default cyclist
   const isDefaultCyclist = (participantData) => {
     if (!participantData || !participantData.raw_data) return false;
-    
-    const { firstName, lastName } = dynamicDefaultCyclist || appConfig.defaultCyclist;
+
+    const defaultCyclist = dynamicDefaultCyclist || appConfig.defaultCyclist;
+
+    // If no default cyclist is set, return false
+    if (!defaultCyclist) {
+      return false;
+    }
+
+    const { firstName, lastName } = defaultCyclist;
     const participantFirstName = participantData.raw_data[3];
     const participantLastName = participantData.raw_data[2];
-    
-    return participantFirstName?.toLowerCase() === firstName?.toLowerCase() && 
+
+    return participantFirstName?.toLowerCase() === firstName?.toLowerCase() &&
            participantLastName?.toLowerCase() === lastName?.toLowerCase();
   };
 
   // Check if a cyclist ID belongs to the default cyclist
   const isDefaultCyclistById = (cyclistId, cyclistName) => {
-    const { firstName, lastName } = dynamicDefaultCyclist || appConfig.defaultCyclist;
+    const defaultCyclist = dynamicDefaultCyclist || appConfig.defaultCyclist;
+
+    // If no default cyclist is set, return false
+    if (!defaultCyclist) {
+      return false;
+    }
+
+    const { firstName, lastName } = defaultCyclist;
     const defaultFullName = formatName(firstName, lastName);
-    
+
     // Check by name if provided
     if (cyclistName) {
       return cyclistName === defaultFullName;
     }
-    
+
     // Check by ID in racers_history
     if (data?.racers_history?.[cyclistId]) {
       return true; // We can enhance this by checking actual name in race data

@@ -282,7 +282,8 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, isOpen, onClose, onPo
                         isAlreadyDefault={isDefaultProfile}
                         translations={{
                           selectAsDefault: t('ui.selectAsDefault'),
-                          alreadySelectedCyclist: t('ui.alreadySelectedCyclist')
+                          alreadySelectedCyclist: t('ui.alreadySelectedCyclist'),
+                          unselectDefault: t('ui.unselectDefault')
                         }}
                       />
                       <FollowButton

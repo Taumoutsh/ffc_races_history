@@ -104,7 +104,8 @@ const styles = {
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: window.innerWidth < 768 ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-    gap: 'clamp(0.5rem, 2vw, 1.5rem)'
+    gap: 'clamp(0.5rem, 2vw, 1.5rem)',
+    justifyContent: 'center'
   },
   statCard: {
     padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 0.75rem)' : 'clamp(0.75rem, 3vw, 1.5rem)',
@@ -1409,7 +1410,7 @@ function App() {
           <CyclistsToFollow ref={cyclistsToFollowRef} onCyclistClick={handleCyclistClick} />
         </div>
 
-        {defaultCyclistRaces.length > 0 ? (
+        {getDefaultCyclistInfo() && defaultCyclistRaces.length > 0 && (
           <div key={`chart-container-${getDefaultCyclistInfo().firstName}-${getDefaultCyclistInfo().lastName}-${defaultCyclistRaces.length}`} style={styles.chartCard}>
             <div>
               <PerformanceChart
@@ -1438,17 +1439,18 @@ function App() {
               />
             </div>
           </div>
-        ) : (
-          <div style={styles.chartCard}>
-            <h2 style={{fontSize: '1.25rem', fontWeight: '600', color: '#374151', textAlign: 'center'}}>
-              {getDefaultCyclistInfo().fullName}: {t('ui.noRaceData')}
-            </h2>
-          </div>
         )}
 
         <div style={styles.overviewCard}>
           <h2 style={styles.overviewTitle}>{t('ui.datasetOverview')}</h2>
-          <div style={styles.statsGrid}>
+          <div style={{
+            ...styles.statsGrid,
+            gridTemplateColumns: window.innerWidth < 768
+              ? 'repeat(2, 1fr)'
+              : (getDefaultCyclistInfo() && defaultCyclistRaces.length > 0
+                  ? 'repeat(4, 1fr)'
+                  : 'repeat(3, 1fr)')
+          }}>
             <div style={{...styles.statCard, backgroundColor: '#eff6ff'}}>
               <div style={{...styles.statNumber, color: '#2563eb'}}>
                 {stats?.total_races || 0}
@@ -1461,12 +1463,14 @@ function App() {
               </div>
               <div style={{...styles.statLabel, color: '#15803d'}}>{t('ui.totalRacers')}</div>
             </div>
-            <div style={{...styles.statCard, backgroundColor: '#faf5ff'}}>
-              <div style={{...styles.statNumber, color: '#9333ea'}}>
-                {defaultCyclistRaces.length}
+            {getDefaultCyclistInfo() && defaultCyclistRaces.length > 0 && (
+              <div style={{...styles.statCard, backgroundColor: '#faf5ff'}}>
+                <div style={{...styles.statNumber, color: '#9333ea'}}>
+                  {defaultCyclistRaces.length}
+                </div>
+                <div style={{...styles.statLabel, color: '#7c3aed'}}>{getDefaultCyclistInfo().fullName} {t('ui.races')}</div>
               </div>
-              <div style={{...styles.statLabel, color: '#7c3aed'}}>{getDefaultCyclistInfo().fullName} {t('ui.races')}</div>
-            </div>
+            )}
             <div style={{...styles.statCard, backgroundColor: '#fef2f2'}}>
               <div style={{...styles.statNumber, color: '#dc2626', textAlign: 'left'}}>
                 {scrapingInfo?.timestamp ? formatDateTimeInFrenchTimezone(scrapingInfo.timestamp) : t('ui.loading')}

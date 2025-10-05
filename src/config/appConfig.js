@@ -6,12 +6,15 @@
 
 export const appConfig = {
   // Default cyclist to display on the main chart
-  defaultCyclist: {
-    firstName: 'JOHN',
-    lastName: 'DOE',
-    // Optional: specify cyclist ID if known
-    // id: '10001234567'
-  }
+  // Set to null if no default cyclist should be selected
+  defaultCyclist: null
+  // Example:
+  // defaultCyclist: {
+  //   firstName: 'JOHN',
+  //   lastName: 'DOE',
+  //   // Optional: specify cyclist ID if known
+  //   // id: '10001234567'
+  // }
 };
 
 export default appConfig;
