@@ -86,12 +86,33 @@ export const formatToFrenchDate = (date) => {
     'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
     'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
   ];
-  
+
   const day = date.getDate();
   const month = monthNames[date.getMonth()];
   const year = date.getFullYear();
-  
+
   return `${day} ${month} ${year}`;
+};
+
+/**
+ * Format French date string to compact DD/MM/YY format
+ * @param {string} frenchDateStr - Date string in French format (e.g., "24 mai 2025")
+ * @returns {string} - Compact date format (e.g., "24/05/25")
+ */
+export const formatToCompactDate = (frenchDateStr) => {
+  if (!frenchDateStr) return '';
+
+  try {
+    const date = parseFrenchDate(frenchDateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2); // Get last 2 digits of year
+
+    return `${day}/${month}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return frenchDateStr; // Return original if parsing fails
+  }
 };
 
 /**

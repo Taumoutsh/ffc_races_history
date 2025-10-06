@@ -2,7 +2,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useTranslation } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
 import DateFilter from './DateFilter';
-import { filterDataByYears, getAvailableYears } from '../utils/dateUtils';
+import { filterDataByYears, getAvailableYears, formatToCompactDate } from '../utils/dateUtils';
 
 const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -67,7 +67,11 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
   const chartData = filteredData
     .filter(race => race.cyclistPosition && race.defaultPosition &&
              !isNaN(race.cyclistPosition) && !isNaN(race.defaultPosition))
-    .sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date));
+    .sort((a, b) => parseFrenchDate(a.date) - parseFrenchDate(b.date))
+    .map(race => ({
+      ...race,
+      displayDate: window.innerWidth < 768 ? formatToCompactDate(race.date) : race.date
+    }));
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -313,8 +317,8 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                     onClick={handleClick}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(59, 130, 246, 0.1)" />
-                    <XAxis 
-                      dataKey="date" 
+                    <XAxis
+                      dataKey="displayDate"
                       angle={-45}
                       textAnchor="end"
                       height={80}
@@ -405,9 +409,11 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
               <div>
                 <div style={{marginBottom: '1.5rem'}}>
                   <h4 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', marginBottom: '0.75rem', color: '#1f2937'}}>⚔️ {t('comparison.title')}</h4>
-                  <p style={{fontSize: window.innerWidth < 768 ? '0.75rem' : '1rem', color: '#64748b', marginBottom: '0.75rem', fontWeight: '600'}}>
-                    👆 {t('ui.clickHeadersToSort')} • 🖱️ {t('ui.clickRacesToViewLeaderboard')}
-                  </p>
+                  {window.innerWidth >= 768 && (
+                    <p style={{fontSize: '1rem', color: '#64748b', marginBottom: '0.75rem', fontWeight: '600'}}>
+                      👆 {t('ui.clickHeadersToSort')} • 🖱️ {t('ui.clickRacesToViewLeaderboard')}
+                    </p>
+                  )}
                 </div>
 
                 <div style={{
@@ -422,87 +428,90 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                     <table key={`comparison-table-${forceUpdate}`} style={{width: '100%', borderCollapse: 'collapse'}}>
                       <thead>
                         <tr style={{background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'}}>
-                          <th 
+                          <th
                             style={{
-                              border: 'none', 
-                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)', 
-                              textAlign: 'left', 
-                              cursor: 'pointer', 
-                              fontWeight: '700', 
+                              border: 'none',
+                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                              borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontWeight: '700',
                               color: '#1f2937',
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: window.innerWidth < 768 ? '20%' : '25%'
+                              width: window.innerWidth < 768 ? '18%' : '25%'
                             }}
                             onClick={() => handleSort('date')}
                           >
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                              📅 {t('table.date')}
+                              {window.innerWidth < 768 ? '📅' : `📅 ${t('table.date')}`}
                               <SortIcon field="date" />
                             </div>
                           </th>
-                          <th 
+                          <th
                             style={{
-                              border: 'none', 
-                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)', 
-                              textAlign: 'left', 
-                              cursor: 'pointer', 
-                              fontWeight: '700', 
+                              border: 'none',
+                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                              borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontWeight: '700',
                               color: '#1f2937',
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: window.innerWidth < 768 ? '40%' : '45%'
+                              width: window.innerWidth < 768 ? '60%' : '45%'
                             }}
                             onClick={() => handleSort('race')}
                           >
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                              📍 {t('table.race')}
+                              {window.innerWidth < 768 ? '📍' : `📍 ${t('table.race')}`}
                               <SortIcon field="race" />
                             </div>
                           </th>
-                          <th 
+                          <th
                             style={{
-                              border: 'none', 
-                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)', 
-                              textAlign: 'center', 
-                              cursor: 'pointer', 
-                              fontWeight: '700', 
+                              border: 'none',
+                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                              borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                              textAlign: 'center',
+                              cursor: 'pointer',
+                              fontWeight: '700',
                               color: '#1f2937',
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: window.innerWidth < 768 ? '20%' : '15%'
+                              width: window.innerWidth < 768 ? '10%' : '15%'
                             }}
                             onClick={() => handleSort('cyclistPosition')}
                           >
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                              🚴‍♂️ {window.innerWidth < 768 ? cyclistName.split(' ')[0] : cyclistName}
+                              {window.innerWidth < 768 ? '🚴‍♂️' : `🚴‍♂️ ${cyclistName}`}
                               <SortIcon field="cyclistPosition" />
                             </div>
                           </th>
-                          <th 
+                          <th
                             style={{
-                              border: 'none', 
-                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)', 
-                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)', 
-                              textAlign: 'center', 
-                              cursor: 'pointer', 
-                              fontWeight: '700', 
+                              border: 'none',
+                              borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                              padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                              textAlign: 'center',
+                              cursor: 'pointer',
+                              fontWeight: '700',
                               color: '#1f2937',
                               transition: 'background-color 0.2s ease',
                               userSelect: 'none',
                               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                              width: window.innerWidth < 768 ? '20%' : '15%'
+                              width: window.innerWidth < 768 ? '10%' : '15%'
                             }}
                             onClick={() => handleSort('defaultPosition')}
                           >
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                              ⭐ {window.innerWidth < 768 ? defaultCyclistName.split(' ')[0] : defaultCyclistName}
+                              {window.innerWidth < 768 ? '⭐' : `⭐ ${defaultCyclistName}`}
                               <SortIcon field="defaultPosition" />
                             </div>
                           </th>
@@ -559,7 +568,7 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
                             }}
                           >
                             <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '600', color: '#64748b', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
-                              {race.date}
+                              {window.innerWidth < 768 ? formatToCompactDate(race.date) : race.date}
                             </td>
                             <td style={{border: 'none', padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#374151', fontSize: 'clamp(0.65rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
                               {race.raceName}
