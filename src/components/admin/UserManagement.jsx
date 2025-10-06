@@ -793,9 +793,9 @@ function UserManagement({ onClose }) {
                 <td style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.9rem' }}>
                   {userActivity[user.id] ? (
                     <div>
-                      <div>{new Date(userActivity[user.id]).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })}</div>
+                      <div>{new Date(userActivity[user.id] + 'Z').toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })}</div>
                       <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-                        {new Date(userActivity[user.id]).toLocaleTimeString('fr-FR', {
+                        {new Date(userActivity[user.id] + 'Z').toLocaleTimeString('fr-FR', {
                           timeZone: 'Europe/Paris',
                           hour: '2-digit',
                           minute: '2-digit',

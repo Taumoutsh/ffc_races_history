@@ -1652,6 +1652,19 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Copyright Footer */}
+      <footer style={{
+        textAlign: 'center',
+        padding: window.innerWidth < 768 ? '0rem' : '0rem',
+        paddingBottom: window.innerWidth < 768 ? '0.5rem' : '2rem',
+        marginTop: window.innerWidth < 768 ? '0.5rem' : '1rem',
+        color: 'rgba(255, 255, 255, 0.8)',
+        fontSize: window.innerWidth < 768 ? '0.75rem' : '0.875rem',
+        fontWeight: '500'
+      }}>
+        © 2025 - Cyclisme Tomarea
+      </footer>
     </div>
   );
 }
