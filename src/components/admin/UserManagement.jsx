@@ -26,7 +26,7 @@ function UserManagement({ onClose }) {
   });
   const [createLoading, setCreateLoading] = useState(false);
   const [messageLoading, setMessageLoading] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'lastActive', direction: 'desc' });
   const { user: currentUser } = useAuth();
   const { t } = useTranslation();
 
@@ -663,13 +663,25 @@ function UserManagement({ onClose }) {
         </div>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
+      <div style={{
+        overflowX: 'auto',
+        overflowY: 'auto',
+        maxHeight: window.innerWidth < 768 ? '450px' : '400px',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '0.5rem',
+        marginTop: '1rem'
+      }}>
         <table style={{
           width: '100%',
-          borderCollapse: 'collapse',
-          marginTop: '1rem'
+          borderCollapse: 'collapse'
         }}>
-          <thead>
+          <thead style={{
+            position: 'sticky',
+            top: 0,
+            background: 'linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(40, 40, 40, 0.95))',
+            backdropFilter: 'blur(10px)',
+            zIndex: 10
+          }}>
             <tr style={{ borderBottom: '2px solid rgba(255, 255, 255, 0.2)' }}>
               <th
                 onClick={() => handleSort('username')}
@@ -1116,13 +1128,25 @@ function UserManagement({ onClose }) {
             </div>
           )}
 
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{
+            overflowX: 'auto',
+            overflowY: 'auto',
+            maxHeight: window.innerWidth < 768 ? '600px' : '400px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '0.5rem',
+            marginTop: '1rem'
+          }}>
             <table style={{
               width: '100%',
-              borderCollapse: 'collapse',
-              marginTop: '1rem'
+              borderCollapse: 'collapse'
             }}>
-              <thead>
+              <thead style={{
+                position: 'sticky',
+                top: 0,
+                background: 'linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(40, 40, 40, 0.95))',
+                backdropFilter: 'blur(10px)',
+                zIndex: 10
+              }}>
                 <tr style={{ borderBottom: '2px solid rgba(255, 255, 255, 0.2)' }}>
                   <th style={{ padding: '0.75rem', textAlign: 'left' }}>{t('admin.title') || 'Title'}</th>
                   <th style={{ padding: '0.75rem', textAlign: 'center' }}>{t('admin.type') || 'Type'}</th>
