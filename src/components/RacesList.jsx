@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../contexts/LanguageContext.jsx';
 import DateFilter from './DateFilter';
-import { filterDataByYears } from '../utils/dateUtils';
+import { filterDataByYears, formatToCompactDate } from '../utils/dateUtils';
 
 const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChange, api }) => {
   const { t } = useTranslation();
@@ -271,7 +271,7 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
                         color: '#1f2937',
                         transition: 'background-color 0.2s ease',
                         userSelect: 'none',
-                        width: '25%',
+                        width: window.innerWidth < 768 ? '18%' : '25%',
                         fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)'
                       }}
                       onClick={() => handleSortChange('date')}
@@ -293,7 +293,7 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
                         color: '#1f2937',
                         transition: 'background-color 0.2s ease',
                         userSelect: 'none',
-                        width: '55%',
+                        width: window.innerWidth < 768 ? '62%' : '55%',
                         fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)'
                       }}
                       onClick={() => handleSortChange('name')}
@@ -350,7 +350,7 @@ const RacesList = ({ onRaceClick, selectedYears: propSelectedYears, onYearsChang
                       }}
                     >
                       <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '600', color: '#64748b', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
-                        {race.date}
+                        {window.innerWidth < 768 ? formatToCompactDate(race.date) : race.date}
                       </td>
                       <td style={{border: 'none', padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)', fontWeight: '500', color: '#374151', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', wordBreak: 'break-word'}}>
                         {race.name}

@@ -193,7 +193,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '25%' : '15%'
+                      width: window.innerWidth < 768 ? '35%' : '15%'
                     }}
                     onClick={() => handleSort('name')}
                   >
@@ -202,28 +202,30 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       <SortIcon field="name" />
                     </div>
                   </th>
-                  <th
-                    style={{
-                      border: 'none',
-                      borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
-                      borderRight: '1px solid rgba(59, 130, 246, 0.1)',
-                      padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      fontWeight: '700',
-                      color: '#1f2937',
-                      transition: 'background-color 0.2s ease',
-                      userSelect: 'none',
-                      fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '40%' : '20%'
-                    }}
-                    onClick={() => handleSort('team')}
-                  >
-                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
-                      {window.innerWidth < 768 ? '🏃‍♂️' : `🏃‍♂️ ${t('table.team') || 'Team'}`}
-                      <SortIcon field="team" />
-                    </div>
-                  </th>
+                  {window.innerWidth >= 768 && (
+                    <th
+                      style={{
+                        border: 'none',
+                        borderBottom: '2px solid rgba(59, 130, 246, 0.2)',
+                        borderRight: '1px solid rgba(59, 130, 246, 0.1)',
+                        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem)',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontWeight: '700',
+                        color: '#1f2937',
+                        transition: 'background-color 0.2s ease',
+                        userSelect: 'none',
+                        fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
+                        width: '20%'
+                      }}
+                      onClick={() => handleSort('team')}
+                    >
+                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                        🏃‍♂️ {t('table.team') || 'Team'}
+                        <SortIcon field="team" />
+                      </div>
+                    </th>
+                  )}
                   <th
                     style={{
                       border: 'none',
@@ -237,7 +239,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '35%' : '35%'
+                      width: window.innerWidth < 768 ? '65%' : '35%'
                     }}
                     onClick={window.innerWidth < 768 ? () => handleSort('lastRace') : undefined}
                   >
@@ -322,17 +324,19 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                         </div>
                       </td>
 
-                      <td style={{
-                        border: 'none',
-                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
-                        fontWeight: '500',
-                        color: '#374151',
-                        fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
-                        wordBreak: 'break-word',
-                        lineHeight: '1.3'
-                      }}>
-                        {cyclist.team || '-'}
-                      </td>
+                      {window.innerWidth >= 768 && (
+                        <td style={{
+                          border: 'none',
+                          padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                          fontWeight: '500',
+                          color: '#374151',
+                          fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
+                          wordBreak: 'break-word',
+                          lineHeight: '1.3'
+                        }}>
+                          {cyclist.team || '-'}
+                        </td>
+                      )}
 
                       <td style={{
                         border: 'none',

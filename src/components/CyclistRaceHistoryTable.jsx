@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../contexts/LanguageContext';
-import { parseFrenchDate, getPercentageColor, calculatePercentagePosition, filterDataByYears } from '../utils/dateUtils';
+import { parseFrenchDate, getPercentageColor, calculatePercentagePosition, filterDataByYears, formatToCompactDate } from '../utils/dateUtils';
 
 const CyclistRaceHistoryTable = ({
   races,
@@ -150,7 +150,7 @@ const CyclistRaceHistoryTable = ({
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: '30%'
+                      width: window.innerWidth < 768 ? '18%' : '30%'
                     }}
                     onClick={() => handleSort('date')}
                   >
@@ -172,7 +172,7 @@ const CyclistRaceHistoryTable = ({
                       transition: 'background-color 0.2s ease',
                       userSelect: 'none',
                       fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                      width: window.innerWidth < 768 ? '43%' : '40%'
+                      width: window.innerWidth < 768 ? '56%' : '40%'
                     }}
                     onClick={() => handleSort(getRaceById ? 'race' : 'location')}
                   >
@@ -273,7 +273,7 @@ const CyclistRaceHistoryTable = ({
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
                         wordBreak: 'break-word'
                       }}>
-                        {race.date}
+                        {window.innerWidth < 768 ? formatToCompactDate(race.date) : race.date}
                       </td>
 
                       <td style={{
