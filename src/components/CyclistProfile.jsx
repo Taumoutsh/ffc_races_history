@@ -210,7 +210,7 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, team = null, region =
         <div
           ref={modalContentRef}
           style={{
-            padding: 'clamp(1rem, 3vw, 2rem)',
+            padding: window.innerWidth < 768 ? 'clamp(1.5rem, 4vw, 2rem) clamp(1rem, 3vw, 2rem)' : 'clamp(1rem, 3vw, 2rem)',
             overflowY: isLeaderboardOpen ? 'hidden' : 'auto',
             scrollbarWidth: 'thin',
             scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent',
@@ -297,14 +297,14 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, team = null, region =
                       </p>
                     )}
                     <p style={{fontSize: window.innerWidth < 768 ? '0.725rem' : '0.9rem', color: '#64748b', fontWeight: '600', marginBottom: '0.5rem'}}>
-                      🏆 {t('table.totalRaces')}: {filteredHistory.length}{selectedYears.length > 0 && safeHistory.length !== filteredHistory.length ? ` (${safeHistory.length} total)` : ''}
+                      🏆 {window.innerWidth < 768 ? t('ui.races') : t('table.totalRaces')}: {filteredHistory.length}{selectedYears.length > 0 && safeHistory.length !== filteredHistory.length ? ` (${safeHistory.length} total)` : ''}
                     </p>
                     {(() => {
                       const averagePercentage = calculateAverageTopPercentage();
                       if (averagePercentage !== null) {
                         return (
                           <p style={{fontSize: window.innerWidth < 768 ? '0.725rem' : '0.9rem', color: '#64748b', fontWeight: '600'}}>
-                            📊 {t('table.averageTopPercentage')}: 
+                            📊 {window.innerWidth < 768 ? t('table.topPercentage') : t('table.averageTopPercentage')}:
                             <span style={{
                               marginLeft: '0.5rem',
                               background: getPercentageColor(averagePercentage),
@@ -437,10 +437,6 @@ const CyclistProfile = ({ cyclistId, cyclistName, history, team = null, region =
           {showChart ? (
             // Chart View
             <div>
-              <div style={{marginBottom: '1rem'}}>
-                <h4 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem'}}>{t('profile.performanceChart')}</h4>
-                <p style={{fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.75rem'}}>{t('ui.clickPointsToViewDetails')}</p>
-              </div>
               <div style={{height: window.innerWidth < 768 ? 'clamp(300px, 42vh, 420px)' : 'clamp(450px, 55vh, 600px)'}}>
                 <PerformanceChart
                   data={filteredHistory.map(race => ({

@@ -260,12 +260,12 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, select
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.75rem',
+            gap: '0.5rem',
             fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
             fontWeight: '600',
             color: '#1f2937'
           }}>
-            🏁 <span style={{color: '#6b7280'}}>Total Races:</span>
+            🏁 <span style={{color: '#6b7280'}}>{window.innerWidth < 768 ? 'Races:' : 'Total Races:'}</span>
             <span style={{
               background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
               color: 'white',
@@ -284,12 +284,12 @@ const PerformanceChart = ({ data, onPointClick, cyclistName, cyclistInfo, select
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem',
-                fontSize: '1rem',
+                gap: '0.5rem',
+                fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
                 fontWeight: '600',
                 color: '#1f2937'
               }}>
-                📈 <span style={{color: '#6b7280'}}>Avg Top %:</span>
+                📈 <span style={{color: '#6b7280'}}>{window.innerWidth < 768 ? 'Top %:' : 'Avg Top %:'}</span>
                 <span style={{
                   background: getPercentageColor(avgPercentage),
                   color: 'white',

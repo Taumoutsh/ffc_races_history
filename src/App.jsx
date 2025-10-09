@@ -164,7 +164,6 @@ function App() {
   const [filteredResearchResults, setFilteredResearchResults] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [availableCategories, setAvailableCategories] = useState([]);
-  const [showResearchSection, setShowResearchSection] = useState(false);
   const [organizerClub, setOrganizerClub] = useState('');
   const [showRacesPanel, setShowRacesPanel] = useState(false);
   const [raceUrl, setRaceUrl] = useState('');
@@ -811,32 +810,9 @@ function App() {
 
         {/* Research Section */}
         <div style={styles.searchCard}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-            <h3 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', color: '#1f2937', margin: 0}}>🔬 {t('ui.researchRacers')}</h3>
-            <button
-              onClick={() => setShowResearchSection(!showResearchSection)}
-              style={{
-                padding: window.innerWidth < 768 ? '0.5rem' : '0.75rem 1.5rem',
-                background: showResearchSection ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.75rem',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease',
-                minWidth: window.innerWidth < 768 ? '44px' : 'auto'
-              }}
-            >
-              {window.innerWidth < 768 ? 
-                (showResearchSection ? '🔼' : '🔽') : 
-                (showResearchSection ? `🔼 ${t('ui.researchToggleHide')}` : `🔽 ${t('ui.researchToggleShow')}`)}
-            </button>
-          </div>
-          
-          {showResearchSection && (
-            <>
+          <h3 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', marginBottom: 'clamp(1rem, 2.5vw, 1.5rem)', color: '#1f2937'}}>🔬 {t('ui.researchRacers')}</h3>
+
+          <>
               {/* Error Message in Analysis Tool */}
               {analysisErrorMessage && (
                 <div style={{
@@ -896,19 +872,19 @@ function App() {
                   </button>
                 </div>
               )}
-                <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: window.innerWidth < 768 ? '0.4rem' : '0.75rem', alignItems: 'stretch', flexWrap: 'nowrap', overflowX: 'auto'}}>
+                <form onSubmit={handleUrlScrape} style={{display: 'flex', gap: window.innerWidth < 768 ? '0.5rem' : '0.75rem', alignItems: 'stretch', flexWrap: window.innerWidth < 768 ? 'nowrap' : 'wrap'}}>
                   <input
                     type="url"
                     value={raceUrl}
                     onChange={(e) => setRaceUrl(e.target.value)}
                     placeholder={t('ui.urlPlaceholder')}
                     style={{
-                      flex: window.innerWidth < 768 ? '1 1 120px' : '1 1 250px',
-                      minWidth: window.innerWidth < 768 ? '120px' : '250px',
-                      padding: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                      flex: window.innerWidth < 768 ? '1 1 auto' : '1 1 250px',
+                      minWidth: window.innerWidth < 480 ? '120px' : window.innerWidth < 768 ? '150px' : '250px',
+                      padding: 'clamp(0.75rem, 2vw, 1rem)',
                       border: '2px solid rgba(59, 130, 246, 0.2)',
                       borderRadius: '0.75rem',
-                      fontSize: window.innerWidth < 768 ? '16px' : 'clamp(0.75rem, 1.8vw, 0.875rem)',
+                      fontSize: window.innerWidth < 768 ? '16px' : 'clamp(0.875rem, 2vw, 1rem)',
                       backgroundColor: 'rgba(255, 255, 255, 0.8)',
                       transition: 'all 0.2s ease',
                       outline: 'none'
@@ -926,18 +902,18 @@ function App() {
                     type="submit"
                     disabled={isScrapingInProgress}
                     style={{
-                      padding: window.innerWidth < 768 ? 
-                        'clamp(0.5rem, 1.5vw, 0.75rem)' : 
-                        'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem)',
-                      background: isScrapingInProgress ? 
-                        'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' : 
+                      padding: window.innerWidth < 768 ?
+                        'clamp(0.5rem, 2vw, 0.75rem)' :
+                        'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
+                      background: isScrapingInProgress ?
+                        'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' :
                         'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                       color: 'white',
                       border: 'none',
                       borderRadius: '0.75rem',
                       cursor: isScrapingInProgress ? 'not-allowed' : 'pointer',
                       fontWeight: '600',
-                      fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
+                      fontSize: 'clamp(0.875rem, 2vw, 1rem)',
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       transition: 'all 0.2s ease',
                       whiteSpace: 'nowrap',
@@ -953,10 +929,10 @@ function App() {
                     onClick={() => setRaceUrl('')}
                     disabled={!raceUrl.trim()}
                     style={{
-                      padding: window.innerWidth < 768 ? 
-                        'clamp(0.5rem, 1.5vw, 0.75rem)' : 
-                        'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem)',
-                      background: raceUrl.trim() ? 
+                      padding: window.innerWidth < 768 ?
+                        'clamp(0.5rem, 2vw, 0.75rem)' :
+                        'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
+                      background: raceUrl.trim() ?
                         'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' :
                         'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
                       color: 'white',
@@ -964,7 +940,7 @@ function App() {
                       borderRadius: '0.75rem',
                       cursor: raceUrl.trim() ? 'pointer' : 'not-allowed',
                       fontWeight: '600',
-                      fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
+                      fontSize: 'clamp(0.875rem, 2vw, 1rem)',
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       transition: 'all 0.2s ease',
                       whiteSpace: 'nowrap',
@@ -1385,7 +1361,6 @@ function App() {
                 </div>
               )}
             </>
-          )}
         </div>
 
         {/* Cyclists to Follow Section */}
@@ -1518,7 +1493,7 @@ function App() {
           }}>
             <div
               style={{
-                padding: 'clamp(1rem, 3vw, 2rem)',
+                padding: window.innerWidth < 768 ? 'clamp(1.5rem, 4vw, 2rem) clamp(1rem, 3vw, 2rem)' : 'clamp(1rem, 3vw, 2rem)',
                 overflowY: 'auto',
                 scrollbarWidth: 'thin',
                 scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent',
