@@ -112,7 +112,7 @@ const RaceLeaderboardModal = ({ race, isOpen, onClose, onCyclistClick, formatNam
       }}>
         <div
           style={{
-            padding: 'clamp(1rem, 3vw, 2rem)',
+            padding: window.innerWidth < 768 ? 'clamp(1.5rem, 4vw, 2rem) clamp(1rem, 3vw, 2rem)' : 'clamp(1rem, 3vw, 2rem)',
             overflowY: 'auto',
             scrollbarWidth: 'thin',
             scrollbarColor: 'rgba(59, 130, 246, 0.3) transparent',

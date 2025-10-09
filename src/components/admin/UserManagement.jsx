@@ -305,20 +305,19 @@ function UserManagement({ onClose }) {
             <button
               onClick={() => setShowCreateForm(true)}
               style={{
+                color: '#64748b',
                 background: 'linear-gradient(45deg, #28a745, #20c997)',
-                border: 'none',
-                borderRadius: '12px',
-                padding: window.innerWidth < 768 ? '0.6rem' : '0.6rem 1.2rem',
-                color: 'white',
-                fontWeight: 'bold',
+                fontSize: '1.5rem',
+                border: '1px solid rgba(108, 117, 125, 0.3)',
+                borderRadius: '0.75rem',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 15px rgba(40, 167, 69, 0.3)',
+                width: '3rem',
+                height: '3rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                fontSize: '0.9rem',
-                minWidth: '44px'
+                justifyContent: 'center',
+                fontWeight: '700',
+                transition: 'all 0.2s ease'
               }}
               onMouseOver={(e) => {
                 e.target.style.transform = 'translateY(-2px)';
@@ -329,7 +328,7 @@ function UserManagement({ onClose }) {
                 e.target.style.boxShadow = '0 4px 15px rgba(40, 167, 69, 0.3)';
               }}
             >
-              <span style={{ fontSize: '1rem' }}>➕</span>
+              <span style={{ fontSize: '1.5rem' }}>+</span>
               {window.innerWidth >= 768 && <span>{t('admin.addUser') || 'Add User'}</span>}
             </button>
           )}
@@ -338,20 +337,19 @@ function UserManagement({ onClose }) {
             <button
               onClick={() => setShowMessageForm(true)}
               style={{
+                color: '#64748b',
                 background: 'linear-gradient(45deg, #28a745, #20c997)',
-                border: 'none',
-                borderRadius: '12px',
-                padding: window.innerWidth < 768 ? '0.6rem' : '0.6rem 1.2rem',
-                color: 'white',
-                fontWeight: 'bold',
+                fontSize: '1.5rem',
+                border: '1px solid rgba(108, 117, 125, 0.3)',
+                borderRadius: '0.75rem',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 15px rgba(40, 167, 69, 0.3)',
+                width: '3rem',
+                height: '3rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                fontSize: '0.9rem',
-                minWidth: '44px'
+                justifyContent: 'center',
+                fontWeight: '700',
+                transition: 'all 0.2s ease'
               }}
               onMouseOver={(e) => {
                 e.target.style.transform = 'translateY(-2px)';
@@ -362,7 +360,7 @@ function UserManagement({ onClose }) {
                 e.target.style.boxShadow = '0 4px 15px rgba(40, 167, 69, 0.3)';
               }}
             >
-              <span style={{ fontSize: '1rem' }}>➕</span>
+              <span style={{ fontSize: '1.5rem' }}>+</span>
               {window.innerWidth >= 768 && <span>{t('admin.addMessage') || 'Add Message'}</span>}
             </button>
           )}
@@ -370,30 +368,30 @@ function UserManagement({ onClose }) {
           <button
             onClick={onClose}
             style={{
-              background: 'linear-gradient(45deg, #6c757d, #495057)',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '0.6rem 1.2rem',
-              color: 'white',
-              fontWeight: 'bold',
+              color: '#64748b',
+              fontSize: '1.5rem',
+              background: 'rgba(108, 117, 125, 0.2)',
+              border: '1px solid rgba(108, 117, 125, 0.3)',
+              borderRadius: '0.75rem',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(108, 117, 125, 0.3)',
+              width: '3rem',
+              height: '3rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              fontSize: '0.9rem'
+              justifyContent: 'center',
+              fontWeight: '700',
+              transition: 'all 0.2s ease'
             }}
-            onMouseOver={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 6px 20px rgba(108, 117, 125, 0.4)';
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = 'rgba(108, 117, 125, 0.3)';
+              e.target.style.color = '#ef4444';
             }}
-            onMouseOut={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 4px 15px rgba(108, 117, 125, 0.3)';
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'rgba(108, 117, 125, 0.2)';
+              e.target.style.color = '#64748b';
             }}
           >
-            <span style={{ fontSize: '1rem' }}>✕</span>
+            ×
           </button>
         </div>
       </div>

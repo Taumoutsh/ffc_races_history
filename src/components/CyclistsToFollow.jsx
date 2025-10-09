@@ -302,7 +302,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                     >
                       <td style={{
                         border: 'none',
-                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '600',
                         color: '#1f2937',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
@@ -327,7 +327,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       {window.innerWidth >= 768 && (
                         <td style={{
                           border: 'none',
-                          padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                          padding: 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.25rem, 1vw, 0.75rem)',
                           fontWeight: '500',
                           color: '#374151',
                           fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
@@ -340,7 +340,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
 
                       <td style={{
                         border: 'none',
-                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                        padding: window.innerWidth < 768 ? 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.15rem, 0.5vw, 0.25rem)' : 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.25rem, 1vw, 0.75rem)',
                         fontWeight: '500',
                         color: '#64748b',
                         fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
@@ -368,7 +368,7 @@ const CyclistsToFollow = forwardRef(({ onCyclistClick }, ref) => {
                       {window.innerWidth >= 768 && (
                         <td style={{
                           border: 'none',
-                          padding: 'clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.75rem)',
+                          padding: 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.25rem, 1vw, 0.75rem)',
                           fontWeight: '600',
                           color: '#64748b',
                           fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
