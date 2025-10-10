@@ -13,6 +13,7 @@ import CyclistsToFollow from './components/CyclistsToFollow';
 import { appConfig } from './config/appConfig.js';
 import { useTranslation } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
+import { getPercentageColor } from './utils/dateUtils';
 import axios from 'axios';
 
 const styles = {
@@ -259,11 +260,11 @@ function App() {
   // Get responsive grid columns for research results
   const getResearchGridColumns = () => {
     if (isLargeScreen) {
-      // Desktop: Pos, ID, Name, Region, Team
-      return 'clamp(50px, 8%, 70px) clamp(80px, 12%, 100px) 2fr clamp(80px, 15%, 120px) 2fr';
+      // Desktop: Pos, Avg Top %, ID, Name, Region, Team
+      return 'clamp(50px, 8%, 70px) clamp(80px, 10%, 100px) clamp(80px, 10%, 100px) 2fr clamp(80px, 12%, 120px) 2fr';
     } else {
-      // Mobile: Pos, Name, Team (hiding ID and Region)
-      return 'clamp(50px, 10%, 70px) 2fr 2fr';
+      // Mobile: Pos, Avg Top %, Name, Team (hiding ID and Region) - minimized Pos and Top % for maximum Team space
+      return 'clamp(32px, 5%, 42px) clamp(42px, 7%, 52px) 2fr 2.4fr';
     }
   };
 
@@ -416,7 +417,7 @@ function App() {
   };
 
   const ResearchSortIcon = ({ field }) => {
-    if (researchSortField !== field) return <span style={{color: '#d1d5db'}}>↕</span>;
+    if (researchSortField !== field) return <span style={{color: '#d1d5db'}}>⇅</span>;
     return researchSortDirection === 'asc' ? <span style={{color: '#059669'}}>↑</span> : <span style={{color: '#059669'}}>↓</span>;
   };
 
@@ -1094,7 +1095,7 @@ function App() {
                     gridTemplateColumns: getResearchGridColumns(),
                     gap: 'clamp(0.1rem, 0.5vw, 0.25rem)',
                     alignItems: 'center',
-                    padding: 'clamp(0.25rem, 1vw, 0.5rem)',
+                    padding: window.innerWidth < 768 ? 'clamp(0.5rem, 2vw, 0.75rem) clamp(0.25rem, 1vw, 0.5rem)' : 'clamp(0.25rem, 1vw, 0.5rem)',
                     backgroundColor: 'rgba(34, 197, 94, 0.15)',
                     borderBottom: '2px solid rgba(34, 197, 94, 0.2)',
                     fontWeight: '700',
@@ -1111,13 +1112,33 @@ function App() {
                         justifyContent: 'space-between',
                         transition: 'background-color 0.2s ease',
                         padding: '0.25rem',
-                        borderRadius: '0.25rem'
+                        borderRadius: '0.25rem',
+                        borderRight: '1px solid rgba(34, 197, 94, 0.1)'
                       }}
                       onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
                       onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                     >
-                      🥇 Pos
+                      {isLargeScreen ? '🥇 Pos' : '🥇'}
                       <ResearchSortIcon field="bestPosition" />
+                    </div>
+                    <div
+                      onClick={() => handleResearchSort('averageTopPercentage')}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'background-color 0.2s ease',
+                        padding: '0.25rem',
+                        borderRadius: '0.25rem',
+                        borderRight: '1px solid rgba(34, 197, 94, 0.1)'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      {isLargeScreen ? `📊 ${t('table.averageTopPercentage')}` : '📊'}
+                      <ResearchSortIcon field="averageTopPercentage" />
                     </div>
                     {isLargeScreen && (
                       <div
@@ -1130,7 +1151,8 @@ function App() {
                           justifyContent: 'space-between',
                           transition: 'background-color 0.2s ease',
                           padding: '0.25rem',
-                          borderRadius: '0.25rem'
+                          borderRadius: '0.25rem',
+                          borderRight: '1px solid rgba(34, 197, 94, 0.1)'
                         }}
                         onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
                         onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
@@ -1149,12 +1171,13 @@ function App() {
                         justifyContent: 'space-between',
                         transition: 'background-color 0.2s ease',
                         padding: '0.25rem',
-                        borderRadius: '0.25rem'
+                        borderRadius: '0.25rem',
+                        borderRight: '1px solid rgba(34, 197, 94, 0.1)'
                       }}
                       onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
                       onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                     >
-                      👤 {t('table.name')}
+                      {isLargeScreen ? `👤 ${t('table.name')}` : '👤'}
                       <ResearchSortIcon field="name" />
                     </div>
                     {isLargeScreen && (
@@ -1168,7 +1191,8 @@ function App() {
                           justifyContent: 'space-between',
                           transition: 'background-color 0.2s ease',
                           padding: '0.25rem',
-                          borderRadius: '0.25rem'
+                          borderRadius: '0.25rem',
+                          borderRight: '1px solid rgba(34, 197, 94, 0.1)'
                         }}
                         onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
                         onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
@@ -1192,7 +1216,7 @@ function App() {
                       onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'}
                       onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                     >
-                      🏃‍♂️ {t('table.team')}
+                      {isLargeScreen ? `🏃‍♂️ ${t('table.team')}` : '🏃‍♂️'}
                       <ResearchSortIcon field="team" />
                     </div>
                   </div>
@@ -1212,6 +1236,14 @@ function App() {
                             if (!a.foundInDb && !b.foundInDb) return (a.estimatedNumber || 999) - (b.estimatedNumber || 999);
                             aVal = a.bestPosition || 999;
                             bVal = b.bestPosition || 999;
+                            break;
+                          case 'averageTopPercentage':
+                            // For not found cyclists, put them at the end
+                            if (!a.foundInDb && b.foundInDb) return 1;
+                            if (a.foundInDb && !b.foundInDb) return -1;
+                            if (!a.foundInDb && !b.foundInDb) return (a.estimatedNumber || 999) - (b.estimatedNumber || 999);
+                            aVal = a.averageTopPercentage || 999;
+                            bVal = b.averageTopPercentage || 999;
                             break;
                           case 'id':
                             aVal = (a.id || '').toLowerCase();
@@ -1259,10 +1291,6 @@ function App() {
                           gridTemplateColumns: getResearchGridColumns(),
                           gap: 'clamp(0.1rem, 0.5vw, 0.25rem)',
                           alignItems: 'center',
-                          borderLeft: isNotFound ? '4px solid #9ca3af' :
-                                     isDefault ? '4px solid #10b981' :
-                                     isOrganizer ? '4px solid #fbbf24' :
-                                     'none',
                           boxShadow: isNotFound ? '0 2px 8px rgba(156, 163, 175, 0.1)' :
                                     isDefault ? '0 2px 8px rgba(34, 197, 94, 0.2)' :
                                     isOrganizer ? '0 2px 8px rgba(255, 193, 7, 0.2)' :
@@ -1294,6 +1322,35 @@ function App() {
                         }}>
                           {isNotFound ? '❌' : `#${racer.bestPosition}`}
                         </div>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          {isNotFound || !racer.averageTopPercentage ? (
+                            <span style={{
+                              color: '#9ca3af',
+                              fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
+                              fontWeight: '600'
+                            }}>
+                              -
+                            </span>
+                          ) : (
+                            <span style={{
+                              background: getPercentageColor(racer.averageTopPercentage),
+                              color: 'white',
+                              padding: window.innerWidth < 768 ? '0.2rem 0.3rem' : '0.25rem 0.5rem',
+                              borderRadius: '0.375rem',
+                              fontWeight: '700',
+                              fontSize: window.innerWidth < 768 ? 'clamp(0.6rem, 1.8vw, 0.7rem)' : 'clamp(0.65rem, 2vw, 0.75rem)',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                              minWidth: window.innerWidth < 768 ? '2rem' : '2.5rem',
+                              textAlign: 'center'
+                            }}>
+                              {racer.averageTopPercentage}%
+                            </span>
+                          )}
+                        </div>
                         {isLargeScreen && (
                           <div style={{
                             fontWeight: '600',
@@ -1310,9 +1367,7 @@ function App() {
                           color: isNotFound ? '#9ca3af' : '#1f2937',
                           fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
                           wordBreak: 'break-word',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
+                          lineHeight: '1.2'
                         }}>
                           {racer.formattedName}
                         </div>
@@ -1322,9 +1377,7 @@ function App() {
                             color: isNotFound ? '#9ca3af' : '#64748b',
                             fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
                             wordBreak: 'break-word',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
+                            lineHeight: '1.2'
                           }}>
                             {racer.region}
                           </div>
@@ -1334,9 +1387,7 @@ function App() {
                           color: isNotFound ? '#9ca3af' : '#64748b',
                           fontSize: 'clamp(0.6rem, 2vw, 0.7rem)',
                           wordBreak: 'break-word',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
+                          lineHeight: '1.2'
                         }}>
                           {racer.team}
                         </div>
@@ -1638,7 +1689,7 @@ function App() {
         fontSize: window.innerWidth < 768 ? '0.75rem' : '0.875rem',
         fontWeight: '500'
       }}>
-        © 2025 - Cyclisme Tomarea
+        Copyright © 2025 - Cyclisme Tomarea
       </footer>
     </div>
   );

@@ -383,6 +383,7 @@ export const useApiData = (dynamicDefaultCyclist) => {
           region: racer.region,
           team: racer.team || racer.club || 'N/A',
           bestPosition: racer.best_position,
+          averageTopPercentage: racer.average_top_percentage,
           formattedName: formatName(racer.first_name, racer.last_name),
           estimatedNumber: estimatedNumberMap[racer.db_uci_id || racer.uci_id] || '-',
           foundInDb: racer.found_in_db
