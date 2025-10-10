@@ -721,13 +721,31 @@ def research_entry_list():
                 search_results = db.search_cyclists(f"{first_name} {last_name}")
                 cyclist = search_results[0] if search_results else None
             
-            # Get best position if cyclist found
+            # Get best position and average top percentage if cyclist found
             best_position = None
+            average_top_percentage = None
             if cyclist:
                 history = db.get_cyclist_history(cyclist['uci_id'])
                 if history:
                     best_position = min(race['rank'] for race in history)
-            
+
+                    # Calculate average top percentage
+                    valid_percentages = []
+                    for race in history:
+                        rank = race.get('rank')
+                        participant_count = race.get('participant_count')
+                        if rank and participant_count and participant_count > 0:
+                            # Calculate percentage: (rank / participant_count) * 100
+                            # Ensure rank doesn't exceed participant count
+                            valid_rank = min(rank, participant_count)
+                            percentage = round((valid_rank / participant_count) * 100)
+                            # Ensure percentage is between 1 and 100
+                            percentage = max(1, min(100, percentage))
+                            valid_percentages.append(percentage)
+
+                    if valid_percentages:
+                        average_top_percentage = round(sum(valid_percentages) / len(valid_percentages))
+
             results.append({
                 'uci_id': uci_id,
                 'last_name': last_name,
@@ -738,6 +756,7 @@ def research_entry_list():
                 'team': team,
                 'found_in_db': cyclist is not None,
                 'best_position': best_position,
+                'average_top_percentage': average_top_percentage,
                 'total_races': cyclist['total_races'] if cyclist else 0,
                 'db_uci_id': cyclist['uci_id'] if cyclist else None
             })

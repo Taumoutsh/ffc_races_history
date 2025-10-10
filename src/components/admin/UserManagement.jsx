@@ -307,17 +307,20 @@ function UserManagement({ onClose }) {
               style={{
                 color: '#64748b',
                 background: 'linear-gradient(45deg, #28a745, #20c997)',
-                fontSize: '1.5rem',
+                fontSize: window.innerWidth < 768 ? '1.5rem' : '1rem',
                 border: '1px solid rgba(108, 117, 125, 0.3)',
                 borderRadius: '0.75rem',
                 cursor: 'pointer',
-                width: '3rem',
+                width: window.innerWidth < 768 ? '3rem' : 'auto',
                 height: '3rem',
+                padding: window.innerWidth < 768 ? '0' : '0 1.25rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                gap: window.innerWidth < 768 ? '0' : '0.5rem',
                 fontWeight: '700',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
               }}
               onMouseOver={(e) => {
                 e.target.style.transform = 'translateY(-2px)';
@@ -328,7 +331,7 @@ function UserManagement({ onClose }) {
                 e.target.style.boxShadow = '0 4px 15px rgba(40, 167, 69, 0.3)';
               }}
             >
-              <span style={{ fontSize: '1.5rem' }}>+</span>
+              <span style={{ fontSize: window.innerWidth < 768 ? '1.5rem' : '1.25rem' }}>+</span>
               {window.innerWidth >= 768 && <span>{t('admin.addUser') || 'Add User'}</span>}
             </button>
           )}
@@ -339,17 +342,20 @@ function UserManagement({ onClose }) {
               style={{
                 color: '#64748b',
                 background: 'linear-gradient(45deg, #28a745, #20c997)',
-                fontSize: '1.5rem',
+                fontSize: window.innerWidth < 768 ? '1.5rem' : '1rem',
                 border: '1px solid rgba(108, 117, 125, 0.3)',
                 borderRadius: '0.75rem',
                 cursor: 'pointer',
-                width: '3rem',
+                width: window.innerWidth < 768 ? '3rem' : 'auto',
                 height: '3rem',
+                padding: window.innerWidth < 768 ? '0' : '0 1.25rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                gap: window.innerWidth < 768 ? '0' : '0.5rem',
                 fontWeight: '700',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
               }}
               onMouseOver={(e) => {
                 e.target.style.transform = 'translateY(-2px)';
@@ -360,7 +366,7 @@ function UserManagement({ onClose }) {
                 e.target.style.boxShadow = '0 4px 15px rgba(40, 167, 69, 0.3)';
               }}
             >
-              <span style={{ fontSize: '1.5rem' }}>+</span>
+              <span style={{ fontSize: window.innerWidth < 768 ? '1.5rem' : '1.25rem' }}>+</span>
               {window.innerWidth >= 768 && <span>{t('admin.addMessage') || 'Add Message'}</span>}
             </button>
           )}

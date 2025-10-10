@@ -407,15 +407,6 @@ const ComparisonView = ({ data, onPointClick, cyclistName, defaultCyclistName, i
             ) : (
               // Table View
               <div>
-                <div style={{marginBottom: '1.5rem'}}>
-                  <h4 style={{fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', fontWeight: '700', marginBottom: '0.75rem', color: '#1f2937'}}>⚔️ {t('comparison.title')}</h4>
-                  {window.innerWidth >= 768 && (
-                    <p style={{fontSize: '1rem', color: '#64748b', marginBottom: '0.75rem', fontWeight: '600'}}>
-                      👆 {t('ui.clickHeadersToSort')} • 🖱️ {t('ui.clickRacesToViewLeaderboard')}
-                    </p>
-                  )}
-                </div>
-
                 <div style={{
                   borderRadius: '1rem', 
                   border: '1px solid rgba(59, 130, 246, 0.2)', 
